@@ -949,3 +949,12 @@ def test_mutations_are_rejected(mutate):
 - [adr/](adr/) — ADR-0004 (загрузка с проверкой ключа до тела), ADR-0005 (дедлайны и деградация), ADR-0006 (замороженный jury-контракт), ADR-0007 (опрос вместо SSE), ADR-0008 (отдельный `/api/ui`), ADR-0013 (публичный вход).
 - [`jury_job.schema.json`](../src/cashguard/contracts/schemas/jury_job.schema.json), [`jury_example.json`](../tests/fixtures/jury_example.json) — оракул и пример из ТЗ.
 - [case_analysis.md](../analysis/case_analysis.md) — §1 (критерии), §7 (проверенные нормы РК).
+
+## Интеграционная ветка: K1 (17.10.2026)
+
+`codex/fullstack-integration`: обработчики `/api/ui/*` возвращают согласованный
+`UiHttpError` для ошибок загрузки, авторизации, отсутствующих файлов, лимитов и
+внутренних сбоев. `Retry-After` совпадает с `retry_after_sec`; сообщения на русском,
+тексты исключений/пути не передаются. API жюри сохраняет прежнее тело `detail`.
+Разрыв отправки — `UPLOAD_ABORTED`, срок отправки — `UPLOAD_TIMEOUT`.
+Проверены 12 тестов реальных обработчиков ошибок и сквозная загрузка через браузер.

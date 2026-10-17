@@ -8,10 +8,12 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.gzip import GZipMiddleware
+from starlette.requests import ClientDisconnect
 from starlette.responses import FileResponse, JSONResponse
 from starlette.staticfiles import StaticFiles
 
 from cashguard.api.deps import key_digests
+from cashguard.api.errors import ui_error
 from cashguard.api.ratelimit import UiLimiter
 from cashguard.api.routes import admin, health, jury, ui
 from cashguard.api.sweeper import sweep
@@ -85,13 +87,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @application.exception_handler(StarletteHTTPException)
     async def http_error(request: Request, exc: StarletteHTTPException):
+        if request.url.path.startswith("/api/ui/"):
+            return ui_error(exc.status_code, exc.detail, exc.headers)
         return JSONResponse(
             {"detail": exc.detail}, status_code=exc.status_code, headers=exc.headers
         )
 
     @application.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exc: RequestValidationError):
+        if request.url.path.startswith("/api/ui/"):
+            return ui_error(422)
         return JSONResponse({"detail": "invalid request"}, status_code=422)
+
+    @application.exception_handler(ClientDisconnect)
+    async def disconnected(request: Request, exc: ClientDisconnect):
+        if request.url.path.startswith("/api/ui/"):
+            return ui_error(400)
+        return JSONResponse({"detail": "upload aborted"}, status_code=400)
 
     @application.exception_handler(Exception)
     async def internal_error(request: Request, exc: Exception):
@@ -99,6 +111,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         import logging
 
         logging.getLogger(__name__).error("request failed: %s", type(exc).__name__)
+        if request.url.path.startswith("/api/ui/"):
+            return ui_error(500)
         return JSONResponse(
             {"detail": "internal error"},
             status_code=500,
