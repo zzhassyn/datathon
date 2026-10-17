@@ -1,0 +1,13 @@
+{
+  "status": "pass",
+  "archive": "Forte_Review_Increment_v4_20261018.zip",
+  "bytes": 100643903,
+  "files": 580,
+  "checksums_verified": 579,
+  "crc": "pass",
+  "editor_records_preserved": 5940,
+  "editor_records_changed_only_by_added_review_fields": 46,
+  "human_verified": false,
+  "training_ready": false,
+  "sha256": "ba2d5ab3a3c69ac0ddaa39bf159c3eb7438cfe97b84a279a20b8e706cfbf12c4"
+}

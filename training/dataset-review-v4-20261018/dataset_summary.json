@@ -1,0 +1,51 @@
+{
+  "name": "Forte_Review_Increment_v4_20261018",
+  "kind": "review_increment_not_complete_training_release",
+  "base_v3_included": false,
+  "training_snapshot_modified": false,
+  "new_downloaded_files": 0,
+  "existing_object_photos": 59,
+  "new_box_proposal_images": 27,
+  "total_box_proposal_images": 40,
+  "deferred_object_images": 19,
+  "target_counts": {
+    "cash_counter": {
+      "train": 5
+    },
+    "stamp": {
+      "train": 16,
+      "val": 1,
+      "test": 2
+    },
+    "key": {
+      "train": 14,
+      "val": 2
+    }
+  },
+  "base_qwen_structurally_checked": 120,
+  "base_qwen_visually_rechecked": 24,
+  "new_qwen_candidates": 18,
+  "new_qwen_answer_counts": {
+    "yes": 6,
+    "no": 6,
+    "unclear": 6
+  },
+  "same_question_opposite_answer_pairs": 6,
+  "uncertainty_categories": 6,
+  "new_qwen_source_videos": 6,
+  "external_clips_prepared": 7,
+  "external_camera_ids": [
+    "G299",
+    "G301",
+    "G326",
+    "G330",
+    "G331",
+    "G421",
+    "G423"
+  ],
+  "new_independent_bank_scenes": 0,
+  "human_verified_records": 0,
+  "model_training_performed": false,
+  "ready_for_training": false,
+  "group_split_conflicts": 0
+}

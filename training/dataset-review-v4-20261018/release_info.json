@@ -1,0 +1,15 @@
+{
+  "repository": "zzhassyn/datathon",
+  "release_tag": "dataset-review-v4-20261018",
+  "asset_name": "Forte_Review_Increment_v4_20261018.zip",
+  "asset_url": "https://github.com/zzhassyn/datathon/releases/download/dataset-review-v4-20261018/Forte_Review_Increment_v4_20261018.zip",
+  "sha256": "ba2d5ab3a3c69ac0ddaa39bf159c3eb7438cfe97b84a279a20b8e706cfbf12c4",
+  "bytes": 100643903,
+  "files": 580,
+  "kind": "review_increment_not_complete_training_release",
+  "base_release": "open-annotated-v3-20261018",
+  "base_v3_included": false,
+  "human_verified": false,
+  "ready_for_training": false,
+  "training_executed": false
+}
