@@ -21,7 +21,10 @@ def readiness(request):
 
     def alive(role):
         return any(
-            w["role"] in {role, "all"} and now - w["alive_at"] < 10 and psutil.pid_exists(w["pid"])
+            w["role"] in {role, "all"}
+            and w["state"] in {"idle", "busy"}
+            and now - w["alive_at"] < 10
+            and psutil.pid_exists(w["pid"])
             for w in workers
         )
 

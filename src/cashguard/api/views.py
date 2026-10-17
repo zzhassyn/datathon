@@ -13,7 +13,7 @@ from pydantic import ValidationError
 from starlette.concurrency import run_in_threadpool
 from starlette.responses import FileResponse, JSONResponse
 
-from cashguard.contracts.ui import UiJobView
+from cashguard.contracts.ui import UiJobView, UiSignal, UiViolation
 from cashguard.core.atomic import atomic_write_json
 from cashguard.pipeline.ingest.probe import probe
 from cashguard.pipeline.render.jury import validate_jpeg, validate_jury
@@ -85,12 +85,13 @@ def validate_ui_fragment(fragment):
         raise ValueError("invalid ui verdict")
     if (fragment["verdict"] == "violation") != bool(fragment["violations"]):
         raise ValueError("invalid ui verdict")
-    for violation in fragment["violations"]:
-        if not isinstance(violation, dict) or not isinstance(violation.get("evidence"), list):
-            raise TypeError("invalid ui evidence")
-        for frame in violation["evidence"]:
-            if not isinstance(frame, dict) or not isinstance(frame.get("url"), str):
-                raise TypeError("invalid ui evidence url")
+    fragment["violations"] = [
+        UiViolation.model_validate(item).model_dump(mode="json") for item in fragment["violations"]
+    ]
+    fragment["signals"] = [
+        UiSignal.model_validate(item).model_dump(mode="json")
+        for item in fragment.get("signals", [])
+    ]
 
 
 async def jury_response(request: Request, job_id: str):
@@ -186,7 +187,8 @@ def ui_view(request: Request, job_id: str) -> dict:
             corrupt = True
     for violation in fragment.get("violations", []):
         violation["legal_note_ru"] = legal_note_ru(violation)
-        for frame in violation.get("evidence", []):
+    for event in [*fragment.get("violations", []), *fragment.get("signals", [])]:
+        for frame in event.get("evidence", []):
             frame["url"] = frame["url"].replace(f"/jobs/{job.id}/", f"/jobs/{job_id}/")
     preview = request.app.state.settings.paths.job_dir(job_id) / "preview.mp4"
     video = None
@@ -202,7 +204,11 @@ def ui_view(request: Request, job_id: str) -> dict:
             }
         except (OSError, ValueError):
             pass
-    stages = json.loads(job.stages_json)
+    try:
+        stages = json.loads(job.stages_json)
+        timings = json.loads(job.timings_json) or None
+    except (ValueError, TypeError):
+        stages, timings, corrupt = [], None, True
     if not stages:
         stages = [
             {
@@ -225,7 +231,7 @@ def ui_view(request: Request, job_id: str) -> dict:
         "elapsed_sec": round(max(0, (job.finished_at or time.time()) - original.received_at), 2),
         "queue_position": request.app.state.repo.queue_position(job_id),
         "eta_sec": None,
-        "perception_level": job.perception_level,
+        "perception_level": fragment.get("perception_level", job.perception_level),
         "result_level": job.result_level,
         "stages": stages,
         "degradations": (
@@ -237,12 +243,15 @@ def ui_view(request: Request, job_id: str) -> dict:
         "verdict": fragment.get("verdict"),
         "violations": fragment.get("violations", []),
         "signals": fragment.get("signals", []),
-        "timings": json.loads(job.timings_json) or None,
+        "timings": timings or fragment.get("timings"),
         "error": failure_ru(job, corrupt=corrupt) if status == "failed" else None,
     }
     if status != "done":
         view["verdict"] = None
-        view["violations"] = []
+    for event in view["violations"]:
+        event["provisional"] = status != "done"
+    if status == "failed":
+        view.update(violations=[], signals=[], provisional=False)
     try:
         return UiJobView.model_validate(view).model_dump(mode="json")
     except ValidationError:
@@ -253,6 +262,12 @@ def ui_view(request: Request, job_id: str) -> dict:
             verdict=None,
             violations=[],
             signals=[],
+            stages=[],
+            timings=None,
+            video=None,
+            provisional=False,
+            perception_level=None,
+            result_level=None,
             error={"code": "INTERNAL", "message_ru": "Результат не прошёл проверку формата."},
         )
         return UiJobView.model_validate(view).model_dump(mode="json")

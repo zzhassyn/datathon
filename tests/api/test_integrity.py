@@ -182,3 +182,81 @@ def test_corrupted_ui_result_returns_explicit_failed_view(
     assert result["verdict"] is None
     assert result["violations"] == []
     assert result["error"] is not None
+
+
+def test_provisional_events_and_signal_evidence_survive_restart_and_link(
+    client, app, synthetic, auth, settings, monkeypatch
+):
+    from fastapi.testclient import TestClient
+
+    from cashguard.api.main import create_app
+
+    canonical = upload(client, synthetic, auth, ui=True)
+    linked = upload(client, synthetic, auth, ui=True)
+    # Hold between durable provisional publication and final CAS.
+    monkeypatch.setattr("cashguard.jobs.repo.JobRepository.finalize", lambda *a, **kw: False)
+    assert PerceptionWorker(settings).run_once()
+    job = app.state.repo.get_job(canonical)
+    path = Path(job.ui_result_path)
+    data = json.loads(path.read_text())
+    data["signals"] = [
+        {
+            "id": "synthetic-signal",
+            "code": "SIG_TEST",
+            "title_ru": "Тестовый сигнал",
+            "t_sec": 1,
+            "description_ru": "Синтетическая проверка ссылки",
+            "evidence": data["violations"][0]["evidence"],
+        }
+    ]
+    path.write_text(json.dumps(data))
+    with TestClient(create_app(settings)) as restarted:
+        view = restarted.get(f"/api/ui/jobs/{linked}").json()
+        assert view["status"] == "running"
+        assert view["verdict"] is None and view["provisional"] is True
+        assert view["violations"][0]["provisional"] is True
+        for event in [*view["violations"], *view["signals"]]:
+            url = event["evidence"][0]["url"]
+            assert f"/jobs/{linked}/" in url
+            assert restarted.get(url).status_code == 200
+
+
+@pytest.mark.parametrize("corruption", ["signals", "stages", "timings"])
+def test_malformed_nested_result_is_failed_not_500(
+    client, app, synthetic, auth, settings, corruption
+):
+    job_id = upload(client, synthetic, auth, ui=True)
+    assert PerceptionWorker(settings).run_once()
+    if corruption == "signals":
+        path = Path(app.state.repo.get_job(job_id).ui_result_path)
+        data = json.loads(path.read_text())
+        data["signals"] = [None]
+        path.write_text(json.dumps(data))
+    else:
+        column = "stages_json" if corruption == "stages" else "timings_json"
+        app.state.repo.db.connect().execute(
+            f"UPDATE jobs SET {column}=? WHERE id=?", ('["invalid"]', job_id)
+        )
+    response = client.get(f"/api/ui/jobs/{job_id}")
+    assert response.status_code == 200
+    view = response.json()
+    assert view["status"] == "failed"
+    assert view["verdict"] is None and view["violations"] == []
+    assert view["error"]["code"] == "INTERNAL"
+
+
+@pytest.mark.parametrize(
+    "state,ready", [("warming", False), ("draining", False), ("idle", True), ("busy", True)]
+)
+def test_readiness_waits_for_active_worker(client, app, monkeypatch, state, ready):
+    import os
+
+    monkeypatch.setattr(
+        "cashguard.api.routes.health.psutil.virtual_memory",
+        lambda: SimpleNamespace(available=10**11),
+    )
+    monkeypatch.setattr(
+        "cashguard.api.routes.health.shutil.disk_usage", lambda _: SimpleNamespace(free=10**11)
+    )
+    app.state.repo.register_worker("readiness-test", "all", os.getpid(), state=state)
+    assert client.get("/ready").json()["ready"] is ready
