@@ -46,7 +46,10 @@ def test_complete_ui_and_jury_scenario(client, app, settings, tmp_path, verdict,
     validate_jury(jury.json(), duration_sec=2)
     assert jury.json() == client.get(f"/api/v1/jobs/{job_id}", headers=auth).json()
     if verdict == "violation":
-        frame = ui["violations"][0]["evidence"][0]
+        event = ui["violations"][0]
+        assert event["legal"] == []
+        assert event["legal_note_ru"].startswith("Синтетическое событие")
+        frame = event["evidence"][0]
         evidence = client.get(frame["url"])
         assert evidence.status_code == 200
         assert evidence.content[:3] == b"\xff\xd8\xff"
@@ -186,3 +189,30 @@ def test_ready_reports_stub_mode_honestly(client):
     report = client.get("/ready").json()
     assert report["pipeline_mode"] == "stub"
     assert report["checks"]["models_loaded"] is False
+
+
+def test_unlabeled_video_fails_with_plain_russian_error(client, settings, tmp_path):
+    synthetic = tmp_path / "unlabeled.mov"
+    make_synthetic_mov(synthetic, verdict="clean")
+    _strip_stub_marker(synthetic, tmp_path / "plain.mov")
+    job_id = upload(client, tmp_path / "plain.mov").json()["job_id"]
+    assert PerceptionWorker(settings).run_once()
+    ui = client.get(f"/api/ui/jobs/{job_id}").json()
+    UiJobView.model_validate(ui)
+    assert ui["status"] == "failed"
+    assert ui["verdict"] is None
+    assert "stub" not in ui["error"]["message_ru"]
+    assert "результат не выдаётся" in ui["error"]["message_ru"]
+
+
+def _strip_stub_marker(source: Path, target: Path) -> None:
+    import av
+
+    with av.open(str(source)) as src, av.open(str(target), "w", format="mov") as dst:
+        stream = src.streams.video[0]
+        out = dst.add_stream_from_template(stream)
+        for packet in src.demux(stream):
+            if packet.dts is None:
+                continue
+            packet.stream = out
+            dst.mux(packet)

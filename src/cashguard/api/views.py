@@ -146,6 +146,19 @@ def failure_ru(job, *, corrupt: bool) -> dict:
     return {"code": code, "message_ru": text}
 
 
+LEGAL_UNKNOWN_RU = "Нормативное основание для этого события не установлено."
+LEGAL_SYNTHETIC_RU = (
+    "Синтетическое событие демонстрационного режима: нормативное основание не применяется."
+)
+
+
+def legal_note_ru(violation: dict) -> str | None:
+    """Пустой ``legal`` никогда не уходит в UI молча: сервер прямо говорит, что основания нет."""
+    if violation.get("legal") or violation.get("legal_note_ru"):
+        return violation.get("legal_note_ru")
+    return LEGAL_SYNTHETIC_RU if violation.get("code") == "STUB_EVENT" else LEGAL_UNKNOWN_RU
+
+
 def ui_view(request: Request, job_id: str) -> dict:
     original, job = lookup(request, job_id, ui=True)
     fragment = {"verdict": None, "violations": [], "signals": []}
@@ -158,6 +171,7 @@ def ui_view(request: Request, job_id: str) -> dict:
         except (OSError, ValueError, TypeError):
             corrupt = True
     for violation in fragment.get("violations", []):
+        violation["legal_note_ru"] = legal_note_ru(violation)
         for frame in violation.get("evidence", []):
             frame["url"] = frame["url"].replace(f"/jobs/{job.id}/", f"/jobs/{job_id}/")
     metadata = original.metadata

@@ -60,7 +60,8 @@ def run_stub_analysis(
         marker = container.metadata.get("comment", "")
         if marker not in {"cg-stub:clean", "cg-stub:violation"}:
             raise StubInputError(
-                "Режим stub принимает только явно отмеченные синтетические сценарии"
+                "Демонстрационный режим без AI-моделей анализирует только подготовленные "
+                "тестовые ролики. Для этого видео результат не выдаётся."
             )
         scenario = marker.split(":", 1)[1]
         if not container.streams.video:
