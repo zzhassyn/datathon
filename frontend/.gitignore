@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env.local
+*.tsbuildinfo
+.DS_Store
+
+# Case media stays local; the repository stores source code only.
+/public/demo/case-*.mov
+/public/demo/case-*.mp4
+/public/demo/context-*.mp4
+/public/demo/frame-*.jpg
