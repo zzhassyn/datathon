@@ -4,6 +4,7 @@ import { ru } from "../../shared/i18n/ru";
 import { number, timecode } from "../../shared/lib/format";
 import { EvidenceStrip } from "../evidence/EvidenceStrip";
 import { LegalReference } from "./LegalReference";
+import { RuleExplanation } from "./RuleExplanation";
 export function ViolationCard({
   event,
   index,
@@ -50,6 +51,11 @@ export function ViolationCard({
             {ru.context}
             <span className="muted">{ru.contextDuration}</span>
           </button>
+          <RuleExplanation
+            explanation={event.explanation ?? null}
+            evidence={event.evidence}
+            onSeek={onSeek}
+          />
         </div>
         <div className="event-proof">
           <h4 className="eyebrow">{ru.evidence}</h4>

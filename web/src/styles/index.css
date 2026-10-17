@@ -1303,3 +1303,136 @@ h1[tabindex="-1"]:focus {
   font-size: 12px;
   margin-top: 16px;
 }
+
+.diagnostic-panel {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  margin-top: 20px;
+  overflow: hidden;
+  background: #111114;
+}
+.diagnostic-panel > summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding: 15px 17px;
+  cursor: pointer;
+  font-size: 13px;
+  list-style: none;
+}
+.diagnostic-panel > summary::-webkit-details-marker {
+  display: none;
+}
+.diagnostic-panel > summary::after {
+  content: "+";
+  margin-left: auto;
+  color: var(--muted);
+}
+.diagnostic-panel[open] > summary::after {
+  content: "−";
+}
+.diagnostic-panel[open] > summary {
+  border-bottom: 1px solid var(--line);
+}
+.diagnostic-summary-note {
+  color: var(--muted);
+  font-size: 11px;
+}
+.diagnostic-body {
+  padding: 16px 17px;
+  margin: 0;
+  font-size: 12px;
+}
+.diagnostic-body > .diagnostic-note {
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+.diagnostic-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.diagnostic-item {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 10px;
+}
+.diagnostic-item + .diagnostic-item {
+  border-top: 1px solid var(--line);
+  margin-top: 15px;
+  padding-top: 15px;
+}
+.diagnostic-item-head {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.diagnostic-item-head > span:first-child {
+  flex: 1 1 150px;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+.diagnostic-item p {
+  margin: 7px 0 10px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.diagnostic-icon {
+  margin-top: 3px;
+  color: var(--muted);
+}
+.condition-met .diagnostic-icon,
+.condition-met .diagnostic-status {
+  color: #91c9b4;
+}
+.condition-unknown .diagnostic-icon,
+.condition-unknown .diagnostic-status {
+  color: #e3c89c;
+}
+.diagnostic-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.diagnostic-actions:empty {
+  display: none;
+}
+.diagnostic-item button {
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+}
+.diagnostic-version {
+  margin: 18px 0 0;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.visibility-panel {
+  margin: 20px 0;
+}
+.visibility-dot {
+  width: 7px;
+  height: 7px;
+  margin: 7px 0 0 4px;
+  border-radius: 50%;
+  background: #85858c;
+}
+.visibility-visible .visibility-dot {
+  background: #91c9b4;
+}
+.visibility-limited .visibility-dot {
+  background: #e3c89c;
+}
+.diagnostic-time-missing {
+  font-size: 11px;
+}
+.rule-explanation .diagnostic-item-head {
+  display: block;
+}
+.rule-explanation .diagnostic-status {
+  margin-top: 6px;
+}
