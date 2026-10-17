@@ -239,11 +239,13 @@
         },
         "id": {
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Id",
           "type": "string"
         },
         "reason_ru": {
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Reason Ru",
           "type": "string"
         },
@@ -258,6 +260,7 @@
         },
         "text_ru": {
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Text Ru",
           "type": "string"
         }
@@ -284,6 +287,7 @@
         },
         "rule_version": {
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Rule Version",
           "type": "string"
         }
@@ -563,6 +567,7 @@
         },
         "method_version": {
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Method Version",
           "type": "string"
         }
@@ -592,11 +597,13 @@
         },
         "id": {
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Id",
           "type": "string"
         },
         "reason_ru": {
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Reason Ru",
           "type": "string"
         },
@@ -625,6 +632,7 @@
         },
         "target_ru": {
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Target Ru",
           "type": "string"
         }

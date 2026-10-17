@@ -9,14 +9,15 @@ from cashguard.contracts._base import Contract
 
 EvidenceIndex = Annotated[int, Field(ge=0, strict=True)]
 VideoTime = Annotated[float, Field(ge=0, allow_inf_nan=False, strict=True)]
+DiagnosticText = Annotated[str, Field(min_length=1, pattern=r"\S")]
 
 
 class RuleCondition(Contract):
-    id: str = Field(min_length=1)
-    text_ru: str = Field(min_length=1)
+    id: DiagnosticText
+    text_ru: DiagnosticText
     status: Literal["met", "not_met", "unknown"]
     """not_met — наблюдение опровергает условие. Отсутствие детекции означает unknown."""
-    reason_ru: str = Field(min_length=1)
+    reason_ru: DiagnosticText
     evidence_indices: list[EvidenceIndex] = Field(default_factory=list[EvidenceIndex])
     """Индексы кадров в evidence текущего события; время берётся из самого кадра."""
 
@@ -30,7 +31,7 @@ class RuleCondition(Contract):
 
 
 class RuleExplanation(Contract):
-    rule_version: str = Field(min_length=1)
+    rule_version: DiagnosticText
     conditions: list[RuleCondition] = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -45,11 +46,11 @@ class RuleExplanation(Contract):
 
 
 class VisibilityCheck(Contract):
-    id: str = Field(min_length=1)
-    target_ru: str = Field(min_length=1)
+    id: DiagnosticText
+    target_ru: DiagnosticText
     status: Literal["visible", "limited", "not_visible", "unknown"]
     """Возможность наблюдения объекта/зоны в интервале, не выполнение кассового правила."""
-    reason_ru: str = Field(min_length=1)
+    reason_ru: DiagnosticText
     start_sec: VideoTime | None = None
     end_sec: VideoTime | None = None
 
@@ -69,7 +70,7 @@ class VisibilityCheck(Contract):
 
 
 class VisibilityAssessment(Contract):
-    method_version: str = Field(min_length=1)
+    method_version: DiagnosticText
     checks: list[VisibilityCheck] = Field(min_length=1)
 
     @model_validator(mode="after")

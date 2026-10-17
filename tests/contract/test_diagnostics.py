@@ -114,3 +114,27 @@ def test_unknown_visibility_still_requires_valid_source_duration(duration):
     )
     with pytest.raises(ValueError):
         report.validate_duration(duration)
+
+
+@pytest.mark.parametrize("field", ["id", "text_ru", "reason_ru"])
+def test_condition_rejects_whitespace_only_text(field):
+    with pytest.raises(ValidationError):
+        RuleCondition.model_validate(condition(**{field: " \t\n"}))
+
+
+@pytest.mark.parametrize("field", ["id", "target_ru", "reason_ru"])
+def test_visibility_rejects_whitespace_only_text(field):
+    raw = {"id": "test", "target_ru": "Тест", "status": "unknown", "reason_ru": "Нет оценки"}
+    raw[field] = " \t\n"
+    with pytest.raises(ValidationError):
+        VisibilityCheck.model_validate(raw)
+
+
+def test_versions_are_nonblank_and_original_text_is_preserved():
+    check = VisibilityCheck(id="test", target_ru="Тест", status="unknown", reason_ru="Нет оценки")
+    with pytest.raises(ValidationError):
+        VisibilityAssessment(method_version=" \n", checks=[check])
+    item = RuleCondition.model_validate(condition(reason_ru="  Исходный текст  "))
+    assert item.reason_ru == "  Исходный текст  "
+    with pytest.raises(ValidationError):
+        RuleExplanation(rule_version=" \n", conditions=[item])
