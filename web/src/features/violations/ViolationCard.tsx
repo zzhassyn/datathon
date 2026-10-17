@@ -39,6 +39,7 @@ export function ViolationCard({
               <span className="badge">{ru.vlm[event.vlm_status] || event.vlm_status}</span>
             )}
           </div>
+          <h4 className="eyebrow">{ru.what}</h4>
           <p>{event.description_ru}</p>
           <button
             type="button"
@@ -49,6 +50,9 @@ export function ViolationCard({
             {ru.context}
             <span className="muted">{ru.contextDuration}</span>
           </button>
+        </div>
+        <div className="event-proof">
+          <h4 className="eyebrow">{ru.evidence}</h4>
           <EvidenceStrip items={event.evidence} title={event.title_ru} onSeek={onSeek} />
           <LegalReference items={event.legal} />
           {(event.code || event.confidence !== null) && (

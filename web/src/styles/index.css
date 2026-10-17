@@ -896,11 +896,11 @@ blockquote {
   padding-top: 18px;
   border-top: 1px solid var(--line);
 }
-.signals article > h3 {
+.signals :where(article) > h3 {
   display: inline;
   margin-right: 14px;
 }
-.signals article > p {
+.signals :where(article) > p {
   margin-top: 10px;
 }
 .job-page > .technical {
@@ -982,4 +982,310 @@ fieldset {
   left: auto;
   right: 0;
   transform: none;
+}
+
+/* Review workspace: one selected event, with video and queue always together. */
+.home-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr);
+  gap: 18px;
+  margin-top: 26px;
+}
+.home-workspace > .dropzone {
+  margin: 0;
+  min-height: 0;
+  gap: 13px;
+}
+.demo-camera {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #151518;
+}
+.camera-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 10px;
+  font-size: 12px;
+}
+.camera-heading > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.demo-camera video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0c1110;
+}
+.demo-camera > p {
+  padding: 12px 16px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.recent-empty {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: #141416;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 13px;
+}
+.recent-empty span {
+  font-size: 12px;
+}
+.review-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  align-items: stretch;
+  gap: 16px;
+}
+.review-workspace.without-sidebar {
+  grid-template-columns: minmax(0, 1fr);
+}
+.review-workspace > .player {
+  margin: 0;
+  min-width: 0;
+  align-self: start;
+}
+:where(.review-workspace) .video-stage {
+  height: auto;
+  aspect-ratio: 16 / 9;
+  min-height: 240px;
+}
+.review-sidebar {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #141416;
+  overflow: hidden;
+  min-width: 0;
+}
+.review-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.review-heading h2 {
+  font-size: 14px;
+}
+.event-queue {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 10px;
+  max-height: 390px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.event-choice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 10px;
+  gap: 12px;
+  text-align: left;
+  background: #19191d;
+  border-color: transparent;
+  width: 100%;
+}
+.event-choice.selected {
+  background: #2c1b25;
+  border-color: #873555;
+}
+.event-thumbnail {
+  position: relative;
+  width: 78px;
+  height: 70px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #0c0c0e;
+  color: #6e6870;
+}
+.event-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.event-thumbnail > span {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  font-size: 10px;
+  background: #0c0c0ee8;
+  color: #eeeef2;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+.event-choice-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  font-size: 10px;
+}
+.event-choice-copy strong {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.eyebrow {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+.review-empty {
+  padding: 28px 20px;
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  color: #b7b5bf;
+}
+.review-empty p {
+  font-size: 12px;
+  color: var(--muted);
+}
+.review-empty h3 {
+  font-size: 14px;
+}
+.video-facts {
+  border-top: 1px solid var(--line);
+  padding: 16px;
+  margin: auto 0 0;
+  display: grid;
+  gap: 10px;
+  font-size: 11px;
+}
+.video-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.video-facts dt {
+  color: var(--muted);
+}
+.video-facts dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+:where(.review-sidebar) .progress-panel {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 16px;
+  margin: 0;
+  background: transparent;
+}
+:where(.review-sidebar) .stages {
+  display: grid;
+  gap: 14px;
+}
+.review-sidebar .progress-panel .section-heading {
+  flex-wrap: wrap;
+  font-size: 10px;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.review-sidebar .progress-panel h2 {
+  font-size: 13px;
+}
+.timeline-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 10px;
+  color: var(--muted);
+  padding-top: 14px;
+}
+:where(.review-workspace) .timeline {
+  padding: 0 26px 16px;
+  background: #19191e;
+  border-radius: 0 0 10px 10px;
+}
+:where(.review-workspace) .timeline-track::before {
+  height: 6px;
+  top: 20px;
+  border-radius: 4px;
+  background: repeating-linear-gradient(90deg, #43434d 0, #43434d 1px, #2b2b32 1px, #2b2b32 5%);
+}
+:where(.review-workspace) .playhead {
+  height: 26px;
+  top: 9px;
+  z-index: 3;
+  box-shadow: 0 0 6px #fff4;
+}
+:where(.events) .event-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 30px;
+  padding: 24px;
+}
+.event-proof {
+  border-left: 1px solid var(--line);
+  padding-left: 24px;
+  min-width: 0;
+}
+:where(.event-proof) .evidence-grid {
+  margin-top: 12px;
+}
+:where(.event-proof) .evidence {
+  width: calc((100% - 20px) / 3);
+  min-width: 60px;
+  max-width: 160px;
+  height: 100px;
+}
+@media (max-width: 1050px) {
+  .review-workspace {
+    grid-template-columns: minmax(0, 1fr) 270px;
+  }
+  .home-workspace {
+    grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr);
+  }
+}
+@media (max-width: 820px) {
+  .home-workspace,
+  .review-workspace,
+  :where(.events) .event-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-workspace > .dropzone {
+    grid-row: 1;
+    min-height: 240px;
+  }
+  .event-queue {
+    max-height: 280px;
+  }
+  .event-proof {
+    border-left: 0;
+    padding-left: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 22px;
+  }
+  :where(.events) .event-content {
+    padding: 16px;
+  }
+  :where(.review-workspace) .video-stage {
+    min-height: 0;
+    width: 100%;
+  }
+  :where(.review-workspace) .video-facts {
+    margin-top: 12px;
+  }
+}
+
+h1[tabindex="-1"]:focus {
+  outline: none;
 }

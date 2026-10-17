@@ -45,6 +45,8 @@ it("queues a seek until the preview and metadata exist, then bounds context play
   video.currentTime = 5.05;
   fireEvent.timeUpdate(video);
   expect(video.pause).toHaveBeenCalledOnce();
+  act(() => ref.current?.seek(8));
+  expect(video.currentTime).toBe(8);
 });
 it("changing to server preview preserves the paused position", () => {
   const ref = createRef<PlayerHandle>();

@@ -2,11 +2,11 @@ import { Copy, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Marker } from "../features/player/markers";
 import { type PlayerHandle, VideoPlayer } from "../features/player/VideoPlayer";
-import { StageStepper } from "../features/progress/StageStepper";
 import { readRecent, saveRecent } from "../features/recent/recentStore";
 import { SignalList } from "../features/signals/SignalList";
 import { clearPreview, getPreview } from "../features/upload/previewStore";
 import { VerdictBanner } from "../features/verdict/VerdictBanner";
+import { EventQueue } from "../features/violations/EventQueue";
 import { ViolationCard } from "../features/violations/ViolationCard";
 import { HttpError } from "../shared/api/errors";
 import { active, useJob } from "../shared/api/queries";
@@ -18,10 +18,12 @@ import { Link } from "../shared/ui/Link";
 export function JobPage({ id }: { id: string }) {
   const q = useJob(id);
   const player = useRef<PlayerHandle>(null);
-  const [selected, setSelected] = useState<number | null>(null);
+  const [selected, setSelected] = useState(0);
   const [notice, setNotice] = useState("");
   const [localUrl] = useState(() => getPreview(id));
   const job = q.data;
+  const currentIndex = job && selected < job.violations.length ? selected : 0;
+  const currentEvent = job?.violations[currentIndex];
   useEffect(() => () => clearPreview(id), [id]);
   useEffect(() => {
     if (!job) return;
@@ -131,47 +133,92 @@ export function JobPage({ id }: { id: string }) {
                     <p>{job.error?.message_ru || ru.invalidResponse}</p>
                   </div>
                 ) : (
-                  <>
-                    <VerdictBanner job={job} />
-                    {active(job.status) && <StageStepper job={job} />}
-                  </>
+                  <VerdictBanner job={job} />
                 )}
                 {!active(job.status) && !["done", "failed"].includes(job.status) && (
                   <p className="error">
                     {ru.unknown}: {job.status}
                   </p>
                 )}
-                <VideoPlayer
-                  ref={player}
-                  serverUrl={job.video?.url || null}
-                  localUrl={localUrl}
-                  duration={job.video?.duration_sec || 0}
-                  markers={markers}
-                  finished={job.status === "done" || job.status === "failed"}
-                  onSelect={(m) => seek(m.time, false, m.signal ? undefined : m.index)}
-                />
+                <div
+                  className={`review-workspace ${job.status === "failed" ? "without-sidebar" : ""}`}
+                >
+                  <VideoPlayer
+                    ref={player}
+                    serverUrl={job.video?.url || null}
+                    localUrl={localUrl}
+                    duration={job.video?.duration_sec || 0}
+                    markers={markers}
+                    finished={job.status === "done" || job.status === "failed"}
+                    onSelect={(m) => seek(m.time, false, m.signal ? undefined : m.index)}
+                  />
+                  {job.status !== "failed" && (
+                    <EventQueue
+                      job={job}
+                      selected={currentIndex}
+                      onSelect={(index) => seek(job.violations[index].timecode_sec, false, index)}
+                    />
+                  )}
+                </div>
                 {job.status !== "failed" && (
                   <>
-                    <section className="events">
-                      <div className="section-heading">
-                        <h2>
-                          {ru.events} <span className="badge">{job.violations.length}</span>
-                        </h2>
-                        {job.provisional && <span className="badge">{ru.provisional}</span>}
-                      </div>
-                      <div className="event-list">
-                        {job.violations.map((event, i) => (
-                          <ViolationCard
-                            key={event.id || `${event.timecode_sec}-${event.title_ru}`}
-                            event={event}
-                            index={i}
-                            selected={selected === i}
-                            provisional={job.provisional}
-                            onSeek={(t, context) => seek(t, context, i)}
-                          />
-                        ))}
-                      </div>
-                    </section>
+                    {currentEvent && (
+                      <section
+                        className="events"
+                        id="selected-event"
+                        aria-label={ru.selectedMoment}
+                      >
+                        <div className="section-heading">
+                          <h2>
+                            {ru.selectedMoment}{" "}
+                            <span className="badge">
+                              {currentIndex + 1} {ru.of} {job.violations.length}
+                            </span>
+                          </h2>
+                          <div className="actions">
+                            <button
+                              type="button"
+                              className="quiet"
+                              disabled={currentIndex === 0}
+                              onClick={() =>
+                                seek(
+                                  job.violations[currentIndex - 1].timecode_sec,
+                                  false,
+                                  currentIndex - 1,
+                                )
+                              }
+                            >
+                              {ru.previousEvent}
+                            </button>
+                            <button
+                              type="button"
+                              className="quiet"
+                              disabled={currentIndex === job.violations.length - 1}
+                              onClick={() =>
+                                seek(
+                                  job.violations[currentIndex + 1].timecode_sec,
+                                  false,
+                                  currentIndex + 1,
+                                )
+                              }
+                            >
+                              {ru.nextEvent}
+                            </button>
+                          </div>
+                        </div>
+                        <ViolationCard
+                          key={
+                            currentEvent.id ||
+                            `${currentEvent.timecode_sec}-${currentEvent.title_ru}`
+                          }
+                          event={currentEvent}
+                          index={currentIndex}
+                          selected
+                          provisional={job.provisional}
+                          onSeek={(t, context) => seek(t, context, currentIndex)}
+                        />
+                      </section>
+                    )}
                     <SignalList items={job.signals} onSeek={(t) => seek(t)} />
                   </>
                 )}

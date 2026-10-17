@@ -56,7 +56,9 @@ export function VideoPlayer({
     }
     const d = Number.isFinite(v.duration) ? v.duration : knownDuration;
     const window = contextWindow(request.time, d);
-    v.currentTime = window.start;
+    v.currentTime = request.context
+      ? window.start
+      : Math.max(0, Math.min(request.time, d || request.time));
     clip.current = request.context ? window : null;
     setContext(request.context);
     setHint("");

@@ -25,6 +25,12 @@ export function EventTimeline({
   if (duration <= 0) return null;
   return (
     <fieldset className="timeline" ref={element} aria-label={ru.timeline}>
+      <div className="timeline-heading">
+        <span>{ru.timeline}</span>
+        <span className="mono">
+          {timecode(time)} / {timecode(duration)}
+        </span>
+      </div>
       <div className="timeline-track">
         <span className="playhead" style={{ left: `${markerPercent(time, duration)}%` }} />
         {clusterMarkers(markers, duration, width).map((group) => {
@@ -66,8 +72,9 @@ export function EventTimeline({
         })}
       </div>
       <div className="timeline-labels">
-        <span>{timecode(0)}</span>
-        <span>{timecode(duration)}</span>
+        {[0, 0.25, 0.5, 0.75, 1].map((fraction) => (
+          <span key={fraction}>{timecode(duration * fraction)}</span>
+        ))}
       </div>
     </fieldset>
   );

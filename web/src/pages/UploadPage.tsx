@@ -1,5 +1,6 @@
 import { FileVideo, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { DemoCamera } from "../features/player/DemoCamera";
 import { RecentJobs } from "../features/recent/RecentJobs";
 import { saveRecent } from "../features/recent/recentStore";
 import { setPreview } from "../features/upload/previewStore";
@@ -81,76 +82,79 @@ export function UploadPage() {
     <section className="page">
       <h1 tabIndex={-1}>{ru.uploadTitle}</h1>
       <p className="muted">{ru.emptyHint}</p>
-      <section
-        aria-label={ru.upload}
-        className={`dropzone ${drag ? "dragging" : ""}`}
-        onDragOver={(e) => {
-          e.preventDefault();
-          if (!busy) setDrag(true);
-        }}
-        onDragLeave={() => setDrag(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setDrag(false);
-          void start(Array.from(e.dataTransfer.files));
-        }}
-      >
-        {busy ? (
-          <>
-            <FileVideo size={28} />
-            <h2>{progress?.percent === 100 ? ru.saving : ru.uploading}</h2>
-            <span className="file-name">{selected.current?.name}</span>
-            <progress aria-label={ru.progress} max={100} value={progress?.percent ?? 0} />
-            <div className="upload-stats">
-              <span className="mono">{progress?.percent ?? 0}%</span>
-              {progress && (
-                <span>
-                  {megabytes(progress.loaded)} {ru.of} {megabytes(progress.total)} {ru.mb}
-                </span>
-              )}
-            </div>
-            {progress && progress.percent < 100 && (
-              <p>
-                {number(progress.bytesPerSecond / 1_000_000)} {ru.speed}
-                {progress.etaSec !== null &&
-                  ` · ${ru.remaining} ${number(progress.etaSec)} ${ru.seconds}`}
-              </p>
-            )}
-            <p>{ru.keepOpen}</p>
-            <button type="button" onClick={() => controller.current?.abort()}>
-              {ru.cancel}
-            </button>
-          </>
-        ) : (
-          <>
-            <Upload size={30} />
-            <h2>{ru.drop}</h2>
-            <p>{ru.formats}</p>
-            <button
-              className="primary"
-              type="button"
-              disabled={now < retryAt}
-              onClick={() => input.current?.click()}
-            >
-              <Upload size={16} />
-              {ru.choose}
-            </button>
-          </>
-        )}
-        <input
-          ref={input}
-          className="sr-only"
-          type="file"
-          aria-label={ru.choose}
-          accept=".mov,.mp4,video/quicktime,video/mp4"
-          disabled={busy || now < retryAt}
-          onChange={(e) => {
-            const files = Array.from(e.currentTarget.files || []);
-            e.currentTarget.value = "";
-            if (files.length) void start(files);
+      <div className="home-workspace">
+        <DemoCamera />
+        <section
+          aria-label={ru.upload}
+          className={`dropzone ${drag ? "dragging" : ""}`}
+          onDragOver={(e) => {
+            e.preventDefault();
+            if (!busy) setDrag(true);
           }}
-        />
-      </section>
+          onDragLeave={() => setDrag(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDrag(false);
+            void start(Array.from(e.dataTransfer.files));
+          }}
+        >
+          {busy ? (
+            <>
+              <FileVideo size={28} />
+              <h2>{progress?.percent === 100 ? ru.saving : ru.uploading}</h2>
+              <span className="file-name">{selected.current?.name}</span>
+              <progress aria-label={ru.progress} max={100} value={progress?.percent ?? 0} />
+              <div className="upload-stats">
+                <span className="mono">{progress?.percent ?? 0}%</span>
+                {progress && (
+                  <span>
+                    {megabytes(progress.loaded)} {ru.of} {megabytes(progress.total)} {ru.mb}
+                  </span>
+                )}
+              </div>
+              {progress && progress.percent < 100 && (
+                <p>
+                  {number(progress.bytesPerSecond / 1_000_000)} {ru.speed}
+                  {progress.etaSec !== null &&
+                    ` · ${ru.remaining} ${number(progress.etaSec)} ${ru.seconds}`}
+                </p>
+              )}
+              <p>{ru.keepOpen}</p>
+              <button type="button" onClick={() => controller.current?.abort()}>
+                {ru.cancel}
+              </button>
+            </>
+          ) : (
+            <>
+              <Upload size={30} />
+              <h2>{ru.drop}</h2>
+              <p>{ru.formats}</p>
+              <button
+                className="primary"
+                type="button"
+                disabled={now < retryAt}
+                onClick={() => input.current?.click()}
+              >
+                <Upload size={16} />
+                {ru.choose}
+              </button>
+            </>
+          )}
+          <input
+            ref={input}
+            className="sr-only"
+            type="file"
+            aria-label={ru.choose}
+            accept=".mov,.mp4,video/quicktime,video/mp4"
+            disabled={busy || now < retryAt}
+            onChange={(e) => {
+              const files = Array.from(e.currentTarget.files || []);
+              e.currentTarget.value = "";
+              if (files.length) void start(files);
+            }}
+          />
+        </section>
+      </div>
       {error && (
         <div className="error" role="alert">
           <p>{error.message}</p>

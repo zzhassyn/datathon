@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<title>Synthetic cash room illustration</title>
+<defs>
+ <linearGradient id="wall" x2="0" y2="1"><stop stop-color="#8e9c94"/><stop offset="1" stop-color="#65746f"/></linearGradient>
+ <linearGradient id="floor" x2="0.7" y2="1"><stop stop-color="#465b55"/><stop offset="1" stop-color="#263a36"/></linearGradient>
+ <linearGradient id="desk" x2="0" y2="1"><stop stop-color="#b4b8a6"/><stop offset="1" stop-color="#899584"/></linearGradient>
+ <linearGradient id="safe" x2="1" y2="1"><stop stop-color="#4a5a55"/><stop offset="1" stop-color="#293b35"/></linearGradient>
+ <linearGradient id="glass" x2="1" y2="1"><stop stop-color="#b1cec6" stop-opacity=".28"/><stop offset="1" stop-color="#608f80" stop-opacity=".03"/></linearGradient>
+ <radialGradient id="light"><stop stop-color="#e0f3da" stop-opacity=".25"/><stop offset="1" stop-color="#a6c1ae" stop-opacity="0"/></radialGradient>
+ <radialGradient id="vignette"><stop offset=".2" stop-color="#091b15" stop-opacity="0"/><stop offset="1" stop-color="#091b15" stop-opacity=".46"/></radialGradient>
+ <filter id="shadow" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="10"/></filter>
+ <filter id="smallShadow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#091c16" flood-opacity=".4"/></filter>
+ <pattern id="grain" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 6H6" stroke="#d8e8df" stroke-opacity=".025"/></pattern>
+</defs>
+<rect width="960" height="540" fill="#182b25"/>
+<!-- Architectural interior, drawn from an overhead CCTV position. -->
+<path d="M0 0H960V330L740 380L0 318Z" fill="url(#wall)"/>
+<path d="M0 308L960 303V540H0Z" fill="url(#floor)"/>
+<path d="M0 0H122L150 328L0 400Z" fill="#50665d"/>
+<path d="M0 308L150 328L960 303" fill="none" stroke="#c0cec1" stroke-opacity=".35" stroke-width="3"/>
+<path d="M0 329L152 348L960 321" fill="none" stroke="#142e24" stroke-opacity=".5" stroke-width="9"/>
+<path d="M146 351L253 540M404 339L441 540M650 330L620 540M884 320L804 540M0 428L960 393M0 524L960 479" stroke="#b9ccc0" stroke-opacity=".07"/>
+<ellipse cx="477" cy="220" rx="430" ry="270" fill="url(#light)"/>
+<!-- Long reflected ceiling light. -->
+<path d="M292 78L685 71L708 84L306 93Z" fill="#d7e3cc" opacity=".38"/>
+<path d="M311 79L680 74" stroke="#ecf1d8" opacity=".6" stroke-width="4"/>
+<!-- Back-wall service panel and clock. -->
+<rect x="484" y="131" width="159" height="73" rx="3" fill="#435c50" opacity=".55"/>
+<path d="M499 148H614M499 159H577M499 180H546" stroke="#b4cbb8" opacity=".35" stroke-width="3"/>
+<circle cx="714" cy="135" r="21" fill="#bac4b6" stroke="#52665b" stroke-width="4"/>
+<circle cx="714" cy="135" r="2" fill="#314e3d"/>
+<path d="M714 122V135L723 141" fill="none" stroke="#314e3d" stroke-width="2" stroke-linecap="round"/>
+<!-- Safe: intentionally slightly open, a synthetic scenario anchor. -->
+<ellipse cx="254" cy="372" rx="131" ry="30" fill="#0b2219" opacity=".5" filter="url(#shadow)"/>
+<path d="M159 137L288 130L323 151L319 340L187 357L158 334Z" fill="#223d31"/>
+<path d="M159 137L288 130L323 151L191 161Z" fill="#738379"/>
+<path d="M191 161L323 151L319 340L187 357Z" fill="url(#safe)" stroke="#1b3227" stroke-width="3"/>
+<path d="M208 179L305 172L302 325L205 338Z" fill="#101e19"/>
+<path d="M216 194L292 187L291 219L215 227ZM215 239L290 231L289 262L214 271ZM213 282L288 274L287 310L212 319Z" fill="#263b2e" stroke="#5b7660" stroke-opacity=".5"/>
+<path d="M207 178L254 190L252 347L204 337Z" fill="#657568" stroke="#a3afa0" stroke-opacity=".4" stroke-width="2"/>
+<path d="M215 187L245 195L244 333L212 327Z" fill="#4a6252"/>
+<ellipse cx="235" cy="252" rx="8" ry="10" fill="#a5b19f"/>
+<path d="M234 241V263M228 251L241 255" stroke="#3f5949" stroke-width="3"/>
+<rect x="220" y="211" width="16" height="12" rx="2" fill="#1d3829"/>
+<!-- Door and light strip. -->
+<path d="M774 113L890 119L889 330L771 345Z" fill="#243b30" stroke="#b3c1af" stroke-opacity=".35" stroke-width="6"/>
+<path d="M786 126L878 130L877 320L784 331Z" fill="#62786a"/>
+<path d="M795 137L868 140L868 219L795 223Z" fill="url(#glass)" stroke="#97b0a0" stroke-opacity=".25"/>
+<path d="M796 142L863 211M818 140L869 190" stroke="#ccdbcf" stroke-opacity=".13" stroke-width="10"/>
+<path d="M794 236L866 232L866 310L794 319Z" fill="#526d5b"/>
+<path d="M851 239V254" stroke="#d0d7c1" stroke-width="5" stroke-linecap="round"/>
+<rect x="755" y="212" width="9" height="23" rx="2" fill="#203d2d"/>
+<rect x="758" y="215" width="3" height="4" rx="1" fill="#96bd9d"/>
+<!-- Low cabinet on the far wall. -->
+<path d="M342 249L464 242L483 258L359 271Z" fill="#a6b09d"/>
+<path d="M359 271L483 258L481 317L358 331Z" fill="#6b806b"/>
+<path d="M419 265V325M373 282L402 279M435 275L463 272" stroke="#c0cbb5" stroke-opacity=".4" stroke-width="2"/>
+<!-- Work table, shadows, two chair backs. -->
+<ellipse cx="535" cy="424" rx="213" ry="49" fill="#0d231a" opacity=".55" filter="url(#shadow)"/>
+<path d="M430 337L439 451L457 454L458 342M662 319L660 427L677 427L689 318" fill="#354e3b"/>
+<path d="M362 303L639 271L724 327L439 369Z" fill="url(#desk)" stroke="#c8ceba" stroke-opacity=".35" stroke-width="2"/>
+<path d="M439 369L724 327L721 341L439 384L362 319V303Z" fill="#697e65"/>
+<path d="M439 369L724 327" stroke="#d5d9c7" stroke-opacity=".55"/>
+<!-- Laptop. -->
+<g filter="url(#smallShadow)"><path d="M505 296L572 288L596 316L526 326Z" fill="#293f34"/>
+<path d="M526 326L596 316L588 270L522 277Z" fill="#263b32" stroke="#a9b8a6" stroke-width="2"/>
+<path d="M531 317L587 309L581 280L529 285Z" fill="#7c9f8c"/>
+<path d="M536 307L579 301M535 300L564 296M534 293L576 288" stroke="#c2dac5" stroke-opacity=".4" stroke-width="2"/>
+<path d="M505 296L514 305L525 305" stroke="#a3b29e" stroke-width="2" fill="none"/></g>
+<!-- Cash bundles, notebook and bag are diagrammatic props. -->
+<path d="M446 316L482 311L497 321L460 327Z" fill="#3f6a4b" stroke="#bbccaa"/>
+<path d="M446 312L482 307L497 317L460 323Z" fill="#9db391" stroke="#cee0c0"/>
+<path d="M458 310L473 320M465 309L480 319" stroke="#d9cfab" stroke-width="4"/>
+<path d="M470 337L505 332L519 342L483 348Z" fill="#728c65" stroke="#b6c9a5"/>
+<path d="M484 335L498 345" stroke="#d6c8a3" stroke-width="6"/>
+<path d="M609 305L643 301L660 313L625 318Z" fill="#c5c8b0" stroke="#e4e6d3" stroke-opacity=".6"/>
+<path d="M616 307L638 304M621 311L647 307" stroke="#6e816c" opacity=".6"/>
+<path d="M650 322Q645 297 667 297Q694 294 700 313L707 332L665 340Z" fill="#344b3a" stroke="#7d957a" stroke-width="2"/>
+<path d="M664 304Q663 284 675 284Q689 284 689 301" fill="none" stroke="#263d2e" stroke-width="5"/>
+<!-- Faceless staff silhouettes, deliberately geometric and non-biometric. -->
+<path d="M380 374Q372 336 397 328L421 332Q444 344 432 378L416 396L387 394Z" fill="#233d32"/>
+<path d="M383 345L370 318L380 313L401 337M422 341L441 319L449 325L434 359" fill="none" stroke="#7c927e" stroke-width="13" stroke-linecap="round"/>
+<ellipse cx="405" cy="324" rx="17" ry="19" fill="#9baa91"/>
+<ellipse cx="403" cy="318" rx="17" ry="13" fill="#485f4e"/>
+<path d="M380 385Q407 373 435 386L431 416L386 422Z" fill="#19382b" stroke="#72907a" stroke-width="2"/>
+<path d="M559 417Q555 383 576 374L601 378Q624 390 621 422L600 437L571 433Z" fill="#5c7261"/>
+<ellipse cx="588" cy="373" rx="17" ry="19" fill="#aab69b"/>
+<ellipse cx="587" cy="367" rx="17" ry="13" fill="#334e3d"/>
+<path d="M565 394L548 364M615 398L636 367" fill="none" stroke="#83977f" stroke-width="13" stroke-linecap="round"/>
+<path d="M554 424Q590 410 627 427L621 461L560 465Z" fill="#203c2d" stroke="#7e9780" stroke-width="2"/>
+<!-- Camera treatment and metadata. -->
+<rect width="960" height="540" fill="url(#vignette)"/>
+<rect width="960" height="540" fill="url(#grain)"/>
+<path d="M31 66V31H66M894 31H929V66M929 474V509H894M66 509H31V474" fill="none" stroke="#dbe8db" stroke-opacity=".35" stroke-width="1.5"/>
+<rect x="45" y="43" width="269" height="29" rx="5" fill="#0c2118" opacity=".82"/>
+<circle cx="59" cy="57" r="3" fill="#cddfc8"/>
+<text x="71" y="61" font-family="Arial, sans-serif" font-size="10" letter-spacing="1.25" fill="#c3d4c4">SYNTHETIC DEMO · CAMERA 01</text>
+<text x="916" y="57" text-anchor="end" font-family="Arial, sans-serif" font-size="10" letter-spacing="1.5" fill="#d1dec9">LOCAL / DEMO</text>
+<rect x="45" y="472" width="183" height="25" rx="4" fill="#0c2118" opacity=".8"/>
+<text x="57" y="489" font-family="Arial, sans-serif" font-size="10" letter-spacing="1.1" fill="#c3d4c4">ILLUSTRATED CASH ROOM</text>
+<text x="912" y="489" text-anchor="end" font-family="monospace" font-size="11" fill="#d1dec9">00:00:00</text>
+</svg>

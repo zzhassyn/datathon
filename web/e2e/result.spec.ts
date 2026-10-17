@@ -85,7 +85,8 @@ test("documented fixture: multiple events, four-second context, sources and stop
     return route.fulfill({ json: fixture });
   });
   await page.goto(`/?job=${id}`);
-  await expect(page.locator(".event-card")).toHaveCount(2);
+  await expect(page.locator(".event-choice")).toHaveCount(2);
+  await expect(page.locator(".event-card")).toHaveCount(1);
   await expect(page.locator(".event-count")).toHaveText("2");
   await page.locator(".context-button").first().click();
   const video = page.locator("video");
@@ -100,16 +101,35 @@ test("documented fixture: multiple events, four-second context, sources and stop
     "rel",
     "noopener noreferrer",
   );
+  await page.getByRole("button", { name: "Следующее", exact: true }).click();
+  await expect(page.locator(".event-card h3")).toHaveText("Синтетическое событие 2");
+  await expect(page.locator(".event-choice").nth(1)).toHaveAttribute("aria-pressed", "true");
+  await expect
+    .poll(() => video.evaluate((v: HTMLVideoElement) => v.currentTime))
+    .toBeGreaterThanOrEqual(8);
+  await page.getByRole("button", { name: "Предыдущее", exact: true }).click();
+  await expect(page.locator(".event-card h3")).toHaveText("Синтетическое событие 1");
+  await video.evaluate((v: HTMLVideoElement) => v.pause());
+  await page.locator(".legal-list summary").first().click();
   expect(polls).toBe(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("result.png"), fullPage: true });
   await page.reload();
-  await expect(page.locator(".event-card")).toHaveCount(2);
+  await expect(page.locator(".event-choice")).toHaveCount(2);
+  await expect(page.locator(".event-card")).toHaveCount(1);
   expect(polls).toBe(2);
 });
 test("mobile layout, navigation and empty catalog", async ({ page }, testInfo) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Проверка видео" })).toBeVisible();
+  await expect(
+    page.getByText("Синтетическая запись · реальная камера не подключена"),
+  ).toBeVisible();
+  await expect(page.locator(".event-card")).toHaveCount(0);
+  const demo = page.locator(".demo-camera video");
+  await demo.evaluate((v: HTMLVideoElement) => v.play());
+  await expect.poll(() => demo.evaluate((v: HTMLVideoElement) => v.currentTime)).toBeGreaterThan(0);
+  await demo.evaluate((v: HTMLVideoElement) => v.pause());
   await page.screenshot({ path: testInfo.outputPath("upload.png"), fullPage: true });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.getByRole("link", { name: "Типы и нормы", exact: true }).click();
