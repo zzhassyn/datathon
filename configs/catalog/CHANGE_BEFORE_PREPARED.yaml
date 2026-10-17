@@ -1,0 +1,17 @@
+# CHANGE_BEFORE_PREPARED — запись каталога v0 (P0-S0-05).
+# Источник: docs/violation_catalog.md, раздел 3.1; нормы и сила — docs/legal_sources.md, раздел 9.
+# title_ru — строка type для жюри, после сдачи не меняется. Шаблон, факты и вопрос VLM правит владелец кода, нормы — S5.
+code: CHANGE_BEFORE_PREPARED
+title_ru: "Размен номиналов до выдачи подготовленной суммы"
+group: cashops
+verdict_impact: false
+timecode_policy: event  # начало обмена
+# Описание = шаблон (str.format_map по фактам правила) + правовая фраза, которую добавляет pipeline/legal/describe.py.
+template_ru: "В {t_exchange} с, до передачи клиенту подготовленной суммы, кассир начинает размен: клиент отдаёт наличные и получает другие купюры."
+required_facts: [t_exchange]
+vlm_question_ru: "Кассир меняет клиенту купюры до того, как выдала ему подготовленную сумму?"
+pdf_items: [20]
+owner: S5
+# Нормы нет в analysis/case_analysis.md, раздел 7: код не влияет на вердикт, пока человек не внесёт туда ПКО п. 34
+# (docs/legal_sources.md, раздел 9). После этого — сила direct и verdict_impact: true.
+legal: []

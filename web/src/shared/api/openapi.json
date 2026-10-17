@@ -1,331 +1,1298 @@
 {
-  "openapi": "3.1.0",
-  "info": {
-    "title": "CashGuard",
-    "version": "0.1.0-stub"
-  },
-  "paths": {
-    "/api/v1/analyze": {
-      "post": {
-        "summary": "Analyze",
-        "operationId": "analyze_api_v1_analyze_post",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                },
-                "type": "object",
-                "required": [
-                  "file"
-                ]
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "APIKeyHeader": []
-          }
-        ]
-      }
-    },
-    "/api/v1/jobs/{job_id}": {
-      "get": {
-        "summary": "Get Job",
-        "operationId": "get_job_api_v1_jobs__job_id__get",
-        "security": [
-          {
-            "APIKeyHeader": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "job_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Job Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/status": {
-      "get": {
-        "summary": "Status",
-        "operationId": "status_api_v1_admin_status_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "APIKeyHeader": []
-          }
-        ]
-      }
-    },
-    "/api/ui/session": {
-      "post": {
-        "summary": "Session",
-        "operationId": "session_api_ui_session_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ui/jobs": {
-      "post": {
-        "summary": "Create Job",
-        "operationId": "create_job_api_ui_jobs_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ui/jobs/{job_id}": {
-      "get": {
-        "summary": "Get Job",
-        "operationId": "get_job_api_ui_jobs__job_id__get",
-        "parameters": [
-          {
-            "name": "job_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Job Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ui/jobs/{job_id}/video.mp4": {
-      "get": {
-        "summary": "Video",
-        "operationId": "video_api_ui_jobs__job_id__video_mp4_get",
-        "parameters": [
-          {
-            "name": "job_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Job Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ui/jobs/{job_id}/frames/{name}": {
-      "get": {
-        "summary": "Frame",
-        "operationId": "frame_api_ui_jobs__job_id__frames__name__get",
-        "parameters": [
-          {
-            "name": "job_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Job Id"
-            }
-          },
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Name"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ui/catalog": {
-      "get": {
-        "summary": "Catalog",
-        "operationId": "catalog_api_ui_catalog_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/health": {
-      "get": {
-        "summary": "Health",
-        "operationId": "health_health_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/ready": {
-      "get": {
-        "summary": "Ready",
-        "operationId": "ready_ready_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    }
-  },
   "components": {
     "schemas": {
+      "ActCode": {
+        "enum": [
+          "PKO",
+          "POP",
+          "POO",
+          "TIB"
+        ],
+        "title": "ActCode",
+        "type": "string"
+      },
+      "ActEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "act_code": {
+            "$ref": "#/components/schemas/ActCode"
+          },
+          "adilet_id": {
+            "title": "Adilet Id",
+            "type": "string"
+          },
+          "cite_ru": {
+            "minLength": 1,
+            "title": "Cite Ru",
+            "type": "string"
+          },
+          "date": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "title": "Date",
+            "type": "string"
+          },
+          "issuer": {
+            "title": "Issuer",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "string"
+          },
+          "registration_no": {
+            "title": "Registration No",
+            "type": "string"
+          },
+          "scope_note_ru": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope Note Ru"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ActStatus"
+          },
+          "title_ru": {
+            "minLength": 1,
+            "title": "Title Ru",
+            "type": "string"
+          },
+          "url": {
+            "pattern": "^https://adilet\\.zan\\.kz/",
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "act_code",
+          "title_ru",
+          "cite_ru",
+          "issuer",
+          "number",
+          "date",
+          "registration_no",
+          "adilet_id",
+          "url",
+          "status"
+        ],
+        "title": "ActEntry",
+        "type": "object"
+      },
+      "ActStatus": {
+        "enum": [
+          "in_force",
+          "repealed"
+        ],
+        "title": "ActStatus",
+        "type": "string"
+      },
+      "AdminStatus": {
+        "additionalProperties": false,
+        "description": "``GET /api/v1/admin/status`` (только ключ команды).",
+        "properties": {
+          "disk_free_gb": {
+            "title": "Disk Free Gb",
+            "type": "number"
+          },
+          "memory": {
+            "$ref": "#/components/schemas/MemoryStatus"
+          },
+          "models": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ModelRef"
+            },
+            "title": "Models",
+            "type": "object"
+          },
+          "queue": {
+            "$ref": "#/components/schemas/QueueDepth"
+          },
+          "recent_jobs": {
+            "items": {
+              "$ref": "#/components/schemas/RecentJob"
+            },
+            "title": "Recent Jobs",
+            "type": "array"
+          },
+          "tunnel_ready": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tunnel Ready"
+          },
+          "versions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Versions",
+            "type": "object"
+          },
+          "workers": {
+            "items": {
+              "$ref": "#/components/schemas/WorkerStatus"
+            },
+            "title": "Workers",
+            "type": "array"
+          }
+        },
+        "required": [
+          "versions",
+          "models",
+          "queue",
+          "workers",
+          "recent_jobs",
+          "memory",
+          "disk_free_gb"
+        ],
+        "title": "AdminStatus",
+        "type": "object"
+      },
+      "AnalyzeAccepted": {
+        "additionalProperties": false,
+        "description": "Ответ ``POST /api/v1/analyze`` и ``POST /api/ui/jobs``.",
+        "properties": {
+          "job_id": {
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "title": "AnalyzeAccepted",
+        "type": "object"
+      },
+      "EvidenceKind": {
+        "enum": [
+          "event",
+          "zoom",
+          "context"
+        ],
+        "title": "EvidenceKind",
+        "type": "string"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
             "items": {
               "$ref": "#/components/schemas/ValidationError"
             },
-            "type": "array",
-            "title": "Detail"
+            "title": "Detail",
+            "type": "array"
           }
         },
-        "type": "object",
-        "title": "HTTPValidationError"
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "JobStatus": {
+        "enum": [
+          "queued",
+          "running",
+          "done",
+          "failed"
+        ],
+        "title": "JobStatus",
+        "type": "string"
+      },
+      "JuryEvidenceFrame": {
+        "additionalProperties": false,
+        "description": "Кадр-доказательство: сырой JPEG в base64 без префикса ``data:``.",
+        "properties": {
+          "image_base64": {
+            "minLength": 1,
+            "pattern": "^/9j/",
+            "title": "Image Base64",
+            "type": "string"
+          },
+          "timestamp_sec": {
+            "minimum": 0.0,
+            "title": "Timestamp Sec",
+            "type": "number"
+          }
+        },
+        "required": [
+          "timestamp_sec",
+          "image_base64"
+        ],
+        "title": "JuryEvidenceFrame",
+        "type": "object"
+      },
+      "JuryJobResponse": {
+        "additionalProperties": false,
+        "description": "Ответ ``GET /api/v1/jobs/{job_id}``. Ровно четыре ключа верхнего уровня.",
+        "properties": {
+          "job_id": {
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "processing",
+              "done",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "enum": [
+                  "violation",
+                  "no_violation"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verdict"
+          },
+          "violations": {
+            "items": {
+              "$ref": "#/components/schemas/JuryViolation"
+            },
+            "title": "Violations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "job_id",
+          "status",
+          "verdict",
+          "violations"
+        ],
+        "title": "JuryJobResponse",
+        "type": "object"
+      },
+      "JuryViolation": {
+        "additionalProperties": false,
+        "description": "Одно нарушение в ответе жюри. ``type`` — ``CatalogEntry.title_ru``.",
+        "properties": {
+          "description": {
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "evidence_frames": {
+            "items": {
+              "$ref": "#/components/schemas/JuryEvidenceFrame"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Evidence Frames",
+            "type": "array"
+          },
+          "timecode_sec": {
+            "minimum": 0.0,
+            "title": "Timecode Sec",
+            "type": "number"
+          },
+          "type": {
+            "minLength": 1,
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "timecode_sec",
+          "description",
+          "evidence_frames"
+        ],
+        "title": "JuryViolation",
+        "type": "object"
+      },
+      "LegalStrength": {
+        "enum": [
+          "direct",
+          "indirect",
+          "none"
+        ],
+        "title": "LegalStrength",
+        "type": "string"
+      },
+      "LiveReport": {
+        "additionalProperties": false,
+        "description": "``GET /health``: процесс API жив. Без I/O.",
+        "properties": {
+          "status": {
+            "const": "ok",
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "LiveReport",
+        "type": "object"
+      },
+      "MemoryStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "available_gb": {
+            "title": "Available Gb",
+            "type": "number"
+          },
+          "mlx_active_gb": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mlx Active Gb"
+          },
+          "mlx_peak_gb": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mlx Peak Gb"
+          }
+        },
+        "required": [
+          "available_gb"
+        ],
+        "title": "MemoryStatus",
+        "type": "object"
+      },
+      "ModelRef": {
+        "additionalProperties": false,
+        "properties": {
+          "sha256": {
+            "title": "Sha256",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "sha256"
+        ],
+        "title": "ModelRef",
+        "type": "object"
+      },
+      "PerceptionLevel": {
+        "enum": [
+          "full",
+          "fast",
+          "min"
+        ],
+        "title": "PerceptionLevel",
+        "type": "string"
+      },
+      "QueueDepth": {
+        "additionalProperties": false,
+        "properties": {
+          "perception": {
+            "minimum": 0.0,
+            "title": "Perception",
+            "type": "integer"
+          },
+          "vlm": {
+            "minimum": 0.0,
+            "title": "Vlm",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "perception",
+          "vlm"
+        ],
+        "title": "QueueDepth",
+        "type": "object"
+      },
+      "ReadyChecks": {
+        "additionalProperties": false,
+        "properties": {
+          "disk_ok": {
+            "title": "Disk Ok",
+            "type": "boolean"
+          },
+          "free_mem_ok": {
+            "title": "Free Mem Ok",
+            "type": "boolean"
+          },
+          "models_loaded": {
+            "title": "Models Loaded",
+            "type": "boolean"
+          },
+          "queue_ok": {
+            "title": "Queue Ok",
+            "type": "boolean"
+          },
+          "warmup_done": {
+            "title": "Warmup Done",
+            "type": "boolean"
+          },
+          "worker_perception": {
+            "title": "Worker Perception",
+            "type": "boolean"
+          },
+          "worker_vlm": {
+            "title": "Worker Vlm",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "worker_perception",
+          "worker_vlm",
+          "models_loaded",
+          "warmup_done",
+          "free_mem_ok",
+          "disk_ok",
+          "queue_ok"
+        ],
+        "title": "ReadyChecks",
+        "type": "object"
+      },
+      "ReadyReport": {
+        "additionalProperties": false,
+        "description": "``GET /ready``: воркеры, модели, память, диск и очередь в порядке.",
+        "properties": {
+          "checks": {
+            "$ref": "#/components/schemas/ReadyChecks"
+          },
+          "pipeline_mode": {
+            "enum": [
+              "stub",
+              "replay",
+              "full"
+            ],
+            "title": "Pipeline Mode",
+            "type": "string"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "vlm_quant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlm Quant"
+          }
+        },
+        "required": [
+          "ready",
+          "checks",
+          "pipeline_mode",
+          "version"
+        ],
+        "title": "ReadyReport",
+        "type": "object"
+      },
+      "RecentJob": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "n": {
+            "minimum": 0.0,
+            "title": "N",
+            "type": "integer"
+          },
+          "perception_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perception Level"
+          },
+          "result_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Level"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "timings": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Timings",
+            "type": "object"
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verdict"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "status",
+          "n"
+        ],
+        "title": "RecentJob",
+        "type": "object"
+      },
+      "ResultLevel": {
+        "enum": [
+          "full",
+          "partial",
+          "rules"
+        ],
+        "title": "ResultLevel",
+        "type": "string"
+      },
+      "SignalCode": {
+        "description": "Сигналы (B2): видны проверяющему в интерфейсе, на вердикт не влияют.",
+        "enum": [
+          "SIG_SEAL_NOT_INSPECTED",
+          "SIG_BAG_OPENED_WITHOUT_COLLECTOR",
+          "SIG_RECOUNT_WITHOUT_SECOND_EMPLOYEE",
+          "SIG_STAFF_CASH_TRANSFER",
+          "SIG_DOC_NOT_HANDED",
+          "SIG_REJECT_TRAY_TO_CLIENT",
+          "SIG_NO_SIGNATURE_SEEN",
+          "SIG_NO_STAMP_SEEN",
+          "SIG_MULTI_DOC_SINGLE_RECOUNT",
+          "SIG_SAFE_CLOSED_WITHOUT_COUNT",
+          "SIG_SAFE_WITHOUT_PC",
+          "SIG_CASH_TO_STAFF",
+          "SIG_CAMERA_OBSTRUCTED"
+        ],
+        "title": "SignalCode",
+        "type": "string"
+      },
+      "StageCode": {
+        "enum": [
+          "queued",
+          "probe",
+          "perception",
+          "rules",
+          "evidence",
+          "vlm",
+          "done"
+        ],
+        "title": "StageCode",
+        "type": "string"
+      },
+      "StageState": {
+        "additionalProperties": false,
+        "description": "Стадия обработки для интерфейса.",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/StageCode"
+          },
+          "elapsed_sec": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elapsed Sec"
+          },
+          "note_ru": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note Ru"
+          },
+          "progress": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Progress",
+            "type": "number"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StageStatus"
+          }
+        },
+        "required": [
+          "code",
+          "status",
+          "progress"
+        ],
+        "title": "StageState",
+        "type": "object"
+      },
+      "StageStatus": {
+        "enum": [
+          "pending",
+          "running",
+          "done",
+          "skipped",
+          "failed"
+        ],
+        "title": "StageStatus",
+        "type": "string"
+      },
+      "UiCatalog": {
+        "additionalProperties": false,
+        "description": "``GET /api/ui/catalog``: типы, сигналы и акты. ETag = ``config_hash``.",
+        "properties": {
+          "acts": {
+            "items": {
+              "$ref": "#/components/schemas/ActEntry"
+            },
+            "title": "Acts",
+            "type": "array"
+          },
+          "config_hash": {
+            "title": "Config Hash",
+            "type": "string"
+          },
+          "signals": {
+            "items": {
+              "$ref": "#/components/schemas/UiCatalogSignal"
+            },
+            "title": "Signals",
+            "type": "array"
+          },
+          "types": {
+            "items": {
+              "$ref": "#/components/schemas/UiCatalogType"
+            },
+            "title": "Types",
+            "type": "array"
+          }
+        },
+        "required": [
+          "config_hash",
+          "types",
+          "signals",
+          "acts"
+        ],
+        "title": "UiCatalog",
+        "type": "object"
+      },
+      "UiCatalogSignal": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/SignalCode"
+          },
+          "title_ru": {
+            "title": "Title Ru",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "title_ru"
+        ],
+        "title": "UiCatalogSignal",
+        "type": "object"
+      },
+      "UiCatalogType": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/ViolationCode"
+          },
+          "group": {
+            "$ref": "#/components/schemas/ViolationGroup"
+          },
+          "legal": {
+            "items": {
+              "$ref": "#/components/schemas/UiLegalRef"
+            },
+            "title": "Legal",
+            "type": "array"
+          },
+          "title_ru": {
+            "title": "Title Ru",
+            "type": "string"
+          },
+          "verdict_impact": {
+            "title": "Verdict Impact",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "title_ru",
+          "group",
+          "verdict_impact",
+          "legal"
+        ],
+        "title": "UiCatalogType",
+        "type": "object"
+      },
+      "UiDegradation": {
+        "additionalProperties": false,
+        "properties": {
+          "reason_ru": {
+            "title": "Reason Ru",
+            "type": "string"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stage",
+          "reason_ru"
+        ],
+        "title": "UiDegradation",
+        "type": "object"
+      },
+      "UiError": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "message_ru": {
+            "title": "Message Ru",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message_ru"
+        ],
+        "title": "UiError",
+        "type": "object"
+      },
+      "UiEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "height": {
+            "exclusiveMinimum": 0.0,
+            "title": "Height",
+            "type": "integer"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/EvidenceKind"
+          },
+          "timestamp_sec": {
+            "minimum": 0.0,
+            "title": "Timestamp Sec",
+            "type": "number"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "width": {
+            "exclusiveMinimum": 0.0,
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "timestamp_sec",
+          "url",
+          "kind",
+          "width",
+          "height"
+        ],
+        "title": "UiEvidence",
+        "type": "object"
+      },
+      "UiHttpError": {
+        "additionalProperties": false,
+        "description": "Тело любого ответа 4xx/5xx на ``/api/ui/*``. ``message_ru`` можно показывать как есть.\n\nAPI жюри (``/api/v1/*``) этим телом не отвечает: его ошибки описаны в ``docs/api.md``, 3.4.",
+        "properties": {
+          "code": {
+            "enum": [
+              "FILE_TOO_LARGE",
+              "UNSUPPORTED_MEDIA",
+              "INVALID_REQUEST",
+              "UPLOAD_TIMEOUT",
+              "UPLOAD_ABORTED",
+              "RATE_LIMITED",
+              "INSUFFICIENT_STORAGE",
+              "NOT_FOUND",
+              "UNAUTHORIZED",
+              "INTERNAL"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "message_ru": {
+            "minLength": 1,
+            "title": "Message Ru",
+            "type": "string"
+          },
+          "retry_after_sec": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry After Sec"
+          }
+        },
+        "required": [
+          "code",
+          "message_ru"
+        ],
+        "title": "UiHttpError",
+        "type": "object"
+      },
+      "UiJobView": {
+        "additionalProperties": false,
+        "description": "``GET /api/ui/jobs/{job_id}``. Интерфейс опрашивает раз в секунду, пока задача не готова.",
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "degradations": {
+            "items": {
+              "$ref": "#/components/schemas/UiDegradation"
+            },
+            "title": "Degradations",
+            "type": "array"
+          },
+          "elapsed_sec": {
+            "minimum": 0.0,
+            "title": "Elapsed Sec",
+            "type": "number"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UiError"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eta_sec": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta Sec"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "perception_level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PerceptionLevel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pipeline_mode": {
+            "enum": [
+              "stub",
+              "replay",
+              "full"
+            ],
+            "title": "Pipeline Mode",
+            "type": "string"
+          },
+          "provisional": {
+            "default": false,
+            "title": "Provisional",
+            "type": "boolean"
+          },
+          "queue_position": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queue Position"
+          },
+          "result_level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResultLevel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "signals": {
+            "items": {
+              "$ref": "#/components/schemas/UiSignal"
+            },
+            "title": "Signals",
+            "type": "array"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageState"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus"
+          },
+          "timings": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timings"
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "enum": [
+                  "violation",
+                  "no_violation"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verdict"
+          },
+          "video": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UiVideo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "violations": {
+            "items": {
+              "$ref": "#/components/schemas/UiViolation"
+            },
+            "title": "Violations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "job_id",
+          "status",
+          "pipeline_mode",
+          "created_at",
+          "elapsed_sec",
+          "stages"
+        ],
+        "title": "UiJobView",
+        "type": "object"
+      },
+      "UiLegalRef": {
+        "additionalProperties": false,
+        "properties": {
+          "act_code": {
+            "title": "Act Code",
+            "type": "string"
+          },
+          "act_title_ru": {
+            "title": "Act Title Ru",
+            "type": "string"
+          },
+          "clause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clause"
+          },
+          "note_ru": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note Ru"
+          },
+          "quote_ru": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Ru"
+          },
+          "strength": {
+            "$ref": "#/components/schemas/LegalStrength"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "act_code",
+          "act_title_ru",
+          "url",
+          "strength"
+        ],
+        "title": "UiLegalRef",
+        "type": "object"
+      },
+      "UiSignal": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "description_ru": {
+            "title": "Description Ru",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/UiEvidence"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "t_sec": {
+            "minimum": 0.0,
+            "title": "T Sec",
+            "type": "number"
+          },
+          "title_ru": {
+            "title": "Title Ru",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "title_ru",
+          "t_sec",
+          "description_ru"
+        ],
+        "title": "UiSignal",
+        "type": "object"
+      },
+      "UiVideo": {
+        "additionalProperties": false,
+        "properties": {
+          "duration_sec": {
+            "minimum": 0.0,
+            "title": "Duration Sec",
+            "type": "number"
+          },
+          "height": {
+            "exclusiveMinimum": 0.0,
+            "title": "Height",
+            "type": "integer"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "width": {
+            "exclusiveMinimum": 0.0,
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "url",
+          "duration_sec",
+          "width",
+          "height"
+        ],
+        "title": "UiVideo",
+        "type": "object"
+      },
+      "UiViolation": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "confidence": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "description_ru": {
+            "title": "Description Ru",
+            "type": "string"
+          },
+          "end_sec": {
+            "minimum": 0.0,
+            "title": "End Sec",
+            "type": "number"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/UiEvidence"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "legal": {
+            "items": {
+              "$ref": "#/components/schemas/UiLegalRef"
+            },
+            "title": "Legal",
+            "type": "array"
+          },
+          "legal_note_ru": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legal Note Ru"
+          },
+          "provisional": {
+            "title": "Provisional",
+            "type": "boolean"
+          },
+          "start_sec": {
+            "minimum": 0.0,
+            "title": "Start Sec",
+            "type": "number"
+          },
+          "timecode_sec": {
+            "minimum": 0.0,
+            "title": "Timecode Sec",
+            "type": "number"
+          },
+          "title_ru": {
+            "title": "Title Ru",
+            "type": "string"
+          },
+          "vlm_status": {
+            "$ref": "#/components/schemas/VlmStatus"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "title_ru",
+          "timecode_sec",
+          "start_sec",
+          "end_sec",
+          "confidence",
+          "vlm_status",
+          "provisional",
+          "description_ru",
+          "legal",
+          "evidence"
+        ],
+        "title": "UiViolation",
+        "type": "object"
       },
       "ValidationError": {
         "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
           "loc": {
             "items": {
               "anyOf": [
@@ -337,39 +1304,748 @@
                 }
               ]
             },
-            "type": "array",
-            "title": "Location"
+            "title": "Location",
+            "type": "array"
           },
           "msg": {
-            "type": "string",
-            "title": "Message"
+            "title": "Message",
+            "type": "string"
           },
           "type": {
-            "type": "string",
-            "title": "Error Type"
-          },
-          "input": {
-            "title": "Input"
-          },
-          "ctx": {
-            "type": "object",
-            "title": "Context"
+            "title": "Error Type",
+            "type": "string"
           }
         },
-        "type": "object",
         "required": [
           "loc",
           "msg",
           "type"
         ],
-        "title": "ValidationError"
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "ViolationCode": {
+        "description": "Коды, влияющие на вердикт: 17 из датасета (группа A), 8 видимых новых (B1) и прочее.",
+        "enum": [
+          "CASH_WITHHELD",
+          "NO_CLIENT_ID",
+          "PREV_CASH_ON_DESK",
+          "MIXED_CLIENT_CASH",
+          "RECOUNT_WITHOUT_CLIENT",
+          "NO_AUTH_CHECK",
+          "VALUABLES_LEFT",
+          "SAFE_OPEN",
+          "SAFE_KEY_LEFT",
+          "PC_UNLOCKED",
+          "DOOR_NOT_CLOSED",
+          "OUTSIDER_IN_CASH_ROOM",
+          "THIRD_PERSON_DURING_SERVICE",
+          "COLLECTOR_NOT_VERIFIED",
+          "BAG_CASH_NO_RECOUNT",
+          "PERSONAL_ITEMS",
+          "FOOD_DRINK",
+          "PHONE_CASHIER",
+          "LEFT_DURING_SERVICE",
+          "PAYOUT_WITHOUT_RECOUNT",
+          "CHANGE_BEFORE_PREPARED",
+          "STORAGE_UNESCORTED",
+          "CASH_CONCEALED",
+          "CASH_TRANSFER_OUTSIDE_OP",
+          "UNATTENDED_PRESENCE",
+          "OTHER_VISIBLE_IRREGULARITY"
+        ],
+        "title": "ViolationCode",
+        "type": "string"
+      },
+      "ViolationGroup": {
+        "enum": [
+          "leave",
+          "access",
+          "cashops",
+          "collection",
+          "discipline",
+          "presence",
+          "other"
+        ],
+        "title": "ViolationGroup",
+        "type": "string"
+      },
+      "VlmStatus": {
+        "enum": [
+          "confirmed",
+          "downweighted",
+          "unverified",
+          "skipped"
+        ],
+        "title": "VlmStatus",
+        "type": "string"
+      },
+      "WorkerStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "mlx_active_mb": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mlx Active Mb"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "pid": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pid"
+          },
+          "quant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quant"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "rss_mb": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rss Mb"
+          },
+          "state": {
+            "enum": [
+              "warming",
+              "idle",
+              "busy",
+              "draining",
+              "dead"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "role",
+          "state"
+        ],
+        "title": "WorkerStatus",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "CashGuard API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/ui/catalog": {
+      "get": {
+        "operationId": "ui_catalog_api_ui_catalog_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiCatalog"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Внутренняя ошибка (INTERNAL)"
+          }
+        },
+        "summary": "Ui Catalog",
+        "tags": [
+          "ui"
+        ]
       }
     },
-    "securitySchemes": {
-      "APIKeyHeader": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-API-Key"
+    "/api/ui/jobs": {
+      "post": {
+        "operationId": "ui_create_job_api_ui_jobs_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeAccepted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Клиент оборвал загрузку (UPLOAD_ABORTED); ответ обычно уже некому прочитать"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Файл больше лимита (FILE_TOO_LARGE)"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Содержимое не читается как видео (UNSUPPORTED_MEDIA)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нет поля file или запрос неверен (INVALID_REQUEST); истёк срок загрузки (UPLOAD_TIMEOUT)"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Лимит загрузок (RATE_LIMITED), заголовок Retry-After"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Внутренняя ошибка (INTERNAL)"
+          },
+          "507": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "На сервере мало места (INSUFFICIENT_STORAGE)"
+          }
+        },
+        "summary": "Загрузить видео из интерфейса",
+        "tags": [
+          "ui"
+        ]
+      }
+    },
+    "/api/ui/jobs/{job_id}": {
+      "get": {
+        "operationId": "ui_get_job_api_ui_jobs__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiJobView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Задание или файл не найдены (NOT_FOUND)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Внутренняя ошибка (INTERNAL)"
+          }
+        },
+        "summary": "Ui Get Job",
+        "tags": [
+          "ui"
+        ]
+      }
+    },
+    "/api/ui/jobs/{job_id}/frames/{name}": {
+      "get": {
+        "operationId": "ui_frame_api_ui_jobs__job_id__frames__name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "title": "Name",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/jpeg": {}
+            },
+            "description": "JPEG-кадр"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Задание или файл не найдены (NOT_FOUND)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Внутренняя ошибка (INTERNAL)"
+          }
+        },
+        "summary": "Ui Frame",
+        "tags": [
+          "ui"
+        ]
+      }
+    },
+    "/api/ui/jobs/{job_id}/video.mp4": {
+      "get": {
+        "operationId": "ui_video_api_ui_jobs__job_id__video_mp4_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "video/mp4": {}
+            },
+            "description": "Предпросмотр H.264 (faststart, Range)"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Задание или файл не найдены (NOT_FOUND)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Внутренняя ошибка (INTERNAL)"
+          }
+        },
+        "summary": "Ui Video",
+        "tags": [
+          "ui"
+        ]
+      }
+    },
+    "/api/v1/admin/status": {
+      "get": {
+        "operationId": "admin_status_api_v1_admin_status_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-API-Key",
+            "required": true,
+            "schema": {
+              "title": "X-Api-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Статус сервиса (только ключ команды)",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/analyze": {
+      "post": {
+        "operationId": "analyze_api_v1_analyze_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-API-Key",
+            "required": true,
+            "schema": {
+              "title": "X-Api-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeAccepted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Загрузить видео (.mov) на анализ",
+        "tags": [
+          "jury"
+        ]
+      }
+    },
+    "/api/v1/jobs/{job_id}": {
+      "get": {
+        "operationId": "get_job_api_v1_jobs__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-API-Key",
+            "required": true,
+            "schema": {
+              "title": "X-Api-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JuryJobResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Статус и результат анализа",
+        "tags": [
+          "jury"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadyReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Ready",
+        "tags": [
+          "health"
+        ]
       }
     }
   }

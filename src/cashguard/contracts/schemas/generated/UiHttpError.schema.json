@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "description": "Тело любого ответа 4xx/5xx на ``/api/ui/*``. ``message_ru`` можно показывать как есть.\n\nAPI жюри (``/api/v1/*``) этим телом не отвечает: его ошибки описаны в ``docs/api.md``, 3.4.",
+  "properties": {
+    "code": {
+      "enum": [
+        "FILE_TOO_LARGE",
+        "UNSUPPORTED_MEDIA",
+        "INVALID_REQUEST",
+        "UPLOAD_TIMEOUT",
+        "UPLOAD_ABORTED",
+        "RATE_LIMITED",
+        "INSUFFICIENT_STORAGE",
+        "NOT_FOUND",
+        "UNAUTHORIZED",
+        "INTERNAL"
+      ],
+      "title": "Code",
+      "type": "string"
+    },
+    "message_ru": {
+      "minLength": 1,
+      "title": "Message Ru",
+      "type": "string"
+    },
+    "retry_after_sec": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Retry After Sec"
+    }
+  },
+  "required": [
+    "code",
+    "message_ru"
+  ],
+  "title": "UiHttpError",
+  "type": "object"
+}

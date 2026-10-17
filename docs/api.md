@@ -527,7 +527,20 @@ $job.violations | Select-Object type, timecode_sec, @{ n = "frames"; e = { $_.ev
 
 - Multipart, поле `file`. Клиент заранее проверяет `.mov`/`.mp4` и размер ≤ 100 МБ и показывает ошибки по-русски. Сервер проверяет по содержимому, как в jury API.
 - Ответ `200 {"job_id": "<32 hex>"}` (та же модель `AnalyzeAccepted`).
-- Ошибки: `413`, `415`, `422`, `507` (как в разделе 3.4) и `429` с `Retry-After`.
+- Ошибки: те же случаи, что в разделе 3.4, но тело — `UiHttpError` (`contracts/ui.py`): `{"code", "message_ru", "retry_after_sec"}`. `message_ru` готов к показу пользователю. Так отвечает любой маршрут `/api/ui/*`; API жюри сохраняет свои тела `{"detail"}`.
+
+  | HTTP | `code` | Когда |
+  |---|---|---|
+  | 413 | `FILE_TOO_LARGE` | `Content-Length` или фактический поток больше `CG_MAX_UPLOAD_MB` |
+  | 415 | `UNSUPPORTED_MEDIA` | PyAV не открывает контейнер или в нём нет видеодорожки |
+  | 422 | `INVALID_REQUEST` | нет поля `file`, лишние части, тело не multipart |
+  | 422 | `UPLOAD_TIMEOUT` | загрузка не уложилась в `CG_UPLOAD_TIMEOUT_SEC` |
+  | 429 | `RATE_LIMITED` | лимит профиля; `retry_after_sec` равен заголовку `Retry-After` |
+  | 507 | `INSUFFICIENT_STORAGE` | на диске меньше `CG_MIN_FREE_DISK_GB` или закончилось место при записи |
+  | 400 | `UPLOAD_ABORTED` | клиент оборвал загрузку (`xhr.abort()`, закрытая вкладка) |
+  | 404, 401, 500 | `NOT_FOUND`, `UNAUTHORIZED`, `INTERNAL` | как у остальных маршрутов UI |
+
+- Отмена загрузки: клиент вызывает `xhr.abort()`. Сервер видит обрыв потока, удаляет `input.part` и папку задания, задание не создаётся, попытка не расходует лимит загрузок по IP. Если обрыв пришёлся после `COMMIT`, задание уже принято и будет обработано; клиент о нём не узнает, а сервер удалит его по сроку хранения. Отмены принятого задания в v1 нет (FAQ 27: истории и управления заданиями не нужно).
 - После `COMMIT` API в потоке делает remux в `preview.mp4` с `+faststart`, без перекодирования (≤ 0,3 с, оценка). HEVC или повёрнутое видео помечаются `needs_transcode`, и тогда перцепционный воркер перекодирует его через `h264_videotoolbox`.
 - Загрузка в браузере идёт через XHR (у `fetch()` нет прогресса отправки).
 
@@ -643,6 +656,22 @@ $job.violations | Select-Object type, timecode_sec, @{ n = "frames"; e = { $_.ev
 SSE — опциональное улучшение P3 за флагом `CG_UI_SSE=1` и только за named tunnel: quick tunnel Cloudflare SSE не поддерживает. Протокол: сначала `event: snapshot` с `UiJobView`, затем события `stage`, `provisional`, `done|failed`, пинги раз в 15 с, `retry: 3000`. Клиент откатывается на опрос раз в 1 с, если snapshot не пришёл за 4 с или было 2 `onerror`. В v1 маршрута нет: AGENTS.md запрещает SSE и WebSockets.
 
 ---
+
+## 6.9. Эталонные ответы UI (K0)
+
+Общий договор frontend и backend — файлы `tests/fixtures/ui/*.json`. Frontend верстает по ним, backend отдаёт ровно такую форму. Файлы генерирует `uv run python scripts/gen_ui_examples.py` из контракта `UiJobView` и настоящего каталога (названия типов и нормы не придумываются), контрактный тест `tests/contract/test_ui_examples.py` проверяет их.
+
+| Файл | Состояние |
+|---|---|
+| `01_queued.json` | задание ожидает в очереди (`queue_position`, `eta_sec`) |
+| `02_running.json` | задание обрабатывается: этапы, прогресс, ссылка на видео |
+| `03_done_clean.json` | завершено без нарушений; сигнал для проверяющего не влияет на вердикт |
+| `04_done_violations.json` | завершено, три события с временем, описанием, кадрами и нормами |
+| `05_done_partial.json` | обработано частично: `result_level=rules`, деградации, основание не установлено (`legal_note_ru`) |
+| `06_failed.json` | ошибка с понятным текстом `error.message_ru` |
+| `07_stub_demo.json` | демонстрационный режим `pipeline_mode=stub`: интерфейс обязан показать это явно |
+
+Обязательные поля для интерфейса: `status`, `pipeline_mode`, `stages` (этап, если известен), `video` (метаданные и URL), `verdict`, `violations[]` (`title_ru`, `timecode_sec`, `description_ru`, `evidence[].url`, `legal[]`, `legal_note_ru`), `degradations`, `result_level`, `error`. Ключ jury API во frontend не встраивается.
 
 ## 7. Статика и документация API
 
@@ -784,7 +813,7 @@ from jsonschema import Draft202012Validator
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = ROOT / "src/cashguard/contracts/schemas/jury_job.schema.json"
 FIXTURE = ROOT / "tests/fixtures/jury_example.json"
-FROZEN_SHA256 = "25a1085c79b6529ba8d242122a6e0513368488bdb98905ab399a233adeb7498c"
+FROZEN_SHA256 = "908120fee6d4d4654a69f1109d052dc94ee7b3d0c6f1ac5797f4d8f86a1ff79f"  # с minLength у description, 17.10.2026
 
 
 def _load(p: Path):

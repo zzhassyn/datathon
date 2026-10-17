@@ -1,0 +1,557 @@
+{
+  "$defs": {
+    "ActCode": {
+      "enum": [
+        "PKO",
+        "POP",
+        "POO",
+        "TIB"
+      ],
+      "title": "ActCode",
+      "type": "string"
+    },
+    "AnalysisVersions": {
+      "additionalProperties": false,
+      "properties": {
+        "config_hash": {
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "git_sha": {
+          "title": "Git Sha",
+          "type": "string"
+        },
+        "models_hash": {
+          "title": "Models Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "git_sha",
+        "models_hash",
+        "config_hash"
+      ],
+      "title": "AnalysisVersions",
+      "type": "object"
+    },
+    "Degradation": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "$ref": "#/$defs/DegradationReason"
+        },
+        "stage": {
+          "$ref": "#/$defs/JobStage"
+        }
+      },
+      "required": [
+        "stage",
+        "reason"
+      ],
+      "title": "Degradation",
+      "type": "object"
+    },
+    "DegradationReason": {
+      "enum": [
+        "vlm_deadline",
+        "vlm_memory",
+        "vlm_crash",
+        "vlm_backlog",
+        "vlm_disabled",
+        "perception_fast",
+        "perception_min",
+        "deadline_finalize"
+      ],
+      "title": "DegradationReason",
+      "type": "string"
+    },
+    "EvidenceImage": {
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "title": "File",
+          "type": "string"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/EvidenceKind"
+        },
+        "timestamp_sec": {
+          "minimum": 0,
+          "title": "Timestamp Sec",
+          "type": "number"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "timestamp_sec",
+        "file",
+        "width",
+        "height"
+      ],
+      "title": "EvidenceImage",
+      "type": "object"
+    },
+    "EvidenceKind": {
+      "enum": [
+        "event",
+        "zoom",
+        "context"
+      ],
+      "title": "EvidenceKind",
+      "type": "string"
+    },
+    "JobStage": {
+      "enum": [
+        "perception",
+        "vlm",
+        "final"
+      ],
+      "title": "JobStage",
+      "type": "string"
+    },
+    "LegalRef": {
+      "additionalProperties": false,
+      "description": "Ссылка на норму. ``quote_ru`` дословно присутствует в ``analysis/normative/*.txt``.",
+      "properties": {
+        "act_code": {
+          "$ref": "#/$defs/ActCode"
+        },
+        "act_title_ru": {
+          "minLength": 1,
+          "title": "Act Title Ru",
+          "type": "string"
+        },
+        "applies_if": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Applies If"
+        },
+        "clause": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clause"
+        },
+        "note_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note Ru"
+        },
+        "quote_ru": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Ru"
+        },
+        "strength": {
+          "$ref": "#/$defs/LegalStrength"
+        },
+        "url": {
+          "pattern": "^https://adilet\\.zan\\.kz/",
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "act_code",
+        "act_title_ru",
+        "url",
+        "strength"
+      ],
+      "title": "LegalRef",
+      "type": "object"
+    },
+    "LegalStrength": {
+      "enum": [
+        "direct",
+        "indirect",
+        "none"
+      ],
+      "title": "LegalStrength",
+      "type": "string"
+    },
+    "PerceptionLevel": {
+      "enum": [
+        "full",
+        "fast",
+        "min"
+      ],
+      "title": "PerceptionLevel",
+      "type": "string"
+    },
+    "ResultLevel": {
+      "enum": [
+        "full",
+        "partial",
+        "rules"
+      ],
+      "title": "ResultLevel",
+      "type": "string"
+    },
+    "SignalCode": {
+      "description": "Сигналы (B2): видны проверяющему в интерфейсе, на вердикт не влияют.",
+      "enum": [
+        "SIG_SEAL_NOT_INSPECTED",
+        "SIG_BAG_OPENED_WITHOUT_COLLECTOR",
+        "SIG_RECOUNT_WITHOUT_SECOND_EMPLOYEE",
+        "SIG_STAFF_CASH_TRANSFER",
+        "SIG_DOC_NOT_HANDED",
+        "SIG_REJECT_TRAY_TO_CLIENT",
+        "SIG_NO_SIGNATURE_SEEN",
+        "SIG_NO_STAMP_SEEN",
+        "SIG_MULTI_DOC_SINGLE_RECOUNT",
+        "SIG_SAFE_CLOSED_WITHOUT_COUNT",
+        "SIG_SAFE_WITHOUT_PC",
+        "SIG_CASH_TO_STAFF",
+        "SIG_CAMERA_OBSTRUCTED"
+      ],
+      "title": "SignalCode",
+      "type": "string"
+    },
+    "SignalFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/SignalCode"
+        },
+        "description_ru": {
+          "title": "Description Ru",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceImage"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "t_sec": {
+          "minimum": 0,
+          "title": "T Sec",
+          "type": "number"
+        },
+        "title_ru": {
+          "title": "Title Ru",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "title_ru",
+        "t_sec",
+        "description_ru"
+      ],
+      "title": "SignalFinding",
+      "type": "object"
+    },
+    "VideoMeta": {
+      "additionalProperties": false,
+      "properties": {
+        "codec": {
+          "title": "Codec",
+          "type": "string"
+        },
+        "duration_sec": {
+          "minimum": 0,
+          "title": "Duration Sec",
+          "type": "number"
+        },
+        "fps_avg": {
+          "exclusiveMinimum": 0,
+          "title": "Fps Avg",
+          "type": "number"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        },
+        "is_vfr": {
+          "title": "Is Vfr",
+          "type": "boolean"
+        },
+        "pix_fmt": {
+          "title": "Pix Fmt",
+          "type": "string"
+        },
+        "rotation_deg": {
+          "default": 0,
+          "title": "Rotation Deg",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "start_pts_sec": {
+          "title": "Start Pts Sec",
+          "type": "number"
+        },
+        "time_base": {
+          "title": "Time Base",
+          "type": "string"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "duration_sec",
+        "width",
+        "height",
+        "fps_avg",
+        "is_vfr",
+        "codec",
+        "pix_fmt",
+        "start_pts_sec",
+        "time_base",
+        "sha256"
+      ],
+      "title": "VideoMeta",
+      "type": "object"
+    },
+    "ViolationCode": {
+      "description": "Коды, влияющие на вердикт: 17 из датасета (группа A), 8 видимых новых (B1) и прочее.",
+      "enum": [
+        "CASH_WITHHELD",
+        "NO_CLIENT_ID",
+        "PREV_CASH_ON_DESK",
+        "MIXED_CLIENT_CASH",
+        "RECOUNT_WITHOUT_CLIENT",
+        "NO_AUTH_CHECK",
+        "VALUABLES_LEFT",
+        "SAFE_OPEN",
+        "SAFE_KEY_LEFT",
+        "PC_UNLOCKED",
+        "DOOR_NOT_CLOSED",
+        "OUTSIDER_IN_CASH_ROOM",
+        "THIRD_PERSON_DURING_SERVICE",
+        "COLLECTOR_NOT_VERIFIED",
+        "BAG_CASH_NO_RECOUNT",
+        "PERSONAL_ITEMS",
+        "FOOD_DRINK",
+        "PHONE_CASHIER",
+        "LEFT_DURING_SERVICE",
+        "PAYOUT_WITHOUT_RECOUNT",
+        "CHANGE_BEFORE_PREPARED",
+        "STORAGE_UNESCORTED",
+        "CASH_CONCEALED",
+        "CASH_TRANSFER_OUTSIDE_OP",
+        "UNATTENDED_PRESENCE",
+        "OTHER_VISIBLE_IRREGULARITY"
+      ],
+      "title": "ViolationCode",
+      "type": "string"
+    },
+    "ViolationFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ViolationCode"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "description_ru": {
+          "minLength": 1,
+          "title": "Description Ru",
+          "type": "string"
+        },
+        "end_sec": {
+          "minimum": 0,
+          "title": "End Sec",
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceImage"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "legal": {
+          "items": {
+            "$ref": "#/$defs/LegalRef"
+          },
+          "title": "Legal",
+          "type": "array"
+        },
+        "provisional": {
+          "title": "Provisional",
+          "type": "boolean"
+        },
+        "start_sec": {
+          "minimum": 0,
+          "title": "Start Sec",
+          "type": "number"
+        },
+        "timecode_sec": {
+          "minimum": 0,
+          "title": "Timecode Sec",
+          "type": "number"
+        },
+        "title_ru": {
+          "title": "Title Ru",
+          "type": "string"
+        },
+        "vlm_status": {
+          "$ref": "#/$defs/VlmStatus"
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "title_ru",
+        "timecode_sec",
+        "start_sec",
+        "end_sec",
+        "confidence",
+        "vlm_status",
+        "provisional",
+        "description_ru",
+        "legal",
+        "evidence"
+      ],
+      "title": "ViolationFinding",
+      "type": "object"
+    },
+    "VlmStatus": {
+      "enum": [
+        "confirmed",
+        "downweighted",
+        "unverified",
+        "skipped"
+      ],
+      "title": "VlmStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``analysis.json``: полный внутренний итог. Из него рендерятся ответ жюри и интерфейс.",
+  "properties": {
+    "degradations": {
+      "items": {
+        "$ref": "#/$defs/Degradation"
+      },
+      "title": "Degradations",
+      "type": "array"
+    },
+    "job_id": {
+      "title": "Job Id",
+      "type": "string"
+    },
+    "perception_level": {
+      "$ref": "#/$defs/PerceptionLevel"
+    },
+    "result_level": {
+      "$ref": "#/$defs/ResultLevel"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "signals": {
+      "items": {
+        "$ref": "#/$defs/SignalFinding"
+      },
+      "title": "Signals",
+      "type": "array"
+    },
+    "timings": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Timings",
+      "type": "object"
+    },
+    "verdict": {
+      "enum": [
+        "violation",
+        "no_violation"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    },
+    "versions": {
+      "$ref": "#/$defs/AnalysisVersions"
+    },
+    "video": {
+      "$ref": "#/$defs/VideoMeta"
+    },
+    "violations": {
+      "items": {
+        "$ref": "#/$defs/ViolationFinding"
+      },
+      "title": "Violations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "job_id",
+    "verdict",
+    "result_level",
+    "perception_level",
+    "violations",
+    "signals",
+    "video",
+    "versions"
+  ],
+  "title": "AnalysisResult",
+  "type": "object"
+}

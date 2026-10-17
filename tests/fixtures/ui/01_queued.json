@@ -1,0 +1,70 @@
+{
+  "job_id": "00000000000000000000000000000001",
+  "status": "queued",
+  "pipeline_mode": "full",
+  "created_at": "2026-10-17T09:00:00.000000Z",
+  "elapsed_sec": 3.2,
+  "queue_position": 2,
+  "eta_sec": 55.0,
+  "perception_level": null,
+  "result_level": null,
+  "stages": [
+    {
+      "code": "queued",
+      "status": "running",
+      "progress": 0.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "probe",
+      "status": "pending",
+      "progress": 0.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "perception",
+      "status": "pending",
+      "progress": 0.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "rules",
+      "status": "pending",
+      "progress": 0.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "evidence",
+      "status": "pending",
+      "progress": 0.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "vlm",
+      "status": "pending",
+      "progress": 0.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "done",
+      "status": "pending",
+      "progress": 0.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    }
+  ],
+  "degradations": [],
+  "provisional": false,
+  "video": null,
+  "verdict": null,
+  "violations": [],
+  "signals": [],
+  "timings": null,
+  "error": null
+}

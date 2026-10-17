@@ -1,7 +1,35 @@
 # `src/cashguard/workers/` — супервизор и воркеры
 
 > **Назначение:** Процессы `perception` и `vlm`, общий цикл воркера и кроссплатформенный супервизор `cashguard up` (ADR-0002).
-> **Владелец:** S1; `vlm_worker.py` — S6 · **Статус:** черновик v1, 17.10.2026 (каркас: кода ещё нет)
+> **Владелец:** S1; `vlm_worker.py` — S6 · **Статус:** synthetic stub работает; real/replay runner ожидается от S0.
+
+## Рабочий запуск
+
+При наличии окружения и `PYTHONPATH=src`: `python -m cashguard.cli up --profile dev`.
+Supervisor поднимает API с reload и один `--role all` в свежих интерпретаторах.
+Для стабильного smoke без reload: `python -m cashguard.cli up --profile prod --port 8100`.
+Ключи берутся из `CG_API_KEYS` или `CG_ENV_FILE`; модельные импорты в API отсутствуют.
+
+`CG_PIPELINE_MODE=stub` принимает только синтетические видео с метатегом
+`comment=cg-stub:clean|violation`, созданные `scripts/make_synthetic_mov.py`.
+Имя файла не влияет на исход. Видео без метатега завершается ошибкой
+`UNSUPPORTED_VIDEO`; это не реальное обнаружение нарушений. `full` и `replay`
+пока завершаются явной ошибкой, поскольку S0 ещё не опубликовал runner/ports.
+
+Воркеры используют отдельные liveness/progress heartbeat, сохраняют результат
+в `jobs/<id>/attempt-<uuid>/`, затем публикуют путь атомарным CAS в SQLite.
+У каждой попытки свои файлы: запоздавший воркер не перезапишет победивший
+результат. UI evidence нужно искать относительно `ui_result_path`, а не
+предполагать путь `jobs/<id>/evidence/`.
+
+При SIGKILL supervisor повторяет обработку; всего допускается две попытки.
+Результат stub имеет `result_level=rules` и не помещается в full-result cache.
+`CG_STUB_DELAY_SEC` задаёт искусственную задержку для проверки сбоев; она
+не измеряет скорость будущих YOLO/Qwen. Дедлайны отсчитываются от времени POST.
+
+Проверка: `PYTHONPATH=src python -m pytest tests/workers -q` (synthetic-only).
+Она включает настоящий SIGKILL, восстановление до `done`, предел двух попыток,
+проверку JPEG, неправильного метатега и истечения бюджета.
 
 ## Планируемые файлы
 

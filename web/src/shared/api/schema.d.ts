@@ -4,68 +4,17 @@
  */
 
 export interface paths {
-    "/api/v1/analyze": {
+    "/api/ui/catalog": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        /** Analyze */
-        post: operations["analyze_api_v1_analyze_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/jobs/{job_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Job */
-        get: operations["get_job_api_v1_jobs__job_id__get"];
+        /** Ui Catalog */
+        get: operations["ui_catalog_api_ui_catalog_get"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Status */
-        get: operations["status_api_v1_admin_status_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/ui/session": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Session */
-        post: operations["session_api_ui_session_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -81,8 +30,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Create Job */
-        post: operations["create_job_api_ui_jobs_post"];
+        /** Загрузить видео из интерфейса */
+        post: operations["ui_create_job_api_ui_jobs_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -96,25 +45,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Job */
-        get: operations["get_job_api_ui_jobs__job_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/ui/jobs/{job_id}/video.mp4": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Video */
-        get: operations["video_api_ui_jobs__job_id__video_mp4_get"];
+        /** Ui Get Job */
+        get: operations["ui_get_job_api_ui_jobs__job_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -130,8 +62,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Frame */
-        get: operations["frame_api_ui_jobs__job_id__frames__name__get"];
+        /** Ui Frame */
+        get: operations["ui_frame_api_ui_jobs__job_id__frames__name__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -140,15 +72,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/ui/catalog": {
+    "/api/ui/jobs/{job_id}/video.mp4": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Catalog */
-        get: operations["catalog_api_ui_catalog_get"];
+        /** Ui Video */
+        get: operations["ui_video_api_ui_jobs__job_id__video_mp4_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Статус сервиса (только ключ команды) */
+        get: operations["admin_status_api_v1_admin_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analyze": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Загрузить видео (.mov) на анализ */
+        post: operations["analyze_api_v1_analyze_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Статус и результат анализа */
+        get: operations["get_job_api_v1_jobs__job_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -195,23 +178,502 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * ActCode
+         * @enum {string}
+         */
+        ActCode: "PKO" | "POP" | "POO" | "TIB";
+        /** ActEntry */
+        ActEntry: {
+            act_code: components["schemas"]["ActCode"];
+            /** Adilet Id */
+            adilet_id: string;
+            /** Cite Ru */
+            cite_ru: string;
+            /** Date */
+            date: string;
+            /** Issuer */
+            issuer: string;
+            /** Number */
+            number: string;
+            /** Registration No */
+            registration_no: string;
+            /** Scope Note Ru */
+            scope_note_ru?: string | null;
+            status: components["schemas"]["ActStatus"];
+            /** Title Ru */
+            title_ru: string;
+            /** Url */
+            url: string;
+        };
+        /**
+         * ActStatus
+         * @enum {string}
+         */
+        ActStatus: "in_force" | "repealed";
+        /**
+         * AdminStatus
+         * @description ``GET /api/v1/admin/status`` (только ключ команды).
+         */
+        AdminStatus: {
+            /** Disk Free Gb */
+            disk_free_gb: number;
+            memory: components["schemas"]["MemoryStatus"];
+            /** Models */
+            models: {
+                [key: string]: components["schemas"]["ModelRef"];
+            };
+            queue: components["schemas"]["QueueDepth"];
+            /** Recent Jobs */
+            recent_jobs: components["schemas"]["RecentJob"][];
+            /** Tunnel Ready */
+            tunnel_ready?: boolean | null;
+            /** Versions */
+            versions: {
+                [key: string]: string;
+            };
+            /** Workers */
+            workers: components["schemas"]["WorkerStatus"][];
+        };
+        /**
+         * AnalyzeAccepted
+         * @description Ответ ``POST /api/v1/analyze`` и ``POST /api/ui/jobs``.
+         */
+        AnalyzeAccepted: {
+            /** Job Id */
+            job_id: string;
+        };
+        /**
+         * EvidenceKind
+         * @enum {string}
+         */
+        EvidenceKind: "event" | "zoom" | "context";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /**
+         * JobStatus
+         * @enum {string}
+         */
+        JobStatus: "queued" | "running" | "done" | "failed";
+        /**
+         * JuryEvidenceFrame
+         * @description Кадр-доказательство: сырой JPEG в base64 без префикса ``data:``.
+         */
+        JuryEvidenceFrame: {
+            /** Image Base64 */
+            image_base64: string;
+            /** Timestamp Sec */
+            timestamp_sec: number;
+        };
+        /**
+         * JuryJobResponse
+         * @description Ответ ``GET /api/v1/jobs/{job_id}``. Ровно четыре ключа верхнего уровня.
+         */
+        JuryJobResponse: {
+            /** Job Id */
+            job_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "processing" | "done" | "failed";
+            /** Verdict */
+            verdict: ("violation" | "no_violation") | null;
+            /** Violations */
+            violations: components["schemas"]["JuryViolation"][];
+        };
+        /**
+         * JuryViolation
+         * @description Одно нарушение в ответе жюри. ``type`` — ``CatalogEntry.title_ru``.
+         */
+        JuryViolation: {
+            /** Description */
+            description: string;
+            /** Evidence Frames */
+            evidence_frames: components["schemas"]["JuryEvidenceFrame"][];
+            /** Timecode Sec */
+            timecode_sec: number;
+            /** Type */
+            type: string;
+        };
+        /**
+         * LegalStrength
+         * @enum {string}
+         */
+        LegalStrength: "direct" | "indirect" | "none";
+        /**
+         * LiveReport
+         * @description ``GET /health``: процесс API жив. Без I/O.
+         */
+        LiveReport: {
+            /**
+             * Status
+             * @default ok
+             * @constant
+             */
+            status: "ok";
+        };
+        /** MemoryStatus */
+        MemoryStatus: {
+            /** Available Gb */
+            available_gb: number;
+            /** Mlx Active Gb */
+            mlx_active_gb?: number | null;
+            /** Mlx Peak Gb */
+            mlx_peak_gb?: number | null;
+        };
+        /** ModelRef */
+        ModelRef: {
+            /** Sha256 */
+            sha256: string;
+            /** Version */
+            version: string;
+        };
+        /**
+         * PerceptionLevel
+         * @enum {string}
+         */
+        PerceptionLevel: "full" | "fast" | "min";
+        /** QueueDepth */
+        QueueDepth: {
+            /** Perception */
+            perception: number;
+            /** Vlm */
+            vlm: number;
+        };
+        /** ReadyChecks */
+        ReadyChecks: {
+            /** Disk Ok */
+            disk_ok: boolean;
+            /** Free Mem Ok */
+            free_mem_ok: boolean;
+            /** Models Loaded */
+            models_loaded: boolean;
+            /** Queue Ok */
+            queue_ok: boolean;
+            /** Warmup Done */
+            warmup_done: boolean;
+            /** Worker Perception */
+            worker_perception: boolean;
+            /** Worker Vlm */
+            worker_vlm: boolean;
+        };
+        /**
+         * ReadyReport
+         * @description ``GET /ready``: воркеры, модели, память, диск и очередь в порядке.
+         */
+        ReadyReport: {
+            checks: components["schemas"]["ReadyChecks"];
+            /**
+             * Pipeline Mode
+             * @enum {string}
+             */
+            pipeline_mode: "stub" | "replay" | "full";
+            /** Ready */
+            ready: boolean;
+            /** Version */
+            version: string;
+            /** Vlm Quant */
+            vlm_quant?: string | null;
+        };
+        /** RecentJob */
+        RecentJob: {
+            /** Id */
+            id: string;
+            /** N */
+            n: number;
+            /** Perception Level */
+            perception_level?: string | null;
+            /** Result Level */
+            result_level?: string | null;
+            /** Source */
+            source: string;
+            /** Status */
+            status: string;
+            /** Timings */
+            timings?: {
+                [key: string]: number;
+            };
+            /** Verdict */
+            verdict?: string | null;
+        };
+        /**
+         * ResultLevel
+         * @enum {string}
+         */
+        ResultLevel: "full" | "partial" | "rules";
+        /**
+         * SignalCode
+         * @description Сигналы (B2): видны проверяющему в интерфейсе, на вердикт не влияют.
+         * @enum {string}
+         */
+        SignalCode: "SIG_SEAL_NOT_INSPECTED" | "SIG_BAG_OPENED_WITHOUT_COLLECTOR" | "SIG_RECOUNT_WITHOUT_SECOND_EMPLOYEE" | "SIG_STAFF_CASH_TRANSFER" | "SIG_DOC_NOT_HANDED" | "SIG_REJECT_TRAY_TO_CLIENT" | "SIG_NO_SIGNATURE_SEEN" | "SIG_NO_STAMP_SEEN" | "SIG_MULTI_DOC_SINGLE_RECOUNT" | "SIG_SAFE_CLOSED_WITHOUT_COUNT" | "SIG_SAFE_WITHOUT_PC" | "SIG_CASH_TO_STAFF" | "SIG_CAMERA_OBSTRUCTED";
+        /**
+         * StageCode
+         * @enum {string}
+         */
+        StageCode: "queued" | "probe" | "perception" | "rules" | "evidence" | "vlm" | "done";
+        /**
+         * StageState
+         * @description Стадия обработки для интерфейса.
+         */
+        StageState: {
+            code: components["schemas"]["StageCode"];
+            /** Elapsed Sec */
+            elapsed_sec?: number | null;
+            /** Note Ru */
+            note_ru?: string | null;
+            /** Progress */
+            progress: number;
+            status: components["schemas"]["StageStatus"];
+        };
+        /**
+         * StageStatus
+         * @enum {string}
+         */
+        StageStatus: "pending" | "running" | "done" | "skipped" | "failed";
+        /**
+         * UiCatalog
+         * @description ``GET /api/ui/catalog``: типы, сигналы и акты. ETag = ``config_hash``.
+         */
+        UiCatalog: {
+            /** Acts */
+            acts: components["schemas"]["ActEntry"][];
+            /** Config Hash */
+            config_hash: string;
+            /** Signals */
+            signals: components["schemas"]["UiCatalogSignal"][];
+            /** Types */
+            types: components["schemas"]["UiCatalogType"][];
+        };
+        /** UiCatalogSignal */
+        UiCatalogSignal: {
+            code: components["schemas"]["SignalCode"];
+            /** Title Ru */
+            title_ru: string;
+        };
+        /** UiCatalogType */
+        UiCatalogType: {
+            code: components["schemas"]["ViolationCode"];
+            group: components["schemas"]["ViolationGroup"];
+            /** Legal */
+            legal: components["schemas"]["UiLegalRef"][];
+            /** Title Ru */
+            title_ru: string;
+            /** Verdict Impact */
+            verdict_impact: boolean;
+        };
+        /** UiDegradation */
+        UiDegradation: {
+            /** Reason Ru */
+            reason_ru: string;
+            /** Stage */
+            stage: string;
+        };
+        /** UiError */
+        UiError: {
+            /** Code */
+            code: string;
+            /** Message Ru */
+            message_ru: string;
+        };
+        /** UiEvidence */
+        UiEvidence: {
+            /** Height */
+            height: number;
+            kind: components["schemas"]["EvidenceKind"];
+            /** Timestamp Sec */
+            timestamp_sec: number;
+            /** Url */
+            url: string;
+            /** Width */
+            width: number;
+        };
+        /**
+         * UiHttpError
+         * @description Тело любого ответа 4xx/5xx на ``/api/ui/*``. ``message_ru`` можно показывать как есть.
+         *
+         *     API жюри (``/api/v1/*``) этим телом не отвечает: его ошибки описаны в ``docs/api.md``, 3.4.
+         */
+        UiHttpError: {
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "FILE_TOO_LARGE" | "UNSUPPORTED_MEDIA" | "INVALID_REQUEST" | "UPLOAD_TIMEOUT" | "UPLOAD_ABORTED" | "RATE_LIMITED" | "INSUFFICIENT_STORAGE" | "NOT_FOUND" | "UNAUTHORIZED" | "INTERNAL";
+            /** Message Ru */
+            message_ru: string;
+            /** Retry After Sec */
+            retry_after_sec?: number | null;
+        };
+        /**
+         * UiJobView
+         * @description ``GET /api/ui/jobs/{job_id}``. Интерфейс опрашивает раз в секунду, пока задача не готова.
+         */
+        UiJobView: {
+            /** Created At */
+            created_at: string;
+            /** Degradations */
+            degradations?: components["schemas"]["UiDegradation"][];
+            /** Elapsed Sec */
+            elapsed_sec: number;
+            error?: components["schemas"]["UiError"] | null;
+            /** Eta Sec */
+            eta_sec?: number | null;
+            /** Job Id */
+            job_id: string;
+            perception_level?: components["schemas"]["PerceptionLevel"] | null;
+            /**
+             * Pipeline Mode
+             * @enum {string}
+             */
+            pipeline_mode: "stub" | "replay" | "full";
+            /**
+             * Provisional
+             * @default false
+             */
+            provisional: boolean;
+            /** Queue Position */
+            queue_position?: number | null;
+            result_level?: components["schemas"]["ResultLevel"] | null;
+            /** Signals */
+            signals?: components["schemas"]["UiSignal"][];
+            /** Stages */
+            stages: components["schemas"]["StageState"][];
+            status: components["schemas"]["JobStatus"];
+            /** Timings */
+            timings?: {
+                [key: string]: number;
+            } | null;
+            /** Verdict */
+            verdict?: ("violation" | "no_violation") | null;
+            video?: components["schemas"]["UiVideo"] | null;
+            /** Violations */
+            violations?: components["schemas"]["UiViolation"][];
+        };
+        /** UiLegalRef */
+        UiLegalRef: {
+            /** Act Code */
+            act_code: string;
+            /** Act Title Ru */
+            act_title_ru: string;
+            /** Clause */
+            clause?: string | null;
+            /** Note Ru */
+            note_ru?: string | null;
+            /** Quote Ru */
+            quote_ru?: string | null;
+            strength: components["schemas"]["LegalStrength"];
+            /** Url */
+            url: string;
+        };
+        /** UiSignal */
+        UiSignal: {
+            /** Code */
+            code: string;
+            /** Description Ru */
+            description_ru: string;
+            /** Evidence */
+            evidence?: components["schemas"]["UiEvidence"][];
+            /** Id */
+            id: string;
+            /** T Sec */
+            t_sec: number;
+            /** Title Ru */
+            title_ru: string;
+        };
+        /** UiVideo */
+        UiVideo: {
+            /** Duration Sec */
+            duration_sec: number;
+            /** Height */
+            height: number;
+            /** Url */
+            url: string;
+            /** Width */
+            width: number;
+        };
+        /** UiViolation */
+        UiViolation: {
+            /** Code */
+            code: string;
+            /** Confidence */
+            confidence: number;
+            /** Description Ru */
+            description_ru: string;
+            /** End Sec */
+            end_sec: number;
+            /** Evidence */
+            evidence: components["schemas"]["UiEvidence"][];
+            /** Id */
+            id: string;
+            /** Legal */
+            legal: components["schemas"]["UiLegalRef"][];
+            /** Legal Note Ru */
+            legal_note_ru?: string | null;
+            /** Provisional */
+            provisional: boolean;
+            /** Start Sec */
+            start_sec: number;
+            /** Timecode Sec */
+            timecode_sec: number;
+            /** Title Ru */
+            title_ru: string;
+            vlm_status: components["schemas"]["VlmStatus"];
+        };
         /** ValidationError */
         ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
             /** Location */
             loc: (string | number)[];
             /** Message */
             msg: string;
             /** Error Type */
             type: string;
-            /** Input */
-            input?: unknown;
-            /** Context */
-            ctx?: Record<string, never>;
+        };
+        /**
+         * ViolationCode
+         * @description Коды, влияющие на вердикт: 17 из датасета (группа A), 8 видимых новых (B1) и прочее.
+         * @enum {string}
+         */
+        ViolationCode: "CASH_WITHHELD" | "NO_CLIENT_ID" | "PREV_CASH_ON_DESK" | "MIXED_CLIENT_CASH" | "RECOUNT_WITHOUT_CLIENT" | "NO_AUTH_CHECK" | "VALUABLES_LEFT" | "SAFE_OPEN" | "SAFE_KEY_LEFT" | "PC_UNLOCKED" | "DOOR_NOT_CLOSED" | "OUTSIDER_IN_CASH_ROOM" | "THIRD_PERSON_DURING_SERVICE" | "COLLECTOR_NOT_VERIFIED" | "BAG_CASH_NO_RECOUNT" | "PERSONAL_ITEMS" | "FOOD_DRINK" | "PHONE_CASHIER" | "LEFT_DURING_SERVICE" | "PAYOUT_WITHOUT_RECOUNT" | "CHANGE_BEFORE_PREPARED" | "STORAGE_UNESCORTED" | "CASH_CONCEALED" | "CASH_TRANSFER_OUTSIDE_OP" | "UNATTENDED_PRESENCE" | "OTHER_VISIBLE_IRREGULARITY";
+        /**
+         * ViolationGroup
+         * @enum {string}
+         */
+        ViolationGroup: "leave" | "access" | "cashops" | "collection" | "discipline" | "presence" | "other";
+        /**
+         * VlmStatus
+         * @enum {string}
+         */
+        VlmStatus: "confirmed" | "downweighted" | "unverified" | "skipped";
+        /** WorkerStatus */
+        WorkerStatus: {
+            /** Job Id */
+            job_id?: string | null;
+            /** Mlx Active Mb */
+            mlx_active_mb?: number | null;
+            /** Name */
+            name: string;
+            /** Pid */
+            pid?: number | null;
+            /** Quant */
+            quant?: string | null;
+            /** Role */
+            role: string;
+            /** Rss Mb */
+            rss_mb?: number | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "warming" | "idle" | "busy" | "draining" | "dead";
         };
     };
     responses: never;
@@ -222,7 +684,45 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    analyze_api_v1_analyze_post: {
+    ui_catalog_api_ui_catalog_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiCatalog"];
+                };
+            };
+            /** @description Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Внутренняя ошибка (INTERNAL) */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+        };
+    };
+    ui_create_job_api_ui_jobs_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -244,12 +744,84 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["AnalyzeAccepted"];
+                };
+            };
+            /** @description Клиент оборвал загрузку (UPLOAD_ABORTED); ответ обычно уже некому прочитать */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Файл больше лимита (FILE_TOO_LARGE) */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Содержимое не читается как видео (UNSUPPORTED_MEDIA) */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Нет поля file или запрос неверен (INVALID_REQUEST); истёк срок загрузки (UPLOAD_TIMEOUT) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Лимит загрузок (RATE_LIMITED), заголовок Retry-After */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Внутренняя ошибка (INTERNAL) */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description На сервере мало места (INSUFFICIENT_STORAGE) */
+            507: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
                 };
             };
         };
     };
-    get_job_api_v1_jobs__job_id__get: {
+    ui_get_job_api_ui_jobs__job_id__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -266,7 +838,25 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["UiJobView"];
+                };
+            };
+            /** @description Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Задание или файл не найдены (NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
                 };
             };
             /** @description Validation Error */
@@ -278,131 +868,18 @@ export interface operations {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
-        };
-    };
-    status_api_v1_admin_status_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
+            /** @description Внутренняя ошибка (INTERNAL) */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["UiHttpError"];
                 };
             };
         };
     };
-    session_api_ui_session_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    create_job_api_ui_jobs_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    get_job_api_ui_jobs__job_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                job_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    video_api_ui_jobs__job_id__video_mp4_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                job_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    frame_api_ui_jobs__job_id__frames__name__get: {
+    ui_frame_api_ui_jobs__job_id__frames__name__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -414,13 +891,129 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description JPEG-кадр */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": unknown;
+                };
+            };
+            /** @description Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Задание или файл не найдены (NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Внутренняя ошибка (INTERNAL) */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+        };
+    };
+    ui_video_api_ui_jobs__job_id__video_mp4_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Предпросмотр H.264 (faststart, Range) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "video/mp4": unknown;
+                };
+            };
+            /** @description Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Задание или файл не найдены (NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Внутренняя ошибка (INTERNAL) */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UiHttpError"];
+                };
+            };
+        };
+    };
+    admin_status_api_v1_admin_status_get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-API-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
             /** @description Successful Response */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["AdminStatus"];
                 };
             };
             /** @description Validation Error */
@@ -434,11 +1027,53 @@ export interface operations {
             };
         };
     };
-    catalog_api_ui_catalog_get: {
+    analyze_api_v1_analyze_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-API-Key": string;
+            };
             path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalyzeAccepted"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_job_api_v1_jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-API-Key": string;
+            };
+            path: {
+                job_id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -449,7 +1084,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["JuryJobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -469,7 +1113,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["LiveReport"];
                 };
             };
         };
@@ -489,7 +1133,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["ReadyReport"];
                 };
             };
         };
