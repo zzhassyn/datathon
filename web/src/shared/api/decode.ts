@@ -113,6 +113,7 @@ export function decodeJob(value: unknown, expectedId: string): JobView {
   const video = v.video == null ? null : record(v.video);
   const error = v.error == null ? null : record(v.error);
   return {
+    visibility: null,
     timings:
       v.timings == null
         ? null

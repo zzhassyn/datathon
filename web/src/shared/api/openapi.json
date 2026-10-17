@@ -592,6 +592,79 @@
         "title": "ResultLevel",
         "type": "string"
       },
+      "RuleCondition": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_indices": {
+            "items": {
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "title": "Evidence Indices",
+            "type": "array"
+          },
+          "id": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Id",
+            "type": "string"
+          },
+          "reason_ru": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Reason Ru",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "met",
+              "not_met",
+              "unknown"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "text_ru": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Text Ru",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "text_ru",
+          "status",
+          "reason_ru"
+        ],
+        "title": "RuleCondition",
+        "type": "object"
+      },
+      "RuleExplanation": {
+        "additionalProperties": false,
+        "properties": {
+          "conditions": {
+            "items": {
+              "$ref": "#/components/schemas/RuleCondition"
+            },
+            "minItems": 1,
+            "title": "Conditions",
+            "type": "array"
+          },
+          "rule_version": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Rule Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule_version",
+          "conditions"
+        ],
+        "title": "RuleExplanation",
+        "type": "object"
+      },
       "SignalCode": {
         "description": "Сигналы (B2): видны проверяющему в интерфейсе, на вердикт не влияют.",
         "enum": [
@@ -1046,6 +1119,16 @@
             },
             "title": "Violations",
             "type": "array"
+          },
+          "visibility": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VisibilityAssessment"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -1223,6 +1306,16 @@
             "title": "Evidence",
             "type": "array"
           },
+          "explanation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RuleExplanation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "id": {
             "title": "Id",
             "type": "string"
@@ -1369,6 +1462,96 @@
         ],
         "title": "ViolationGroup",
         "type": "string"
+      },
+      "VisibilityAssessment": {
+        "additionalProperties": false,
+        "properties": {
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/VisibilityCheck"
+            },
+            "minItems": 1,
+            "title": "Checks",
+            "type": "array"
+          },
+          "method_version": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Method Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "method_version",
+          "checks"
+        ],
+        "title": "VisibilityAssessment",
+        "type": "object"
+      },
+      "VisibilityCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "end_sec": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Sec"
+          },
+          "id": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Id",
+            "type": "string"
+          },
+          "reason_ru": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Reason Ru",
+            "type": "string"
+          },
+          "start_sec": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Sec"
+          },
+          "status": {
+            "enum": [
+              "visible",
+              "limited",
+              "not_visible",
+              "unknown"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "target_ru": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Target Ru",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "target_ru",
+          "status",
+          "reason_ru"
+        ],
+        "title": "VisibilityCheck",
+        "type": "object"
       },
       "VlmStatus": {
         "enum": [

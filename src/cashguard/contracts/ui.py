@@ -15,6 +15,7 @@ from cashguard.contracts.catalog import (
     ViolationCode,
     ViolationGroup,
 )
+from cashguard.contracts.diagnostics import RuleExplanation, VisibilityAssessment
 from cashguard.contracts.findings import EvidenceKind, VlmStatus
 from cashguard.contracts.jobs import JobStatus, PerceptionLevel, ResultLevel, StageState
 
@@ -64,6 +65,13 @@ class UiViolation(Contract):
     legal_note_ru: str | None = None
     """Заполняется, если основание не установлено: сервер честно сообщает это текстом."""
     evidence: list[UiEvidence]
+    explanation: RuleExplanation | None = None
+
+    @model_validator(mode="after")
+    def _explanation_refs(self) -> Self:
+        if self.explanation is not None:
+            self.explanation.validate_evidence_count(len(self.evidence))
+        return self
 
 
 class UiSignal(Contract):
@@ -107,6 +115,8 @@ class UiJobView(Contract):
     signals: list[UiSignal] = Field(default_factory=list[UiSignal])
     timings: dict[str, float] | None = None
     error: UiError | None = None
+    visibility: VisibilityAssessment | None = None
+    """None — оценка не предоставлена. Длительность проверяется по исходнику в API."""
 
     @model_validator(mode="after")
     def _invariants(self) -> Self:

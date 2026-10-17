@@ -95,10 +95,12 @@
           "width": 464,
           "height": 848
         }
-      ]
+      ],
+      "explanation": null
     }
   ],
   "signals": [],
   "timings": null,
-  "error": null
+  "error": null,
+  "visibility": null
 }
