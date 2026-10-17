@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "ModelArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "pattern": "^(coreml|torch|mlx|transformers)$",
+          "title": "Backend",
+          "type": "string"
+        },
+        "imgsz": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Imgsz"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "quant": {
+          "anyOf": [
+            {
+              "enum": [
+                "8bit",
+                "6bit",
+                "4bit"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quant"
+        },
+        "repo": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Repo"
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revision"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "backend",
+        "path"
+      ],
+      "title": "ModelArtifact",
+      "type": "object"
+    },
+    "ModelEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "artifacts": {
+          "items": {
+            "$ref": "#/$defs/ModelArtifact"
+          },
+          "title": "Artifacts",
+          "type": "array"
+        },
+        "imgsz": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Imgsz"
+        },
+        "note_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note Ru"
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revision"
+        },
+        "role": {
+          "$ref": "#/$defs/ModelRole"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "version",
+        "artifacts"
+      ],
+      "title": "ModelEntry",
+      "type": "object"
+    },
+    "ModelRole": {
+      "enum": [
+        "detector",
+        "pose",
+        "cls_screen",
+        "cls_safe_lock",
+        "cls_door",
+        "vlm"
+      ],
+      "title": "ModelRole",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "models": {
+      "items": {
+        "$ref": "#/$defs/ModelEntry"
+      },
+      "title": "Models",
+      "type": "array"
+    }
+  },
+  "required": [
+    "models"
+  ],
+  "title": "ModelsRegistry",
+  "type": "object"
+}

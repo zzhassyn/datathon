@@ -1,0 +1,454 @@
+{
+  "$defs": {
+    "BBox": {
+      "additionalProperties": false,
+      "description": "Прямоугольник в нормированных координатах (0..1), x1 <= x2, y1 <= y2.",
+      "properties": {
+        "x1": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "X1",
+          "type": "number"
+        },
+        "x2": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "X2",
+          "type": "number"
+        },
+        "y1": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Y1",
+          "type": "number"
+        },
+        "y2": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Y2",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x1",
+        "y1",
+        "x2",
+        "y2"
+      ],
+      "title": "BBox",
+      "type": "object"
+    },
+    "CropLabel": {
+      "description": "Метки классификаторов (``training/configs/train.yaml``).",
+      "enum": [
+        "active",
+        "locked",
+        "off",
+        "key",
+        "no_key",
+        "closed",
+        "open"
+      ],
+      "title": "CropLabel",
+      "type": "string"
+    },
+    "CropState": {
+      "additionalProperties": false,
+      "properties": {
+        "conf": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Conf",
+          "type": "number"
+        },
+        "label": {
+          "$ref": "#/$defs/CropLabel"
+        },
+        "source_box": {
+          "$ref": "#/$defs/BBox"
+        },
+        "target": {
+          "$ref": "#/$defs/CropTarget"
+        }
+      },
+      "required": [
+        "target",
+        "source_box",
+        "label",
+        "conf"
+      ],
+      "title": "CropState",
+      "type": "object"
+    },
+    "CropTarget": {
+      "description": "Мелкие состояния, которые классифицируются по увеличенному фрагменту.",
+      "enum": [
+        "screen",
+        "safe_lock",
+        "door"
+      ],
+      "title": "CropTarget",
+      "type": "string"
+    },
+    "DetClass": {
+      "description": "14 классов детектора. Порядок = id в ``training/configs/classes.yaml``; не менять.",
+      "enum": [
+        "person",
+        "cash",
+        "collection_bag",
+        "safe_closed",
+        "safe_open",
+        "laptop",
+        "door",
+        "counting_machine",
+        "auth_detector",
+        "id_document",
+        "phone",
+        "cup",
+        "personal_bag",
+        "outerwear"
+      ],
+      "title": "DetClass",
+      "type": "string"
+    },
+    "Detection": {
+      "additionalProperties": false,
+      "properties": {
+        "box": {
+          "$ref": "#/$defs/BBox"
+        },
+        "cls": {
+          "$ref": "#/$defs/DetClass"
+        },
+        "conf": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Conf",
+          "type": "number"
+        },
+        "track_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Track Id"
+        }
+      },
+      "required": [
+        "cls",
+        "conf",
+        "box"
+      ],
+      "title": "Detection",
+      "type": "object"
+    },
+    "FrameObservation": {
+      "additionalProperties": false,
+      "properties": {
+        "crops": {
+          "items": {
+            "$ref": "#/$defs/CropState"
+          },
+          "title": "Crops",
+          "type": "array"
+        },
+        "detections": {
+          "items": {
+            "$ref": "#/$defs/Detection"
+          },
+          "title": "Detections",
+          "type": "array"
+        },
+        "idx": {
+          "minimum": 0,
+          "title": "Idx",
+          "type": "integer"
+        },
+        "poses": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PoseKeypoints"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Poses"
+        },
+        "quality": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FrameQuality"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "t_sec": {
+          "minimum": 0,
+          "title": "T Sec",
+          "type": "number"
+        }
+      },
+      "required": [
+        "idx",
+        "t_sec",
+        "detections"
+      ],
+      "title": "FrameObservation",
+      "type": "object"
+    },
+    "FrameQuality": {
+      "additionalProperties": false,
+      "properties": {
+        "blur": {
+          "title": "Blur",
+          "type": "number"
+        },
+        "brightness": {
+          "title": "Brightness",
+          "type": "number"
+        }
+      },
+      "required": [
+        "brightness",
+        "blur"
+      ],
+      "title": "FrameQuality",
+      "type": "object"
+    },
+    "ModelRef": {
+      "additionalProperties": false,
+      "properties": {
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "sha256"
+      ],
+      "title": "ModelRef",
+      "type": "object"
+    },
+    "PerceptionLevel": {
+      "enum": [
+        "full",
+        "fast",
+        "min"
+      ],
+      "title": "PerceptionLevel",
+      "type": "string"
+    },
+    "PerceptionPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "cls_fps": {
+          "minimum": 0,
+          "title": "Cls Fps",
+          "type": "number"
+        },
+        "imgsz_variant": {
+          "enum": [
+            "864x480",
+            "480x864"
+          ],
+          "title": "Imgsz Variant",
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/$defs/PerceptionLevel"
+        },
+        "pose_fps": {
+          "minimum": 0,
+          "title": "Pose Fps",
+          "type": "number"
+        },
+        "sample_fps": {
+          "exclusiveMinimum": 0,
+          "title": "Sample Fps",
+          "type": "number"
+        }
+      },
+      "required": [
+        "level",
+        "sample_fps",
+        "pose_fps",
+        "cls_fps",
+        "imgsz_variant"
+      ],
+      "title": "PerceptionPlan",
+      "type": "object"
+    },
+    "PoseKeypoints": {
+      "additionalProperties": false,
+      "description": "17 точек COCO: (x, y, conf), координаты нормированы.",
+      "properties": {
+        "box": {
+          "$ref": "#/$defs/BBox"
+        },
+        "kpts": {
+          "items": {
+            "maxItems": 3,
+            "minItems": 3,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "maxItems": 17,
+          "minItems": 17,
+          "title": "Kpts",
+          "type": "array"
+        },
+        "track_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Track Id"
+        }
+      },
+      "required": [
+        "track_id",
+        "box",
+        "kpts"
+      ],
+      "title": "PoseKeypoints",
+      "type": "object"
+    },
+    "VideoMeta": {
+      "additionalProperties": false,
+      "properties": {
+        "codec": {
+          "title": "Codec",
+          "type": "string"
+        },
+        "duration_sec": {
+          "minimum": 0,
+          "title": "Duration Sec",
+          "type": "number"
+        },
+        "fps_avg": {
+          "exclusiveMinimum": 0,
+          "title": "Fps Avg",
+          "type": "number"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        },
+        "is_vfr": {
+          "title": "Is Vfr",
+          "type": "boolean"
+        },
+        "pix_fmt": {
+          "title": "Pix Fmt",
+          "type": "string"
+        },
+        "rotation_deg": {
+          "default": 0,
+          "title": "Rotation Deg",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "start_pts_sec": {
+          "title": "Start Pts Sec",
+          "type": "number"
+        },
+        "time_base": {
+          "title": "Time Base",
+          "type": "string"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "duration_sec",
+        "width",
+        "height",
+        "fps_avg",
+        "is_vfr",
+        "codec",
+        "pix_fmt",
+        "start_pts_sec",
+        "time_base",
+        "sha256"
+      ],
+      "title": "VideoMeta",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "frames": {
+      "items": {
+        "$ref": "#/$defs/FrameObservation"
+      },
+      "title": "Frames",
+      "type": "array"
+    },
+    "models": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ModelRef"
+      },
+      "title": "Models",
+      "type": "object"
+    },
+    "plan": {
+      "$ref": "#/$defs/PerceptionPlan"
+    },
+    "schema_version": {
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "video": {
+      "$ref": "#/$defs/VideoMeta"
+    }
+  },
+  "required": [
+    "video",
+    "models",
+    "plan",
+    "frames"
+  ],
+  "title": "PerceptionTrace",
+  "type": "object"
+}

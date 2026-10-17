@@ -644,6 +644,22 @@ SSE — опциональное улучшение P3 за флагом `CG_UI_
 
 ---
 
+## 6.9. Эталонные ответы UI (K0)
+
+Общий договор frontend и backend — файлы `tests/fixtures/ui/*.json`. Frontend верстает по ним, backend отдаёт ровно такую форму. Файлы генерирует `uv run python scripts/gen_ui_examples.py` из контракта `UiJobView` и настоящего каталога (названия типов и нормы не придумываются), контрактный тест `tests/contract/test_ui_examples.py` проверяет их.
+
+| Файл | Состояние |
+|---|---|
+| `01_queued.json` | задание ожидает в очереди (`queue_position`, `eta_sec`) |
+| `02_running.json` | задание обрабатывается: этапы, прогресс, ссылка на видео |
+| `03_done_clean.json` | завершено без нарушений; сигнал для проверяющего не влияет на вердикт |
+| `04_done_violations.json` | завершено, три события с временем, описанием, кадрами и нормами |
+| `05_done_partial.json` | обработано частично: `result_level=rules`, деградации, основание не установлено (`legal_note_ru`) |
+| `06_failed.json` | ошибка с понятным текстом `error.message_ru` |
+| `07_stub_demo.json` | демонстрационный режим `pipeline_mode=stub`: интерфейс обязан показать это явно |
+
+Обязательные поля для интерфейса: `status`, `pipeline_mode`, `stages` (этап, если известен), `video` (метаданные и URL), `verdict`, `violations[]` (`title_ru`, `timecode_sec`, `description_ru`, `evidence[].url`, `legal[]`, `legal_note_ru`), `degradations`, `result_level`, `error`. Ключ jury API во frontend не встраивается.
+
 ## 7. Статика и документация API
 
 | Путь | Что отдаётся | `Cache-Control` |
@@ -784,7 +800,7 @@ from jsonschema import Draft202012Validator
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = ROOT / "src/cashguard/contracts/schemas/jury_job.schema.json"
 FIXTURE = ROOT / "tests/fixtures/jury_example.json"
-FROZEN_SHA256 = "25a1085c79b6529ba8d242122a6e0513368488bdb98905ab399a233adeb7498c"
+FROZEN_SHA256 = "908120fee6d4d4654a69f1109d052dc94ee7b3d0c6f1ac5797f4d8f86a1ff79f"  # с minLength у description, 17.10.2026
 
 
 def _load(p: Path):

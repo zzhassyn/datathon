@@ -1,0 +1,453 @@
+{
+  "$defs": {
+    "BBox": {
+      "additionalProperties": false,
+      "description": "Прямоугольник в нормированных координатах (0..1), x1 <= x2, y1 <= y2.",
+      "properties": {
+        "x1": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "X1",
+          "type": "number"
+        },
+        "x2": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "X2",
+          "type": "number"
+        },
+        "y1": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Y1",
+          "type": "number"
+        },
+        "y2": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Y2",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x1",
+        "y1",
+        "x2",
+        "y2"
+      ],
+      "title": "BBox",
+      "type": "object"
+    },
+    "Role": {
+      "enum": [
+        "cashier",
+        "client",
+        "collector",
+        "outsider",
+        "unknown"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "SceneEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "box": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "conf": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Conf",
+          "type": "number"
+        },
+        "data": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Data",
+          "type": "object"
+        },
+        "kind": {
+          "$ref": "#/$defs/SceneEventKind"
+        },
+        "t": {
+          "minimum": 0,
+          "title": "T",
+          "type": "number"
+        },
+        "track_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Track Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "t",
+        "track_ids",
+        "conf"
+      ],
+      "title": "SceneEvent",
+      "type": "object"
+    },
+    "SceneEventKind": {
+      "enum": [
+        "enter",
+        "exit",
+        "sit",
+        "stand",
+        "handoff_cash",
+        "cash_to_machine",
+        "cash_to_detector",
+        "cash_to_safe",
+        "cash_from_bag",
+        "id_shown",
+        "bag_on_desk",
+        "cup_to_mouth",
+        "phone_in_hand",
+        "state_change"
+      ],
+      "title": "SceneEventKind",
+      "type": "string"
+    },
+    "SceneLayout": {
+      "additionalProperties": false,
+      "properties": {
+        "calibrated_from_sec": {
+          "minimum": 0,
+          "title": "Calibrated From Sec",
+          "type": "number"
+        },
+        "conf": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Conf",
+          "type": "number"
+        },
+        "orientation": {
+          "title": "Orientation",
+          "type": "string"
+        },
+        "zones": {
+          "items": {
+            "$ref": "#/$defs/Zone"
+          },
+          "title": "Zones",
+          "type": "array"
+        }
+      },
+      "required": [
+        "zones",
+        "orientation",
+        "calibrated_from_sec",
+        "conf"
+      ],
+      "title": "SceneLayout",
+      "type": "object"
+    },
+    "ServiceSession": {
+      "additionalProperties": false,
+      "properties": {
+        "end_t": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End T"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "id_shown_t": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id Shown T"
+        },
+        "kind": {
+          "$ref": "#/$defs/SessionKind"
+        },
+        "start_t": {
+          "minimum": 0,
+          "title": "Start T",
+          "type": "number"
+        },
+        "subject_track_id": {
+          "title": "Subject Track Id",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "subject_track_id",
+        "start_t"
+      ],
+      "title": "ServiceSession",
+      "type": "object"
+    },
+    "SessionKind": {
+      "enum": [
+        "client",
+        "collection"
+      ],
+      "title": "SessionKind",
+      "type": "string"
+    },
+    "StateInterval": {
+      "additionalProperties": false,
+      "properties": {
+        "conf": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Conf",
+          "type": "number"
+        },
+        "end_t": {
+          "minimum": 0,
+          "title": "End T",
+          "type": "number"
+        },
+        "start_t": {
+          "minimum": 0,
+          "title": "Start T",
+          "type": "number"
+        },
+        "subject": {
+          "$ref": "#/$defs/StateSubject"
+        },
+        "track_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Track Id"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "zone": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ZoneKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "subject",
+        "value",
+        "start_t",
+        "end_t",
+        "conf"
+      ],
+      "title": "StateInterval",
+      "type": "object"
+    },
+    "StateSubject": {
+      "enum": [
+        "screen",
+        "safe",
+        "safe_key",
+        "door",
+        "cash_on_desk",
+        "bag_on_desk",
+        "personal_item_on_desk",
+        "cup",
+        "phone",
+        "cashier_present"
+      ],
+      "title": "StateSubject",
+      "type": "string"
+    },
+    "TrackRole": {
+      "additionalProperties": false,
+      "properties": {
+        "conf": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Conf",
+          "type": "number"
+        },
+        "entered_via_door": {
+          "title": "Entered Via Door",
+          "type": "boolean"
+        },
+        "exited_via_door": {
+          "title": "Exited Via Door",
+          "type": "boolean"
+        },
+        "first_t": {
+          "minimum": 0,
+          "title": "First T",
+          "type": "number"
+        },
+        "last_t": {
+          "minimum": 0,
+          "title": "Last T",
+          "type": "number"
+        },
+        "role": {
+          "$ref": "#/$defs/Role"
+        },
+        "track_id": {
+          "title": "Track Id",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "track_id",
+        "role",
+        "conf",
+        "first_t",
+        "last_t",
+        "entered_via_door",
+        "exited_via_door"
+      ],
+      "title": "TrackRole",
+      "type": "object"
+    },
+    "Zone": {
+      "additionalProperties": false,
+      "properties": {
+        "conf": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Conf",
+          "type": "number"
+        },
+        "kind": {
+          "$ref": "#/$defs/ZoneKind"
+        },
+        "polygon": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "minItems": 3,
+          "title": "Polygon",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "polygon",
+        "conf"
+      ],
+      "title": "Zone",
+      "type": "object"
+    },
+    "ZoneKind": {
+      "enum": [
+        "desk",
+        "cashier_side",
+        "client_side",
+        "safe",
+        "door",
+        "counting_machine",
+        "auth_detector",
+        "room"
+      ],
+      "title": "ZoneKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "events": {
+      "items": {
+        "$ref": "#/$defs/SceneEvent"
+      },
+      "title": "Events",
+      "type": "array"
+    },
+    "layout": {
+      "$ref": "#/$defs/SceneLayout"
+    },
+    "roles": {
+      "items": {
+        "$ref": "#/$defs/TrackRole"
+      },
+      "title": "Roles",
+      "type": "array"
+    },
+    "sessions": {
+      "items": {
+        "$ref": "#/$defs/ServiceSession"
+      },
+      "title": "Sessions",
+      "type": "array"
+    },
+    "states": {
+      "items": {
+        "$ref": "#/$defs/StateInterval"
+      },
+      "title": "States",
+      "type": "array"
+    }
+  },
+  "required": [
+    "layout",
+    "roles",
+    "sessions",
+    "states",
+    "events"
+  ],
+  "title": "SceneModel",
+  "type": "object"
+}

@@ -36,6 +36,20 @@
 | `[macos]` `deploy`, `services-*`, `mode serve\|train\|dev` | LaunchAgents, туннель, переключение режимов (`mode train\|dev` = `launchctl bootout` + `disable`, `mode serve` = `enable` + `bootstrap`) |
 | `[macos]` `train-a`, `train-c` | обёртки над `training/run_stage_{a,c}.sh` под `caffeinate -i`; отказываются стартовать, если `pgrep -f 'cashguard.cli up'` что-то находит |
 
+## Участники команды (с 17.10.2026)
+Сессии S0–S6 ниже — это области кода. Люди распределены так; при расхождении прав этот раздел.
+
+| Участник | Отвечает за | Сессии и папки |
+|---|---|---|
+| **Backend и интеграция** | API, очередь, воркеры, оркестрация пайплайна, сцена из наблюдений, **применение правил, вердикт, описание и ответ**, eval; общие контракты, зависимости, мерж в `main` | S0 + S1 + код S4/S5: `contracts/`, `core/`, `jobs/`, `api/`, `workers/`, `cli.py`, `pipeline/{runner.py,stub.py,ingest,scene,rules,verdict,legal,render}`, `eval/`, `configs/` (кроме `perception.yaml`, `trackers/`, `vlm.yaml`), `tests/` (кроме `tests/mac/`, `tests/unit/evidence/`, `tests/fixtures/timelines/`) |
+| **Frontend** | веб-интерфейс по UI-контракту и примерам `tests/fixtures/ui/*.json` | S2: `web/**`, `docs/ui.md` |
+| **ML и наблюдения** (участник №1) | обучение и выпуск моделей, **наблюдения модели**: объекты, координаты, время, треки, состояния фрагментов (`PerceptionTrace`), кадры-доказательства, VLM-бэкенд, Mac и туннель | S3 + ML-часть S6: `training/**`, `pipeline/{decode,perception,evidence}/`, `pipeline/vlm/`, `workers/vlm_worker.py`, `configs/{perception,vlm}.yaml`, `configs/trackers/`, `deploy/{macos,cloudflared}/`, `tests/mac/`, `tests/unit/evidence/` |
+| **События и нормы** (участник №2) | **проверенные примеры событий** (pos/neg на каждый код), основания правил и нормы, ручная проверка разметки | `tests/fixtures/timelines/`, нормы в `configs/catalog/*.yaml` через PR интегратору, `docs/{legal_sources,violation_catalog}.md` |
+
+Детектор сам по себе не выдаёт нарушение: наблюдения (ML) → примеры событий и основания (участник №2) → применение правил, вердикт и ответ (backend). Формат наблюдений — `contracts/perception.py`, меняется только через интегратора.
+
+**Ветки.** `codex/forte-frigate-ui` — исходный снимок дизайна (не меняется); `codex/frontend-integration` — frontend; `s1/backend-core-jobs` — backend; `main` — только проверенные совместимые изменения. Каждый работает в своём клоне или worktree; два агента не меняют один checkout. Контракты — маленьким отдельным PR раньше зависимых изменений. Мерж в `main` — только интегратор, fast-forward. Опубликованные ветки не переписываются (`push --force` запрещён): для переноса на новую базу интегратор делает новую ветку-кандидат, старую сохраняет. Контрольные точки K0–K4 — [docs/roadmap.md](docs/roadmap.md).
+
 ## Владение папками
 Правьте только свои папки. Чужое — через PR владельцу; контракты и зависимости — через S0. Пути пакетов (`contracts/`, `core/`, `pipeline/`, `eval/` и т. п.) — от `src/cashguard/`; `configs/`, `tests/`, `docs/`, `deploy/`, `scripts/`, `web/`, `training/`, `eval/baselines/` — от корня.
 
@@ -49,7 +63,7 @@
 | S5 правила B + вердикт + нормы | `pipeline/rules/{cashops,collection,discipline}/`, `pipeline/{verdict,legal}/`, их `configs/rules/*.yaml`, нормы в `configs/catalog/*.yaml`, `tests/unit/{verdict,legal}/`, `docs/legal_sources.md` |
 | S6 VLM + Mac-ops + сигналы | `pipeline/vlm/`, `workers/vlm_worker.py`, `configs/vlm.yaml`, `pipeline/rules/signals/`, `configs/catalog/signals.yaml` после v0, `configs/rules/SIG_*.yaml`, `deploy/{macos,cloudflared}/`, `scripts/{bench_mac,sync_signals}.py`, `tests/unit/vlm/`, `docs/{runbook_mac,jury_mode}.md` |
 
-Тесты правила `tests/unit/rules/<CODE>_test.py` — у владельца правила. При 4 сессиях: S4+S5 и S3+S6 объединяются.
+Тесты правила `tests/unit/rules/<CODE>_test.py` — у владельца правила. Кто из людей ведёт какую сессию — раздел «Участники команды» выше.
 
 У S3 и S6 по две сессии (Mac и Windows). Файлы между ними поделены:
 

@@ -1,0 +1,104 @@
+{
+  "job_id": "00000000000000000000000000000007",
+  "status": "done",
+  "pipeline_mode": "stub",
+  "created_at": "2026-10-17T09:00:00.000000Z",
+  "elapsed_sec": 0.4,
+  "queue_position": null,
+  "eta_sec": null,
+  "perception_level": "full",
+  "result_level": "rules",
+  "stages": [
+    {
+      "code": "queued",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "probe",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "perception",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "rules",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "evidence",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "vlm",
+      "status": "skipped",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "done",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    }
+  ],
+  "degradations": [
+    {
+      "stage": "perception",
+      "reason_ru": "Демонстрационный режим: AI-модели не подключены."
+    }
+  ],
+  "provisional": false,
+  "video": {
+    "url": "/api/ui/jobs/00000000000000000000000000000007/video.mp4",
+    "duration_sec": 2.0,
+    "width": 160,
+    "height": 96
+  },
+  "verdict": "violation",
+  "violations": [
+    {
+      "id": "stub-event-1",
+      "code": "STUB_EVENT",
+      "title_ru": "Демонстрационное событие (stub)",
+      "timecode_sec": 0.0,
+      "start_sec": 0.0,
+      "end_sec": 0.0,
+      "confidence": 1.0,
+      "vlm_status": "skipped",
+      "provisional": false,
+      "description_ru": "Синтетический тестовый сценарий. AI-анализ и оценка реального нарушения не выполнялись.",
+      "legal": [],
+      "legal_note_ru": "Демонстрационный режим: нормативное основание не определяется.",
+      "evidence": [
+        {
+          "timestamp_sec": 0.0,
+          "url": "/api/ui/jobs/00000000000000000000000000000007/frames/01_event.jpg",
+          "kind": "event",
+          "width": 464,
+          "height": 848
+        }
+      ]
+    }
+  ],
+  "signals": [],
+  "timings": null,
+  "error": null
+}

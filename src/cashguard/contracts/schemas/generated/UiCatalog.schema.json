@@ -1,0 +1,324 @@
+{
+  "$defs": {
+    "ActCode": {
+      "enum": [
+        "PKO",
+        "POP",
+        "POO",
+        "TIB"
+      ],
+      "title": "ActCode",
+      "type": "string"
+    },
+    "ActEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "act_code": {
+          "$ref": "#/$defs/ActCode"
+        },
+        "adilet_id": {
+          "title": "Adilet Id",
+          "type": "string"
+        },
+        "cite_ru": {
+          "minLength": 1,
+          "title": "Cite Ru",
+          "type": "string"
+        },
+        "date": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "title": "Date",
+          "type": "string"
+        },
+        "issuer": {
+          "title": "Issuer",
+          "type": "string"
+        },
+        "number": {
+          "title": "Number",
+          "type": "string"
+        },
+        "registration_no": {
+          "title": "Registration No",
+          "type": "string"
+        },
+        "scope_note_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scope Note Ru"
+        },
+        "status": {
+          "$ref": "#/$defs/ActStatus"
+        },
+        "title_ru": {
+          "minLength": 1,
+          "title": "Title Ru",
+          "type": "string"
+        },
+        "url": {
+          "pattern": "^https://adilet\\.zan\\.kz/",
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "act_code",
+        "title_ru",
+        "cite_ru",
+        "issuer",
+        "number",
+        "date",
+        "registration_no",
+        "adilet_id",
+        "url",
+        "status"
+      ],
+      "title": "ActEntry",
+      "type": "object"
+    },
+    "ActStatus": {
+      "enum": [
+        "in_force",
+        "repealed"
+      ],
+      "title": "ActStatus",
+      "type": "string"
+    },
+    "LegalStrength": {
+      "enum": [
+        "direct",
+        "indirect",
+        "none"
+      ],
+      "title": "LegalStrength",
+      "type": "string"
+    },
+    "SignalCode": {
+      "description": "Сигналы (B2): видны проверяющему в интерфейсе, на вердикт не влияют.",
+      "enum": [
+        "SIG_SEAL_NOT_INSPECTED",
+        "SIG_BAG_OPENED_WITHOUT_COLLECTOR",
+        "SIG_RECOUNT_WITHOUT_SECOND_EMPLOYEE",
+        "SIG_STAFF_CASH_TRANSFER",
+        "SIG_DOC_NOT_HANDED",
+        "SIG_REJECT_TRAY_TO_CLIENT",
+        "SIG_NO_SIGNATURE_SEEN",
+        "SIG_NO_STAMP_SEEN",
+        "SIG_MULTI_DOC_SINGLE_RECOUNT",
+        "SIG_SAFE_CLOSED_WITHOUT_COUNT",
+        "SIG_SAFE_WITHOUT_PC",
+        "SIG_CASH_TO_STAFF",
+        "SIG_CAMERA_OBSTRUCTED"
+      ],
+      "title": "SignalCode",
+      "type": "string"
+    },
+    "UiCatalogSignal": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/SignalCode"
+        },
+        "title_ru": {
+          "title": "Title Ru",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "title_ru"
+      ],
+      "title": "UiCatalogSignal",
+      "type": "object"
+    },
+    "UiCatalogType": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ViolationCode"
+        },
+        "group": {
+          "$ref": "#/$defs/ViolationGroup"
+        },
+        "legal": {
+          "items": {
+            "$ref": "#/$defs/UiLegalRef"
+          },
+          "title": "Legal",
+          "type": "array"
+        },
+        "title_ru": {
+          "title": "Title Ru",
+          "type": "string"
+        },
+        "verdict_impact": {
+          "title": "Verdict Impact",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "title_ru",
+        "group",
+        "verdict_impact",
+        "legal"
+      ],
+      "title": "UiCatalogType",
+      "type": "object"
+    },
+    "UiLegalRef": {
+      "additionalProperties": false,
+      "properties": {
+        "act_code": {
+          "title": "Act Code",
+          "type": "string"
+        },
+        "act_title_ru": {
+          "title": "Act Title Ru",
+          "type": "string"
+        },
+        "clause": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clause"
+        },
+        "note_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note Ru"
+        },
+        "quote_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Ru"
+        },
+        "strength": {
+          "$ref": "#/$defs/LegalStrength"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "act_code",
+        "act_title_ru",
+        "url",
+        "strength"
+      ],
+      "title": "UiLegalRef",
+      "type": "object"
+    },
+    "ViolationCode": {
+      "description": "Коды, влияющие на вердикт: 17 из датасета (группа A), 8 видимых новых (B1) и прочее.",
+      "enum": [
+        "CASH_WITHHELD",
+        "NO_CLIENT_ID",
+        "PREV_CASH_ON_DESK",
+        "MIXED_CLIENT_CASH",
+        "RECOUNT_WITHOUT_CLIENT",
+        "NO_AUTH_CHECK",
+        "VALUABLES_LEFT",
+        "SAFE_OPEN",
+        "SAFE_KEY_LEFT",
+        "PC_UNLOCKED",
+        "DOOR_NOT_CLOSED",
+        "OUTSIDER_IN_CASH_ROOM",
+        "THIRD_PERSON_DURING_SERVICE",
+        "COLLECTOR_NOT_VERIFIED",
+        "BAG_CASH_NO_RECOUNT",
+        "PERSONAL_ITEMS",
+        "FOOD_DRINK",
+        "PHONE_CASHIER",
+        "LEFT_DURING_SERVICE",
+        "PAYOUT_WITHOUT_RECOUNT",
+        "CHANGE_BEFORE_PREPARED",
+        "STORAGE_UNESCORTED",
+        "CASH_CONCEALED",
+        "CASH_TRANSFER_OUTSIDE_OP",
+        "UNATTENDED_PRESENCE",
+        "OTHER_VISIBLE_IRREGULARITY"
+      ],
+      "title": "ViolationCode",
+      "type": "string"
+    },
+    "ViolationGroup": {
+      "enum": [
+        "leave",
+        "access",
+        "cashops",
+        "collection",
+        "discipline",
+        "presence",
+        "other"
+      ],
+      "title": "ViolationGroup",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``GET /api/ui/catalog``: типы, сигналы и акты. ETag = ``config_hash``.",
+  "properties": {
+    "acts": {
+      "items": {
+        "$ref": "#/$defs/ActEntry"
+      },
+      "title": "Acts",
+      "type": "array"
+    },
+    "config_hash": {
+      "title": "Config Hash",
+      "type": "string"
+    },
+    "signals": {
+      "items": {
+        "$ref": "#/$defs/UiCatalogSignal"
+      },
+      "title": "Signals",
+      "type": "array"
+    },
+    "types": {
+      "items": {
+        "$ref": "#/$defs/UiCatalogType"
+      },
+      "title": "Types",
+      "type": "array"
+    }
+  },
+  "required": [
+    "config_hash",
+    "types",
+    "signals",
+    "acts"
+  ],
+  "title": "UiCatalog",
+  "type": "object"
+}

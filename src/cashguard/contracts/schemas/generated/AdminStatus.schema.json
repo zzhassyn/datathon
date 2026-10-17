@@ -1,0 +1,311 @@
+{
+  "$defs": {
+    "MemoryStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "available_gb": {
+          "title": "Available Gb",
+          "type": "number"
+        },
+        "mlx_active_gb": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mlx Active Gb"
+        },
+        "mlx_peak_gb": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mlx Peak Gb"
+        }
+      },
+      "required": [
+        "available_gb"
+      ],
+      "title": "MemoryStatus",
+      "type": "object"
+    },
+    "ModelRef": {
+      "additionalProperties": false,
+      "properties": {
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "sha256"
+      ],
+      "title": "ModelRef",
+      "type": "object"
+    },
+    "QueueDepth": {
+      "additionalProperties": false,
+      "properties": {
+        "perception": {
+          "minimum": 0,
+          "title": "Perception",
+          "type": "integer"
+        },
+        "vlm": {
+          "minimum": 0,
+          "title": "Vlm",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "perception",
+        "vlm"
+      ],
+      "title": "QueueDepth",
+      "type": "object"
+    },
+    "RecentJob": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "n": {
+          "minimum": 0,
+          "title": "N",
+          "type": "integer"
+        },
+        "perception_level": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Perception Level"
+        },
+        "result_level": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result Level"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "timings": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Timings",
+          "type": "object"
+        },
+        "verdict": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verdict"
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "status",
+        "n"
+      ],
+      "title": "RecentJob",
+      "type": "object"
+    },
+    "WorkerStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "job_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Job Id"
+        },
+        "mlx_active_mb": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mlx Active Mb"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "pid": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pid"
+        },
+        "quant": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quant"
+        },
+        "role": {
+          "title": "Role",
+          "type": "string"
+        },
+        "rss_mb": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rss Mb"
+        },
+        "state": {
+          "enum": [
+            "warming",
+            "idle",
+            "busy",
+            "draining",
+            "dead"
+          ],
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "role",
+        "state"
+      ],
+      "title": "WorkerStatus",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``GET /api/v1/admin/status`` (только ключ команды).",
+  "properties": {
+    "disk_free_gb": {
+      "title": "Disk Free Gb",
+      "type": "number"
+    },
+    "memory": {
+      "$ref": "#/$defs/MemoryStatus"
+    },
+    "models": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ModelRef"
+      },
+      "title": "Models",
+      "type": "object"
+    },
+    "queue": {
+      "$ref": "#/$defs/QueueDepth"
+    },
+    "recent_jobs": {
+      "items": {
+        "$ref": "#/$defs/RecentJob"
+      },
+      "title": "Recent Jobs",
+      "type": "array"
+    },
+    "tunnel_ready": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tunnel Ready"
+    },
+    "versions": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Versions",
+      "type": "object"
+    },
+    "workers": {
+      "items": {
+        "$ref": "#/$defs/WorkerStatus"
+      },
+      "title": "Workers",
+      "type": "array"
+    }
+  },
+  "required": [
+    "versions",
+    "models",
+    "queue",
+    "workers",
+    "recent_jobs",
+    "memory",
+    "disk_free_gb"
+  ],
+  "title": "AdminStatus",
+  "type": "object"
+}

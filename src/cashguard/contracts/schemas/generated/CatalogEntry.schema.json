@@ -1,0 +1,236 @@
+{
+  "$defs": {
+    "ActCode": {
+      "enum": [
+        "PKO",
+        "POP",
+        "POO",
+        "TIB"
+      ],
+      "title": "ActCode",
+      "type": "string"
+    },
+    "LegalRef": {
+      "additionalProperties": false,
+      "description": "Ссылка на норму. ``quote_ru`` дословно присутствует в ``analysis/normative/*.txt``.",
+      "properties": {
+        "act_code": {
+          "$ref": "#/$defs/ActCode"
+        },
+        "act_title_ru": {
+          "minLength": 1,
+          "title": "Act Title Ru",
+          "type": "string"
+        },
+        "applies_if": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Applies If"
+        },
+        "clause": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clause"
+        },
+        "note_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note Ru"
+        },
+        "quote_ru": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Ru"
+        },
+        "strength": {
+          "$ref": "#/$defs/LegalStrength"
+        },
+        "url": {
+          "pattern": "^https://adilet\\.zan\\.kz/",
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "act_code",
+        "act_title_ru",
+        "url",
+        "strength"
+      ],
+      "title": "LegalRef",
+      "type": "object"
+    },
+    "LegalStrength": {
+      "enum": [
+        "direct",
+        "indirect",
+        "none"
+      ],
+      "title": "LegalStrength",
+      "type": "string"
+    },
+    "TimecodePolicy": {
+      "description": "Какой момент становится ``timecode_sec``.",
+      "enum": [
+        "event",
+        "exit",
+        "state_start",
+        "omission_due"
+      ],
+      "title": "TimecodePolicy",
+      "type": "string"
+    },
+    "ViolationCode": {
+      "description": "Коды, влияющие на вердикт: 17 из датасета (группа A), 8 видимых новых (B1) и прочее.",
+      "enum": [
+        "CASH_WITHHELD",
+        "NO_CLIENT_ID",
+        "PREV_CASH_ON_DESK",
+        "MIXED_CLIENT_CASH",
+        "RECOUNT_WITHOUT_CLIENT",
+        "NO_AUTH_CHECK",
+        "VALUABLES_LEFT",
+        "SAFE_OPEN",
+        "SAFE_KEY_LEFT",
+        "PC_UNLOCKED",
+        "DOOR_NOT_CLOSED",
+        "OUTSIDER_IN_CASH_ROOM",
+        "THIRD_PERSON_DURING_SERVICE",
+        "COLLECTOR_NOT_VERIFIED",
+        "BAG_CASH_NO_RECOUNT",
+        "PERSONAL_ITEMS",
+        "FOOD_DRINK",
+        "PHONE_CASHIER",
+        "LEFT_DURING_SERVICE",
+        "PAYOUT_WITHOUT_RECOUNT",
+        "CHANGE_BEFORE_PREPARED",
+        "STORAGE_UNESCORTED",
+        "CASH_CONCEALED",
+        "CASH_TRANSFER_OUTSIDE_OP",
+        "UNATTENDED_PRESENCE",
+        "OTHER_VISIBLE_IRREGULARITY"
+      ],
+      "title": "ViolationCode",
+      "type": "string"
+    },
+    "ViolationGroup": {
+      "enum": [
+        "leave",
+        "access",
+        "cashops",
+        "collection",
+        "discipline",
+        "presence",
+        "other"
+      ],
+      "title": "ViolationGroup",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Запись ``configs/catalog/<CODE>.yaml``.",
+  "properties": {
+    "code": {
+      "$ref": "#/$defs/ViolationCode"
+    },
+    "group": {
+      "$ref": "#/$defs/ViolationGroup"
+    },
+    "legal": {
+      "items": {
+        "$ref": "#/$defs/LegalRef"
+      },
+      "title": "Legal",
+      "type": "array"
+    },
+    "owner": {
+      "pattern": "^S[0-6]$",
+      "title": "Owner",
+      "type": "string"
+    },
+    "pdf_items": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Pdf Items",
+      "type": "array"
+    },
+    "required_facts": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Facts",
+      "type": "array"
+    },
+    "template_ru": {
+      "minLength": 1,
+      "title": "Template Ru",
+      "type": "string"
+    },
+    "timecode_policy": {
+      "$ref": "#/$defs/TimecodePolicy"
+    },
+    "title_ru": {
+      "minLength": 1,
+      "title": "Title Ru",
+      "type": "string"
+    },
+    "verdict_impact": {
+      "title": "Verdict Impact",
+      "type": "boolean"
+    },
+    "vlm_question_ru": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Vlm Question Ru"
+    }
+  },
+  "required": [
+    "code",
+    "title_ru",
+    "group",
+    "verdict_impact",
+    "timecode_policy",
+    "template_ru",
+    "owner"
+  ],
+  "title": "CatalogEntry",
+  "type": "object"
+}

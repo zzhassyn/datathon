@@ -1,0 +1,607 @@
+{
+  "$defs": {
+    "EvidenceKind": {
+      "enum": [
+        "event",
+        "zoom",
+        "context"
+      ],
+      "title": "EvidenceKind",
+      "type": "string"
+    },
+    "JobStatus": {
+      "enum": [
+        "queued",
+        "running",
+        "done",
+        "failed"
+      ],
+      "title": "JobStatus",
+      "type": "string"
+    },
+    "LegalStrength": {
+      "enum": [
+        "direct",
+        "indirect",
+        "none"
+      ],
+      "title": "LegalStrength",
+      "type": "string"
+    },
+    "PerceptionLevel": {
+      "enum": [
+        "full",
+        "fast",
+        "min"
+      ],
+      "title": "PerceptionLevel",
+      "type": "string"
+    },
+    "ResultLevel": {
+      "enum": [
+        "full",
+        "partial",
+        "rules"
+      ],
+      "title": "ResultLevel",
+      "type": "string"
+    },
+    "StageCode": {
+      "enum": [
+        "queued",
+        "probe",
+        "perception",
+        "rules",
+        "evidence",
+        "vlm",
+        "done"
+      ],
+      "title": "StageCode",
+      "type": "string"
+    },
+    "StageState": {
+      "additionalProperties": false,
+      "description": "Стадия обработки для интерфейса.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/StageCode"
+        },
+        "elapsed_sec": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Elapsed Sec"
+        },
+        "note_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note Ru"
+        },
+        "progress": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Progress",
+          "type": "number"
+        },
+        "status": {
+          "$ref": "#/$defs/StageStatus"
+        }
+      },
+      "required": [
+        "code",
+        "status",
+        "progress"
+      ],
+      "title": "StageState",
+      "type": "object"
+    },
+    "StageStatus": {
+      "enum": [
+        "pending",
+        "running",
+        "done",
+        "skipped",
+        "failed"
+      ],
+      "title": "StageStatus",
+      "type": "string"
+    },
+    "UiDegradation": {
+      "additionalProperties": false,
+      "properties": {
+        "reason_ru": {
+          "title": "Reason Ru",
+          "type": "string"
+        },
+        "stage": {
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "required": [
+        "stage",
+        "reason_ru"
+      ],
+      "title": "UiDegradation",
+      "type": "object"
+    },
+    "UiError": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message_ru": {
+          "title": "Message Ru",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message_ru"
+      ],
+      "title": "UiError",
+      "type": "object"
+    },
+    "UiEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/EvidenceKind"
+        },
+        "timestamp_sec": {
+          "minimum": 0,
+          "title": "Timestamp Sec",
+          "type": "number"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "timestamp_sec",
+        "url",
+        "kind",
+        "width",
+        "height"
+      ],
+      "title": "UiEvidence",
+      "type": "object"
+    },
+    "UiLegalRef": {
+      "additionalProperties": false,
+      "properties": {
+        "act_code": {
+          "title": "Act Code",
+          "type": "string"
+        },
+        "act_title_ru": {
+          "title": "Act Title Ru",
+          "type": "string"
+        },
+        "clause": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clause"
+        },
+        "note_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note Ru"
+        },
+        "quote_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Ru"
+        },
+        "strength": {
+          "$ref": "#/$defs/LegalStrength"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "act_code",
+        "act_title_ru",
+        "url",
+        "strength"
+      ],
+      "title": "UiLegalRef",
+      "type": "object"
+    },
+    "UiSignal": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "description_ru": {
+          "title": "Description Ru",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/UiEvidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "t_sec": {
+          "minimum": 0,
+          "title": "T Sec",
+          "type": "number"
+        },
+        "title_ru": {
+          "title": "Title Ru",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "title_ru",
+        "t_sec",
+        "description_ru"
+      ],
+      "title": "UiSignal",
+      "type": "object"
+    },
+    "UiVideo": {
+      "additionalProperties": false,
+      "properties": {
+        "duration_sec": {
+          "minimum": 0,
+          "title": "Duration Sec",
+          "type": "number"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "url",
+        "duration_sec",
+        "width",
+        "height"
+      ],
+      "title": "UiVideo",
+      "type": "object"
+    },
+    "UiViolation": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "description_ru": {
+          "title": "Description Ru",
+          "type": "string"
+        },
+        "end_sec": {
+          "minimum": 0,
+          "title": "End Sec",
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/UiEvidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "legal": {
+          "items": {
+            "$ref": "#/$defs/UiLegalRef"
+          },
+          "title": "Legal",
+          "type": "array"
+        },
+        "legal_note_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Legal Note Ru"
+        },
+        "provisional": {
+          "title": "Provisional",
+          "type": "boolean"
+        },
+        "start_sec": {
+          "minimum": 0,
+          "title": "Start Sec",
+          "type": "number"
+        },
+        "timecode_sec": {
+          "minimum": 0,
+          "title": "Timecode Sec",
+          "type": "number"
+        },
+        "title_ru": {
+          "title": "Title Ru",
+          "type": "string"
+        },
+        "vlm_status": {
+          "$ref": "#/$defs/VlmStatus"
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "title_ru",
+        "timecode_sec",
+        "start_sec",
+        "end_sec",
+        "confidence",
+        "vlm_status",
+        "provisional",
+        "description_ru",
+        "legal",
+        "evidence"
+      ],
+      "title": "UiViolation",
+      "type": "object"
+    },
+    "VlmStatus": {
+      "enum": [
+        "confirmed",
+        "downweighted",
+        "unverified",
+        "skipped"
+      ],
+      "title": "VlmStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``GET /api/ui/jobs/{job_id}``. Интерфейс опрашивает раз в секунду, пока задача не готова.",
+  "properties": {
+    "created_at": {
+      "title": "Created At",
+      "type": "string"
+    },
+    "degradations": {
+      "items": {
+        "$ref": "#/$defs/UiDegradation"
+      },
+      "title": "Degradations",
+      "type": "array"
+    },
+    "elapsed_sec": {
+      "minimum": 0,
+      "title": "Elapsed Sec",
+      "type": "number"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UiError"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "eta_sec": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Eta Sec"
+    },
+    "job_id": {
+      "title": "Job Id",
+      "type": "string"
+    },
+    "perception_level": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PerceptionLevel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "pipeline_mode": {
+      "enum": [
+        "stub",
+        "replay",
+        "full"
+      ],
+      "title": "Pipeline Mode",
+      "type": "string"
+    },
+    "provisional": {
+      "default": false,
+      "title": "Provisional",
+      "type": "boolean"
+    },
+    "queue_position": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Queue Position"
+    },
+    "result_level": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResultLevel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "signals": {
+      "items": {
+        "$ref": "#/$defs/UiSignal"
+      },
+      "title": "Signals",
+      "type": "array"
+    },
+    "stages": {
+      "items": {
+        "$ref": "#/$defs/StageState"
+      },
+      "title": "Stages",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/JobStatus"
+    },
+    "timings": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Timings"
+    },
+    "verdict": {
+      "anyOf": [
+        {
+          "enum": [
+            "violation",
+            "no_violation"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verdict"
+    },
+    "video": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UiVideo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "violations": {
+      "items": {
+        "$ref": "#/$defs/UiViolation"
+      },
+      "title": "Violations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "job_id",
+    "status",
+    "pipeline_mode",
+    "created_at",
+    "elapsed_sec",
+    "stages"
+  ],
+  "title": "UiJobView",
+  "type": "object"
+}

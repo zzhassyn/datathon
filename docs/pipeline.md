@@ -1012,11 +1012,11 @@ owner: S4
 
 ### 17.6 `configs/catalog/signals.yaml` (S0, затем S6)
 
-Список `{code, title_ru, pdf_item, template_ru}` для 13 кодов `SIG_*`; формулировки «не наблюдается…». Поля `legal` нет: в v1 у сигналов норм нет (`UiSignal` без `legal`; [legal_sources.md](legal_sources.md), раздел 4).
+Список `{code, title_ru, template_ru, required_facts, pdf_items}` (модель `SignalCatalog{signals: list[SignalEntry]}`) для 13 кодов `SIG_*`; формулировки «не наблюдается…». Поля `legal` нет: в v1 у сигналов норм нет (`UiSignal` без `legal`; [legal_sources.md](legal_sources.md), раздел 4).
 
 ### 17.7 `configs/legal/acts.yaml` (S0, затем S5)
 
-Корневая модель `Acts{acts: list[ActEntry], do_not_cite: list[str]}` (`contracts/catalog.py`). На акт (`ActEntry`): `act_code` (`PKO`, `POP`, `POO`, `TIB`), `title_ru`, `cite_ru` (краткая форма для `{act_cite}`), `issuer`, `number`, `date`, `registration_no`, `adilet_id`, `url`, `status`. `do_not_cite` — утратившие силу акты (НБРК № 58, № 250, № 48, № 254). Пример — [legal_sources.md](legal_sources.md), раздел 2.
+Корневая модель `ActsFile{acts: list[ActEntry], do_not_cite: list[DoNotCite{title_ru, reason_ru}]}` (`contracts/catalog.py`); `status` — перечисление `in_force | repealed`. На акт (`ActEntry`): `act_code` (`PKO`, `POP`, `POO`, `TIB`), `title_ru`, `cite_ru` (краткая форма для `{act_cite}`), `issuer`, `number`, `date`, `registration_no`, `adilet_id`, `url`, `status`. `do_not_cite` — утратившие силу акты (НБРК № 58, № 250, № 48, № 254). Пример — [legal_sources.md](legal_sources.md), раздел 2.
 
 ### 17.8 `configs/vlm.yaml` (S6)
 
