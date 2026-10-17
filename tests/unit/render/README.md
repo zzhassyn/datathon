@@ -1,8 +1,9 @@
-# `tests/unit/render/` — тесты `render`
+# `tests/unit/render/` — тесты рендера
 
-> **Назначение:** Модульные тесты пакета `src/cashguard/pipeline/render`: рендер `jury.json` по схеме, безопасный fallback.
-> **Владелец:** S1 · **Статус:** черновик v1, 17.10.2026 (каркас: кода ещё нет)
+Владелец: S1. `test_jury.py` проверяет замороженную схему, статусы, таймкоды/PTS, safe fallback, no-false-clean, ограничения списков, JPEG framing и действительное декодирование synthetic JPEG через PyAV. UI проверяется на отсутствие base64 и безопасные URL.
 
-## Документы
+```sh
+PYTHONPATH=src .venv/bin/python -m pytest tests/unit/render -q
+```
 
-- [docs/api.md — API жюри и интерфейса](../../../docs/api.md)
+Fixtures — только публичный синтетический JPEG из `tests/fixtures/jury_example.json`; видео/кадры датасета не используются.
