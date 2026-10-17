@@ -1,5 +1,7 @@
 # План обучения моделей (MacBook Pro M2 Pro, 16 ГБ)
 
+> **Датасеты v3, 18.10.2026:** [Forte Open Annotated v3](open-annotated-v3/README.md) — отдельный экспериментальный комплект detector / door / Qwen с архивом в приватном Release. Ниже сохранён исходный план сервиса; Qwen LoRA из v3 пока не интегрирована в него.
+
 > **Статус ветки `training-plan`:** готовы установка окружения (`setup_mac.sh`), загрузка моделей (`download_models.sh`) и скрипты этапов A–D (`training/scripts/`, `run_stage_a.sh`, `run_stage_c.sh`). Если окружение на Mac собрано раньше, после `git pull` повторите `bash training/setup_mac.sh`: он не пересоздаёт `.venv-train`, а только обновляет пакеты (в том числе `numpy<=2.3.5` для экспорта в Core ML).
 
 Пайплайн готовит данные и обучает модели из [analysis/detection_design.md](../analysis/detection_design.md):

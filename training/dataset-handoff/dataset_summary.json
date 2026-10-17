@@ -1,0 +1,84 @@
+{
+  "status": "READY_TO_FINE_TUNE_EXPERIMENTAL_BASELINE",
+  "annotation_status": "ai_visual_reviewed",
+  "human_verified": false,
+  "detector_images": 171,
+  "bank_detector_images": 103,
+  "external_detector_images": 68,
+  "detector_images_by_split": {
+    "train": 147,
+    "val": 17,
+    "external_val": 7
+  },
+  "detector_boxes_by_split": {
+    "train": {
+      "3": 89,
+      "5": 89,
+      "6": 86,
+      "7": 93,
+      "8": 82,
+      "0": 101,
+      "4": 5,
+      "1": 72,
+      "9": 4,
+      "10": 5,
+      "2": 7,
+      "11": 5,
+      "12": 12
+    },
+    "val": {
+      "3": 15,
+      "5": 17,
+      "6": 17,
+      "7": 17,
+      "8": 17,
+      "0": 22,
+      "1": 9,
+      "11": 3,
+      "2": 2,
+      "9": 5,
+      "4": 2
+    },
+    "external_val": {
+      "10": 1,
+      "11": 3,
+      "5": 1,
+      "0": 3
+    }
+  },
+  "door_images": 121,
+  "door_counts": {
+    "train/closed": 77,
+    "train/open": 25,
+    "val/closed": 16,
+    "val/open": 3
+  },
+  "temporal_videos": 34,
+  "temporal_point_observations": 272,
+  "source_unique_videos": 40,
+  "test_unique_videos": 6,
+  "unsupported_detector_classes": [
+    {
+      "id": 13,
+      "name": "outerwear"
+    }
+  ],
+  "trained_tasks": [
+    "detector",
+    "door"
+  ],
+  "not_trained": [
+    "roles",
+    "temporal_sequence_model",
+    "Qwen_LoRA",
+    "screen",
+    "safe_lock",
+    "outerwear"
+  ],
+  "training_executed": false,
+  "target_M2Pro_training_executed": false,
+  "split_policy": "Original take_group kept intact; shared physical room/camera across different takes remains. New-camera generalization NOT established.",
+  "exact_duplicate_cross_split": "PASS",
+  "group_split": "PASS",
+  "new_camera_accuracy": "NOT_MEASURED"
+}

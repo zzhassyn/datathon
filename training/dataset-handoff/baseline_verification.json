@@ -1,0 +1,25 @@
+{
+  "timestamp_utc": "2026-10-17T17:31:13.932671+00:00",
+  "preparation_host": "Apple M2 8 GiB",
+  "target": "M2 Pro 16 GiB",
+  "fresh_offline_python_and_wheels_install": "PASS",
+  "pip_check": "PASS",
+  "os_network_sandbox_used": true,
+  "data_preflight": "PASS",
+  "detector_class_mapping": "PASS",
+  "classifier_train_and_val_full_roi_transform": "PASS",
+  "pretrained_checkpoints_loaded": "PASS",
+  "regression_tests_passed": 6,
+  "training_executed": false,
+  "target_training_executed": false,
+  "target_backprop_memory_test": "NOT_RUN",
+  "model_quality": "NOT_MEASURED",
+  "review_status": "ai_visual_reviewed, not human gold",
+  "scope": "171 detector images, 121 door crops, 272 point observations in 34 videos",
+  "limits": [
+    "6 test videos never used for training annotation",
+    "No proof of new-camera generalization",
+    "No learned role/temporal model in default run",
+    "Screen, safe_lock and outerwear not trained"
+  ]
+}

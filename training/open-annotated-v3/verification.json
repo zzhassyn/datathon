@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "orchestrator_command": "python3 train.py --check-loaders",
+  "all_tasks_sequentially_checked": true,
+  "training_executed": false,
+  "inference_executed": false,
+  "checks": [
+    "integrity.json",
+    "loader_detector.json",
+    "loader_door.json",
+    "qwen_tokenization.json"
+  ],
+  "annotation_quality_status": "AI_REVIEWED_NOT_HUMAN_ACCEPTED",
+  "dense_temporal_boundaries": "NOT_ANNOTATED",
+  "new_camera_quality": "NOT_MEASURED",
+  "review_page_local_links": "PASS"
+}
