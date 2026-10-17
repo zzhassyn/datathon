@@ -130,7 +130,7 @@ svg {
   gap: 12px;
   margin-top: 28px;
 }
-.rail nav a {
+.rail :where(nav) a {
   display: grid;
   place-items: center;
   width: 44px;
@@ -138,7 +138,7 @@ svg {
   border-radius: 9px;
   color: #b8b8c2;
 }
-.rail nav a.active {
+.rail :where(nav) a.active {
   background: var(--accent);
   color: white;
 }
@@ -417,5 +417,140 @@ blockquote {
   *::after {
     scroll-behavior: auto;
     transition: none;
+  }
+}
+
+.dragging {
+  border-color: #ed6da6;
+  background: #2b1924;
+}
+.dropzone progress {
+  width: min(480px, 100%);
+  height: 7px;
+  accent-color: var(--accent);
+}
+.upload-stats {
+  display: flex;
+  gap: 28px;
+  font-size: 13px;
+}
+.file-name {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.recent {
+  margin-top: 36px;
+}
+.recent-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.recent-row > a {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 6px;
+}
+.recent-row strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.recent-row .muted {
+  font-size: 11px;
+}
+.quiet {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+  font-size: 12px;
+}
+.icon-button {
+  width: 44px;
+  padding: 10px;
+}
+.ready-state {
+  white-space: nowrap;
+}
+.progress-panel {
+  margin: 22px 0;
+}
+.stages {
+  display: flex;
+  gap: 24px;
+  padding: 15px 0 0;
+  margin: 0;
+  list-style: none;
+  flex-wrap: wrap;
+}
+.stages li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+}
+.stages li > div {
+  display: grid;
+  gap: 5px;
+}
+.stage-dot {
+  width: 8px;
+  height: 8px;
+  border: 1px solid #777780;
+  border-radius: 50%;
+  margin-top: 5px;
+}
+.stage-dot.done {
+  background: #75c39e;
+  border-color: #75c39e;
+}
+.stage-dot.running {
+  background: #ea6ba3;
+  border-color: #ea6ba3;
+}
+.stage-dot.failed {
+  background: #f79cae;
+  border-color: #f79cae;
+}
+.stages progress {
+  width: 100px;
+  accent-color: var(--accent);
+}
+.access-form {
+  max-width: 450px;
+  display: grid;
+  gap: 18px;
+  margin: 24px auto;
+}
+.access-form label {
+  display: grid;
+  gap: 10px;
+  font-size: 13px;
+}
+@media (max-width: 700px) {
+  .recent-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .recent-row .badge {
+    max-width: 160px;
+    font-size: 10px;
+  }
+  .recent-row > svg {
+    display: none;
+  }
+  .recent-row > a {
+    min-width: 100px;
+  }
+  .stages {
+    gap: 16px;
+  }
+  .ready-state {
+    white-space: normal;
   }
 }
