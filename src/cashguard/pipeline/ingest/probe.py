@@ -50,6 +50,11 @@ def probe(path: Path | str, *, deep: bool = False) -> VideoInfo:
                 if marker in {"cg-stub:clean", "cg-stub:violation"}
                 else None
             )
+            # Display matrices are exposed on decoded frames, not rotate metadata.
+            # Decode one frame to distinguish rotated H.264 from remux-safe input.
+            first_frame = next(container.decode(stream), None) if stream is not None else None
+            if first_frame is not None:
+                rotation = int(getattr(first_frame, "rotation", rotation))
             if deep:
                 if (
                     stream is None
@@ -57,7 +62,7 @@ def probe(path: Path | str, *, deep: bool = False) -> VideoInfo:
                     or not (0 < width <= 4096 and 0 < height <= 4096)
                 ):
                     raise UnsupportedVideo("Недопустимые параметры видеопотока")
-                frame = next(container.decode(stream), None)
+                frame = first_frame
                 if frame is None or frame.pts is None:
                     raise UnsupportedVideo("Первый видеокадр не декодируется")
                 rotation = int(getattr(frame, "rotation", rotation))

@@ -44,6 +44,10 @@ async def ingest_upload(
                 received_at=received_at,
                 duration_sec=meta.duration_sec,
                 source=source,
+                # A transcoded UI preview belongs to its own durable worker job.
+                # Until preview has a separate queue, do not link these jobs to a
+                # jury-only or already-finalized parent that cannot create it.
+                deduplicate=not (source == "ui" and meta.needs_transcode),
                 width=meta.width,
                 height=meta.height,
                 codec=meta.codec,

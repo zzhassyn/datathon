@@ -15,7 +15,8 @@ from starlette.responses import FileResponse, JSONResponse
 
 from cashguard.contracts.ui import UiJobView
 from cashguard.core.atomic import atomic_write_json
-from cashguard.pipeline.render.jury import validate_jury
+from cashguard.pipeline.ingest.probe import probe
+from cashguard.pipeline.render.jury import validate_jpeg, validate_jury
 
 log = logging.getLogger(__name__)
 
@@ -159,6 +160,19 @@ def legal_note_ru(violation: dict) -> str | None:
     return LEGAL_SYNTHETIC_RU if violation.get("code") == "STUB_EVENT" else LEGAL_UNKNOWN_RU
 
 
+@lru_cache(maxsize=128)
+def preview_info(path: str, mtime_ns: int, size: int):
+    meta = probe(path)
+    if meta.width <= 0 or meta.height <= 0 or meta.duration_sec <= 0:
+        raise ValueError("invalid preview")
+    return meta
+
+
+@lru_cache(maxsize=128)
+def validate_frame(path: str, mtime_ns: int, size: int) -> None:
+    validate_jpeg(Path(path).read_bytes())
+
+
 def ui_view(request: Request, job_id: str) -> dict:
     original, job = lookup(request, job_id, ui=True)
     fragment = {"verdict": None, "violations": [], "signals": []}
@@ -174,8 +188,20 @@ def ui_view(request: Request, job_id: str) -> dict:
         violation["legal_note_ru"] = legal_note_ru(violation)
         for frame in violation.get("evidence", []):
             frame["url"] = frame["url"].replace(f"/jobs/{job.id}/", f"/jobs/{job_id}/")
-    metadata = original.metadata
     preview = request.app.state.settings.paths.job_dir(job_id) / "preview.mp4"
+    video = None
+    if preview.is_file():
+        try:
+            stat = preview.stat()
+            preview_meta = preview_info(str(preview), stat.st_mtime_ns, stat.st_size)
+            video = {
+                "url": f"/api/ui/jobs/{job_id}/video.mp4",
+                "duration_sec": preview_meta.duration_sec,
+                "width": preview_meta.width,
+                "height": preview_meta.height,
+            }
+        except (OSError, ValueError):
+            pass
     stages = json.loads(job.stages_json)
     if not stages:
         stages = [
@@ -207,14 +233,7 @@ def ui_view(request: Request, job_id: str) -> dict:
         )
         + [degradation_ru(str(reason)) for reason in job.degradations],
         "provisional": bool(job.provisional_at and job.status not in {"done", "failed"}),
-        "video": {
-            "url": f"/api/ui/jobs/{job_id}/video.mp4",
-            "duration_sec": original.duration_sec,
-            "width": metadata.get("width", 0),
-            "height": metadata.get("height", 0),
-        }
-        if preview.is_file()
-        else None,
+        "video": video,
         "verdict": fragment.get("verdict"),
         "violations": fragment.get("violations", []),
         "signals": fragment.get("signals", []),

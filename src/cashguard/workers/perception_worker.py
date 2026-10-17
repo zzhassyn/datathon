@@ -1,6 +1,8 @@
 """Infrastructure adapter; the real stage runner is owned by S0/S3."""
 
+import time
 import uuid
+from pathlib import Path
 
 import structlog
 from av.error import FFmpegError
@@ -8,6 +10,8 @@ from av.error import FFmpegError
 from cashguard.core.atomic import atomic_write_bytes, atomic_write_json
 from cashguard.core.budget import Budget
 from cashguard.jobs.repo import JobRecord
+from cashguard.pipeline.ingest.preview import make_preview
+from cashguard.pipeline.ingest.probe import probe
 from cashguard.pipeline.render.ui import build_ui_result_fragment
 from cashguard.pipeline.stub import StubDeadlineError, StubInputError, run_stub_analysis
 from cashguard.workers.base import Worker
@@ -16,6 +20,17 @@ from cashguard.workers.base import Worker
 class PerceptionWorker(Worker):
     def process(self, job: JobRecord) -> None:
         try:
+            if job.source == "ui":
+                meta = probe(job.input_path, deep=True)
+                preview = self.settings.paths.job_dir(job.id) / "preview.mp4"
+                if meta.needs_transcode:
+                    make_preview(
+                        Path(job.input_path),
+                        meta,
+                        preview,
+                        transcode=True,
+                        deadline=min(time.time() + 30, job.tiers.finalize_at - 5),
+                    )
             result = run_stub_analysis(
                 job.input_path,
                 job.id,

@@ -8,7 +8,7 @@ from starlette.responses import FileResponse, JSONResponse, Response
 
 from cashguard.api.ingest_service import ingest_upload
 from cashguard.api.ratelimit import client_ip
-from cashguard.api.views import lookup, result_path, ui_view
+from cashguard.api.views import lookup, preview_info, result_path, ui_view, validate_frame
 
 
 def session_token(request):
@@ -84,6 +84,11 @@ async def video(job_id: str, request: Request):
     path = (root / "preview.mp4").resolve()
     if not path.is_relative_to(root) or not path.is_file():
         raise HTTPException(404, "preview not ready")
+    try:
+        stat = path.stat()
+        await run_in_threadpool(preview_info, str(path), stat.st_mtime_ns, stat.st_size)
+    except (OSError, ValueError):
+        raise HTTPException(404, "preview unavailable") from None
     return FileResponse(
         path, media_type="video/mp4", headers={"Cache-Control": "private, max-age=3600"}
     )
@@ -101,6 +106,11 @@ async def frame(job_id: str, name: str, request: Request):
     path = (root / name).resolve()
     if not path.is_relative_to(root.resolve()) or not path.is_file():
         raise HTTPException(404, "frame not found")
+    try:
+        stat = path.stat()
+        await run_in_threadpool(validate_frame, str(path), stat.st_mtime_ns, stat.st_size)
+    except (OSError, ValueError):
+        raise HTTPException(404, "frame unavailable") from None
     return FileResponse(
         path,
         media_type="image/jpeg",
