@@ -58,6 +58,11 @@ Supervisor поднимает API с reload и один `--role all` в свеж
 
 ## Подготовка K4
 
+18.10.2026: `process_pipeline` привязывает progress зарегистрированных стадий к
+`report_progress` с текущим lease-token; `runner` исполняет набор из явной фабрики.
+Реальные full/replay startup guards остаются: concrete ML/scene/rules/VLM adapters
+ещё не поставлены. Обработка ошибок не подменяется чистым вердиктом.
+
 `process_pipeline` вызывает frozen `load_stages/run_perception_stage`, затем
 `publish_analysis`. Публикация типизированного `AnalysisResult` проверена на синтетике:
 идентичность задания/sha256, безопасные JPEG, несколько событий, сигналы, нормы,

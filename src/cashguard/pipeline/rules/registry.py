@@ -74,9 +74,16 @@ def evaluate_all(
     configs: Mapping[str, RuleConfig] | None = None,
     registry: RuleRegistry | None = None,
 ) -> tuple[list[Candidate], list[Signal]]:
-    """Запускает все включённые правила и сигналы. Упавшее правило пропускается и пишется в лог."""
+    """Запускает включённые правила и сигналы. Сбой не превращается в чистый результат."""
     reg = registry if registry is not None else discover()
+    if not reg.codes:
+        raise RuntimeError("Нет подключённых правил: анализ не выполнен")
     cfgs = configs or {}
+    if not any(
+        rule.verdict_impact and cfgs.get(code, RuleConfig(code=code)).enabled
+        for code, rule in reg.rules.items()
+    ):
+        raise RuntimeError("Нет включённых правил вердикта: анализ не выполнен")
     candidates: list[Candidate] = []
     signals: list[Signal] = []
 
@@ -86,9 +93,9 @@ def evaluate_all(
             continue
         try:
             found = rule.evaluate(base.model_copy(update={"cfg": cfg}))
-        except Exception:
-            log.exception("правило %s упало и пропущено", code)
-            continue
+        except Exception as error:
+            log.exception("Ошибка правила %s", code)
+            raise RuntimeError(f"Ошибка правила {code}") from error
         for cand in found:
             if str(cand.code) != code:
                 msg = f"правило {code} вернуло кандидата с кодом {cand.code}"
@@ -104,8 +111,9 @@ def evaluate_all(
             continue
         try:
             signals.extend(sig.evaluate(base.model_copy(update={"cfg": cfg})))
-        except Exception:
-            log.exception("сигнал %s упал и пропущен", code)
+        except Exception as error:
+            log.exception("Ошибка сигнала %s", code)
+            raise RuntimeError(f"Ошибка сигнала {code}") from error
 
     candidates.sort(key=lambda c: (c.t_sec, str(c.code)))
     signals.sort(key=lambda s: (s.t_sec, str(s.code)))

@@ -134,9 +134,10 @@ class StageBudget(Protocol):
 
 
 def load_stages(mode: PipelineMode) -> StageSet:
-    """Реализации стадий для режима. Подключаются в P1-S0-01 по мере готовности срезов S1–S6."""
-    msg = f"стадии режима {mode} подключаются в P1-S0-01"
-    raise NotImplementedError(msg)
+    """Явно зарегистрированная в spawned worker фабрика режима; без stub fallback."""
+    from cashguard.pipeline.runtime import load_bound_stages
+
+    return load_bound_stages(mode)
 
 
 def run_perception_stage(job: StageJob, budget: StageBudget, stages: StageSet) -> AnalysisResult:
@@ -145,8 +146,9 @@ def run_perception_stage(job: StageJob, budget: StageBudget, stages: StageSet) -
     Пишет ``trace.json.gz``, ``candidates.json``, ``evidence/``, ``analysis.json`` и предварительный
     ``jury.json``; возвращает предварительный ``AnalysisResult`` (уровень ``rules``).
     """
-    msg = "реализация — P1-S0-01 (сборка вертикального среза)"
-    raise NotImplementedError(msg)
+    from cashguard.pipeline.execution import execute_perception
+
+    return execute_perception(job, budget, stages)
 
 
 def run_vlm_stage(job: StageJob, budget: StageBudget, stages: StageSet) -> AnalysisResult:

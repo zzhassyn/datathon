@@ -108,6 +108,14 @@ def test_registry_evaluate_all_clamps_and_sorts(temp_rules_package: str) -> None
 
 def test_registry_respects_disabled_config(temp_rules_package: str) -> None:
     registry = discover([temp_rules_package])
+
+    class QuietRule(BaseRule):
+        code = ViolationCode.PC_UNLOCKED
+
+        def evaluate(self, ctx):
+            return []
+
+    registry.rules["PC_UNLOCKED"] = QuietRule()
     configs = {"SAFE_OPEN": RuleConfig(code="SAFE_OPEN", enabled=False)}
     cands, _ = evaluate_all(_context(), configs, registry=registry)
     assert cands == []
@@ -127,3 +135,32 @@ def test_register_rule_rejects_unknown_code() -> None:
 
             def evaluate(self, ctx: RuleContext) -> list:  # pyright: ignore[reportMissingTypeArgument]
                 return []
+
+
+def test_rule_exception_does_not_silently_become_no_candidates() -> None:
+    from cashguard.pipeline.rules.registry import RuleRegistry
+
+    class BrokenRule(BaseRule):
+        code = ViolationCode.SAFE_OPEN
+
+        def evaluate(self, ctx):
+            raise RuntimeError("Синтетическая ошибка правила")
+
+    registry = RuleRegistry(rules={"SAFE_OPEN": BrokenRule()})
+    with pytest.raises(RuntimeError, match="SAFE_OPEN"):
+        evaluate_all(_context(), registry=registry)
+
+
+def test_empty_registry_does_not_confirm_clean_video() -> None:
+    from cashguard.pipeline.rules.registry import RuleRegistry
+
+    with pytest.raises(RuntimeError, match="правил"):
+        evaluate_all(_context(), registry=RuleRegistry())
+
+
+def test_disabled_verdict_rules_and_signals_alone_cannot_confirm_clean(temp_rules_package):
+    registry = discover([temp_rules_package])
+    with pytest.raises(RuntimeError, match="правил"):
+        evaluate_all(
+            _context(), {"SAFE_OPEN": RuleConfig(code="SAFE_OPEN", enabled=False)}, registry
+        )

@@ -16,6 +16,7 @@ from cashguard.pipeline.ingest.preview import make_preview
 from cashguard.pipeline.ingest.probe import probe
 from cashguard.pipeline.render.analysis import render_analysis
 from cashguard.pipeline.render.ui import build_ui_result_fragment
+from cashguard.pipeline.runtime import with_progress
 from cashguard.pipeline.stub import StubDeadlineError, StubInputError, run_stub_analysis
 from cashguard.workers.base import Worker
 
@@ -157,6 +158,13 @@ class PerceptionWorker(Worker):
         """Frozen runner boundary. Startup remains disabled until model stages are delivered."""
         mode = runner.PipelineMode(self.settings.pipeline_mode)
         stages = runner.load_stages(mode)
+
+        def progress(code: str, fraction: float, message: str) -> None:
+            self.repo.report_progress(
+                job.id, self.name, code, fraction, message, lease_token=job.lease_token
+            )
+
+        stages = with_progress(stages, progress)
         directory = self.settings.paths.job_dir(job.id) / f"attempt-{uuid.uuid4().hex}"
         directory.mkdir(parents=True, exist_ok=False)
         result = runner.run_perception_stage(
