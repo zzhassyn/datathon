@@ -146,3 +146,30 @@ class UiCatalog(Contract):
     types: list[UiCatalogType]
     signals: list[UiCatalogSignal]
     acts: list[ActEntry]
+
+
+UiHttpErrorCode = Literal[
+    "FILE_TOO_LARGE",
+    "UNSUPPORTED_MEDIA",
+    "INVALID_REQUEST",
+    "UPLOAD_TIMEOUT",
+    "UPLOAD_ABORTED",
+    "RATE_LIMITED",
+    "INSUFFICIENT_STORAGE",
+    "NOT_FOUND",
+    "UNAUTHORIZED",
+    "INTERNAL",
+]
+"""413, 415, 422, 422 (срок загрузки), 400 (клиент оборвал загрузку), 429, 507, 404, 401, 500."""
+
+
+class UiHttpError(Contract):
+    """Тело любого ответа 4xx/5xx на ``/api/ui/*``. ``message_ru`` можно показывать как есть.
+
+    API жюри (``/api/v1/*``) этим телом не отвечает: его ошибки описаны в ``docs/api.md``, 3.4.
+    """
+
+    code: UiHttpErrorCode
+    message_ru: str = Field(min_length=1)
+    retry_after_sec: int | None = Field(default=None, ge=1)
+    """Только у ``RATE_LIMITED``: то же число, что в заголовке ``Retry-After``."""

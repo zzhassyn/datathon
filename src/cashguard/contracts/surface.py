@@ -12,7 +12,7 @@ from fastapi.responses import Response
 
 from cashguard.contracts.health import AdminStatus, LiveReport, ReadyReport
 from cashguard.contracts.jury import AnalyzeAccepted, JuryJobResponse
-from cashguard.contracts.ui import UiCatalog, UiJobView
+from cashguard.contracts.ui import UiCatalog, UiHttpError, UiJobView
 
 API_TITLE = "CashGuard API"
 API_VERSION = "1.0.0"
@@ -31,6 +31,23 @@ _MULTIPART_FILE: dict[str, Any] = {
         },
     }
 }
+
+_UI_ERRORS: dict[int, str] = {
+    400: "Клиент оборвал загрузку (UPLOAD_ABORTED); ответ обычно уже некому прочитать",
+    401: "Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE",
+    404: "Задание или файл не найдены (NOT_FOUND)",
+    413: "Файл больше лимита (FILE_TOO_LARGE)",
+    415: "Содержимое не читается как видео (UNSUPPORTED_MEDIA)",
+    422: "Нет поля file или запрос неверен (INVALID_REQUEST); истёк срок загрузки (UPLOAD_TIMEOUT)",
+    429: "Лимит загрузок (RATE_LIMITED), заголовок Retry-After",
+    500: "Внутренняя ошибка (INTERNAL)",
+    507: "На сервере мало места (INSUFFICIENT_STORAGE)",
+}
+
+
+def _ui_errors(*codes: int) -> dict[int | str, dict[str, Any]]:
+    return {code: {"model": UiHttpError, "description": _UI_ERRORS[code]} for code in codes}
+
 
 _JPEG: dict[str, Any] = {"content": {"image/jpeg": {}}, "description": "JPEG-кадр"}
 _MP4: dict[str, Any] = {
@@ -80,11 +97,17 @@ def build_contract_app() -> FastAPI:
         tags=["ui"],
         summary="Загрузить видео из интерфейса",
         openapi_extra=_MULTIPART_FILE,
+        responses=_ui_errors(400, 401, 413, 415, 422, 429, 500, 507),
     )
     def ui_create_job() -> AnalyzeAccepted:  # pyright: ignore[reportUnusedFunction]
         return _stub()
 
-    @app.get("/api/ui/jobs/{job_id}", response_model=UiJobView, tags=["ui"])
+    @app.get(
+        "/api/ui/jobs/{job_id}",
+        response_model=UiJobView,
+        tags=["ui"],
+        responses=_ui_errors(401, 404, 500),
+    )
     def ui_get_job(job_id: str) -> UiJobView:  # pyright: ignore[reportUnusedFunction]
         return _stub()
 
@@ -92,7 +115,7 @@ def build_contract_app() -> FastAPI:
         "/api/ui/jobs/{job_id}/video.mp4",
         tags=["ui"],
         response_class=Response,
-        responses={200: _MP4},
+        responses={200: _MP4, **_ui_errors(401, 404, 500)},
     )
     def ui_video(job_id: str) -> None:  # pyright: ignore[reportUnusedFunction]
         return _stub()
@@ -101,12 +124,17 @@ def build_contract_app() -> FastAPI:
         "/api/ui/jobs/{job_id}/frames/{name}",
         tags=["ui"],
         response_class=Response,
-        responses={200: _JPEG},
+        responses={200: _JPEG, **_ui_errors(401, 404, 500)},
     )
     def ui_frame(job_id: str, name: str) -> None:  # pyright: ignore[reportUnusedFunction]
         return _stub()
 
-    @app.get("/api/ui/catalog", response_model=UiCatalog, tags=["ui"])
+    @app.get(
+        "/api/ui/catalog",
+        response_model=UiCatalog,
+        tags=["ui"],
+        responses=_ui_errors(401, 500),
+    )
     def ui_catalog() -> UiCatalog:  # pyright: ignore[reportUnusedFunction]
         return _stub()
 

@@ -22,7 +22,7 @@ from cashguard.contracts.model_registry import ModelsRegistry
 from cashguard.contracts.perception import PerceptionTrace
 from cashguard.contracts.scene import SceneModel
 from cashguard.contracts.surface import build_contract_app
-from cashguard.contracts.ui import UiCatalog, UiJobView
+from cashguard.contracts.ui import UiCatalog, UiHttpError, UiJobView
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_DIR.parents[2]
@@ -36,6 +36,7 @@ SCHEMA_MODELS: dict[str, type[BaseModel]] = {
     "AnalysisResult": AnalysisResult,
     "UiJobView": UiJobView,
     "UiCatalog": UiCatalog,
+    "UiHttpError": UiHttpError,
     "CatalogEntry": CatalogEntry,
     "SignalCatalog": SignalCatalog,
     "ActsFile": ActsFile,

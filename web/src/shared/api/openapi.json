@@ -849,6 +849,51 @@
         "title": "UiEvidence",
         "type": "object"
       },
+      "UiHttpError": {
+        "additionalProperties": false,
+        "description": "Тело любого ответа 4xx/5xx на ``/api/ui/*``. ``message_ru`` можно показывать как есть.\n\nAPI жюри (``/api/v1/*``) этим телом не отвечает: его ошибки описаны в ``docs/api.md``, 3.4.",
+        "properties": {
+          "code": {
+            "enum": [
+              "FILE_TOO_LARGE",
+              "UNSUPPORTED_MEDIA",
+              "INVALID_REQUEST",
+              "UPLOAD_TIMEOUT",
+              "UPLOAD_ABORTED",
+              "RATE_LIMITED",
+              "INSUFFICIENT_STORAGE",
+              "NOT_FOUND",
+              "UNAUTHORIZED",
+              "INTERNAL"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "message_ru": {
+            "minLength": 1,
+            "title": "Message Ru",
+            "type": "string"
+          },
+          "retry_after_sec": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry After Sec"
+          }
+        },
+        "required": [
+          "code",
+          "message_ru"
+        ],
+        "title": "UiHttpError",
+        "type": "object"
+      },
       "UiJobView": {
         "additionalProperties": false,
         "description": "``GET /api/ui/jobs/{job_id}``. Интерфейс опрашивает раз в секунду, пока задача не готова.",
@@ -1442,6 +1487,26 @@
               }
             },
             "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Внутренняя ошибка (INTERNAL)"
           }
         },
         "summary": "Ui Catalog",
@@ -1482,6 +1547,86 @@
               }
             },
             "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Клиент оборвал загрузку (UPLOAD_ABORTED); ответ обычно уже некому прочитать"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Файл больше лимита (FILE_TOO_LARGE)"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Содержимое не читается как видео (UNSUPPORTED_MEDIA)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нет поля file или запрос неверен (INVALID_REQUEST); истёк срок загрузки (UPLOAD_TIMEOUT)"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Лимит загрузок (RATE_LIMITED), заголовок Retry-After"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Внутренняя ошибка (INTERNAL)"
+          },
+          "507": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "На сервере мало места (INSUFFICIENT_STORAGE)"
           }
         },
         "summary": "Загрузить видео из интерфейса",
@@ -1515,6 +1660,26 @@
             },
             "description": "Successful Response"
           },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Задание или файл не найдены (NOT_FOUND)"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -1524,6 +1689,16 @@
               }
             },
             "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Внутренняя ошибка (INTERNAL)"
           }
         },
         "summary": "Ui Get Job",
@@ -1562,6 +1737,26 @@
             },
             "description": "JPEG-кадр"
           },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Задание или файл не найдены (NOT_FOUND)"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -1571,6 +1766,16 @@
               }
             },
             "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Внутренняя ошибка (INTERNAL)"
           }
         },
         "summary": "Ui Frame",
@@ -1600,6 +1805,26 @@
             },
             "description": "Предпросмотр H.264 (faststart, Range)"
           },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Нужен код доступа (UNAUTHORIZED), если включён CG_UI_ACCESS_CODE"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Задание или файл не найдены (NOT_FOUND)"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -1609,6 +1834,16 @@
               }
             },
             "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiHttpError"
+                }
+              }
+            },
+            "description": "Внутренняя ошибка (INTERNAL)"
           }
         },
         "summary": "Ui Video",
