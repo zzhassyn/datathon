@@ -17,6 +17,7 @@ from cashguard.api.routes import admin, health, jury, ui
 from cashguard.api.sweeper import sweep
 from cashguard.core.settings import Settings, get_settings
 from cashguard.jobs.repo import JobRepository
+from cashguard.pipeline.legal.catalog import load_catalog, to_ui_catalog
 
 
 class CachePolicy:
@@ -68,6 +69,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         redoc_url=None,
     )
     application.state.settings = settings
+    # Проверенный каталог норм: падение здесь лучше, чем выдуманные основания в ответах.
+    catalog = load_catalog()
+    application.state.catalog = catalog
+    application.state.ui_catalog = to_ui_catalog(catalog).model_dump(mode="json")
     application.state.repo = repo
     application.state.key_digests = key_digests(settings.api_keys.get_secret_value())
     application.state.ui_limiter = UiLimiter(settings, repo)

@@ -110,13 +110,10 @@ async def frame(job_id: str, name: str, request: Request):
 
 @router.get("/catalog")
 async def catalog(request: Request):
-    # S0 catalogue is absent. Empty is truthful; never invent legal references.
-    version = request.app.state.settings.config_hash
-    etag = f'"{version}"'
+    # Проверенный каталог S0 (configs/catalog, configs/legal): нормы только оттуда.
+    body = request.app.state.ui_catalog
+    etag = f'"{body["config_hash"]}"'
     headers = {"ETag": etag, "Cache-Control": "no-cache"}
     if request.headers.get("if-none-match") == etag:
         return Response(status_code=304, headers=headers)
-    return JSONResponse(
-        {"config_hash": version, "types": [], "signals": [], "acts": []},
-        headers=headers,
-    )
+    return JSONResponse(body, headers=headers)

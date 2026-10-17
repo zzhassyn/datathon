@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from scripts.make_synthetic_mov import make_synthetic_mov
 
 from cashguard.api.main import create_app
+from cashguard.contracts.ui import UiCatalog, UiJobView
 from cashguard.pipeline.render.jury import validate_jury
 from cashguard.workers.perception_worker import PerceptionWorker
 
@@ -38,7 +39,9 @@ def test_complete_ui_and_jury_scenario(client, app, settings, tmp_path, verdict,
     ui = client.get(f"/api/ui/jobs/{job_id}").json()
     assert ui["status"] == "done"
     assert ui["verdict"] == ("violation" if verdict == "violation" else "no_violation")
-    assert "stub" in ui["degradations"][0]["reason_ru"]
+    assert ui["pipeline_mode"] == "stub"
+    assert "Демонстрационный режим" in ui["degradations"][0]["reason_ru"]
+    UiJobView.model_validate(ui)
     jury = client.get(f"/api/v1/jobs/{job_id}", headers=auth)
     validate_jury(jury.json(), duration_sec=2)
     assert jury.json() == client.get(f"/api/v1/jobs/{job_id}", headers=auth).json()
@@ -167,3 +170,19 @@ def test_five_parallel_jury_uploads_and_linked_evidence(app, synthetic, auth, se
                 validate_jury(response.json())
 
     asyncio.run(run())
+
+
+def test_ui_catalog_serves_verified_norms(client):
+    body = client.get("/api/ui/catalog").json()
+    UiCatalog.model_validate(body)
+    codes = {t["code"] for t in body["types"]}
+    assert len(codes) == 26
+    assert {a["act_code"] for a in body["acts"]} == {"PKO", "POP", "POO", "TIB"}
+    key = next(t for t in body["types"] if t["code"] == "SAFE_KEY_LEFT")
+    assert key["legal"] and key["legal"][0]["clause"] == "п. 80"
+
+
+def test_ready_reports_stub_mode_honestly(client):
+    report = client.get("/ready").json()
+    assert report["pipeline_mode"] == "stub"
+    assert report["checks"]["models_loaded"] is False

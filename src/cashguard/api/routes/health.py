@@ -28,16 +28,21 @@ def readiness(request):
     checks = {
         "worker_perception": alive("perception"),
         "worker_vlm": not settings.vlm_enabled or alive("vlm"),
-        "models_loaded": settings.pipeline_mode == "stub",
+        # В stub моделей нет — так и сообщаем; готовность stub от моделей не зависит.
+        "models_loaded": False,
         "warmup_done": settings.pipeline_mode == "stub",
         "free_mem_ok": psutil.virtual_memory().available / 1_000_000_000
         >= settings.min_free_mem_gb,
         "disk_ok": shutil.disk_usage(settings.var_dir).free / 1_000_000_000 >= 5,
         "queue_ok": request.app.state.repo.active_count(source="ui") < settings.ui_rate_queue,
     }
+    required = {k: v for k, v in checks.items() if k != "models_loaded"}
+    if settings.pipeline_mode != "stub":
+        required = checks
     return {
-        "ready": all(checks.values()),
+        "ready": all(required.values()),
         "checks": checks,
+        "pipeline_mode": settings.pipeline_mode,
         "vlm_quant": None,
         "version": settings.pipeline_version,
     }

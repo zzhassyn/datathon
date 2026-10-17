@@ -1,6 +1,7 @@
-"""Public views. UI dictionaries are an adapter awaiting S0's UiJobView model."""
+"""Публичные представления. Ответ UI проверяется контрактом UiJobView перед отправкой."""
 
 import json
+import logging
 import re
 import time
 from datetime import UTC, datetime
@@ -8,11 +9,15 @@ from functools import lru_cache
 from pathlib import Path
 
 from fastapi import HTTPException, Request
+from pydantic import ValidationError
 from starlette.concurrency import run_in_threadpool
 from starlette.responses import FileResponse, JSONResponse
 
+from cashguard.contracts.ui import UiJobView
 from cashguard.core.atomic import atomic_write_json
 from cashguard.pipeline.render.jury import validate_jury
+
+log = logging.getLogger(__name__)
 
 
 def lookup(request: Request, job_id: str, *, ui: bool = False):
@@ -108,6 +113,39 @@ async def jury_response(request: Request, job_id: str):
     )
 
 
+STUB_NOTE_RU = "Демонстрационный режим: AI-модели не подключены, результат синтетический."
+
+DEGRADATIONS_RU = {
+    "vlm_deadline": ("vlm", "Проверка Qwen пропущена: не хватило времени до срока ответа."),
+    "vlm_memory": ("vlm", "Проверка Qwen пропущена: не хватило свободной памяти."),
+    "vlm_crash": ("vlm", "Проверка Qwen прервалась из-за сбоя; результат построен по правилам."),
+    "vlm_backlog": ("vlm", "Проверка Qwen пропущена из-за очереди заданий."),
+    "vlm_disabled": ("vlm", "Проверка Qwen отключена в этом режиме."),
+    "perception_fast": ("perception", "Ускоренный режим распознавания."),
+    "perception_min": ("perception", "Минимальный режим распознавания."),
+    "deadline_finalize": ("final", "Результат зафиксирован по сроку: часть проверок не завершена."),
+}
+
+
+def degradation_ru(reason: str) -> dict:
+    stage, text = DEGRADATIONS_RU.get(reason, ("pipeline", f"Неполная обработка ({reason})."))
+    return {"stage": stage, "reason_ru": text}
+
+
+FAILURES_RU = {
+    "UNSUPPORTED_VIDEO": "Не удалось прочитать видео: файл повреждён или формат не поддерживается.",
+    "PIPELINE_CRASH": "Обработка прервалась из-за сбоя. Попробуйте загрузить видео ещё раз.",
+}
+
+
+def failure_ru(job, *, corrupt: bool) -> dict:
+    if corrupt:
+        return {"code": "INTERNAL", "message_ru": "Сохранённый результат не читается."}
+    code = job.error_code or "INTERNAL"
+    text = job.error_msg or FAILURES_RU.get(code, "Обработка завершилась ошибкой.")
+    return {"code": code, "message_ru": text}
+
+
 def ui_view(request: Request, job_id: str) -> dict:
     original, job = lookup(request, job_id, ui=True)
     fragment = {"verdict": None, "violations": [], "signals": []}
@@ -135,9 +173,12 @@ def ui_view(request: Request, job_id: str) -> dict:
                 "note_ru": None,
             }
         ]
-    return {
+    mode = request.app.state.settings.pipeline_mode
+    status = "failed" if corrupt else job.status
+    view = {
         "job_id": job_id,
-        "status": "failed" if corrupt else job.status,
+        "status": status,
+        "pipeline_mode": mode,
         "created_at": datetime.fromtimestamp(original.received_at, UTC)
         .isoformat()
         .replace("+00:00", "Z"),
@@ -147,13 +188,10 @@ def ui_view(request: Request, job_id: str) -> dict:
         "perception_level": job.perception_level,
         "result_level": job.result_level,
         "stages": stages,
-        "degradations": [
-            {
-                "stage": "perception",
-                "reason_ru": "Демонстрационный stub: AI-модели не подключены.",
-            }
-        ]
-        + [{"stage": "pipeline", "reason_ru": str(reason)} for reason in job.degradations],
+        "degradations": (
+            [{"stage": "perception", "reason_ru": STUB_NOTE_RU}] if mode == "stub" else []
+        )
+        + [degradation_ru(str(reason)) for reason in job.degradations],
         "provisional": bool(job.provisional_at and job.status not in {"done", "failed"}),
         "video": {
             "url": f"/api/ui/jobs/{job_id}/video.mp4",
@@ -167,10 +205,21 @@ def ui_view(request: Request, job_id: str) -> dict:
         "violations": fragment.get("violations", []),
         "signals": fragment.get("signals", []),
         "timings": json.loads(job.timings_json) or None,
-        "error": {
-            "code": "INTERNAL",
-            "message_ru": "Сохранённый результат не читается.",
-        }
-        if corrupt
-        else ({"code": job.error_code, "message_ru": job.error_msg} if job.error_code else None),
+        "error": failure_ru(job, corrupt=corrupt) if status == "failed" else None,
     }
+    if status != "done":
+        view["verdict"] = None
+        view["violations"] = []
+    try:
+        return UiJobView.model_validate(view).model_dump(mode="json")
+    except ValidationError:
+        # Ответ не соответствует контракту UI: не показываем его как успех.
+        log.exception("ui view %s не прошёл контракт UiJobView", job_id)
+        view.update(
+            status="failed",
+            verdict=None,
+            violations=[],
+            signals=[],
+            error={"code": "INTERNAL", "message_ru": "Результат не прошёл проверку формата."},
+        )
+        return UiJobView.model_validate(view).model_dump(mode="json")

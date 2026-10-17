@@ -44,24 +44,24 @@ schemas:
 # ---------------------------------------------------------------- запуск
 
 # Супервизор в режиме разработки: api --reload + worker --role all (stub/replay)
-dev:
-    @echo "появится в P1-S1-04 (supervisor --profile dev)"
+dev port="":
+    cashguard up --profile dev {{ if port != "" { "--port " + port } else { "" } }}
 
 # Супервизор: api + perception + vlm
 up:
-    @echo "появится в P1-S1-04 (cashguard up)"
+    cashguard up --profile prod
 
 # Очередь, воркеры, память
 status:
-    @echo "появится в P1-S1-06"
+    cashguard status
 
 # Склеенный лог одного job
 trace id:
     @echo "появится в P1-S1-06: trace {{id}}"
 
 # Новый API-ключ
-gen-key:
-    @echo "появится в P0-S1-02 (scripts/gen_key.py)"
+gen-key *args:
+    python scripts/gen_key.py {{args}}
 
 # ---------------------------------------------------------------- оценка
 

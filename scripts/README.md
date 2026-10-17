@@ -1,9 +1,7 @@
 # `scripts/` — служебные скрипты
 
-**Продолжение backend S1:** сначала прочитать
-[README_BACKEND_HANDOFF.md](README_BACKEND_HANDOFF.md). В нём сохранены worktree,
-ветка, клонирование на другой компьютер, установка окружения, проверки и следующие
-шаги для любой ИИ-сессии (ChatGPT/Codex или другого инструмента).
+**Backend:** состояние, запуск и контрольные точки — в
+[README_BACKEND_HANDOFF.md](README_BACKEND_HANDOFF.md).
 
 > **Назначение:** Вспомогательные скрипты разработки, оценки и эксплуатации. Вызываются из рецептов `just`.
 > **Владелец:** S1, S6 — по файлам · **Статус:** `port`, `gen_key`, `make_synthetic_mov`, `smoke_jury` реализованы для P0 synthetic stub.
@@ -29,9 +27,8 @@ Smoke выполняет настоящий curl POST + polling, проверя�
 `--rotate`. Временный путь можно указать через `--path`. Перед переносом на
 Windows нужно проверить ACL файла ключей; POSIX mode сам по себе не задаёт ACL.
 
-Пока S0 не добавил `pyproject.toml`, `uv.lock` и рецепты, используйте Python
-из подготовленного окружения с `PYTHONPATH=src`. Скрипт smoke автоматически
-использует `.venv/bin/python`, либо `CG_PYTHON`, либо `python3`.
+Окружение — `uv sync --locked`, скрипты запускаются через `uv run`. Smoke берёт
+`CG_PYTHON`, затем `.venv/bin/python`, затем `python3`.
 
 ## Планируемые файлы
 
