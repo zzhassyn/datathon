@@ -1,4 +1,4 @@
-import { BookOpen, FileVideo, ShieldCheck } from "lucide-react";
+import { BookOpen, FileVideo, ScanEye, ShieldCheck } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { ReadyDot } from "./features/health/ReadyDot";
 import { JobPage } from "./pages/JobPage";
@@ -8,6 +8,9 @@ import { parseLocation } from "./shared/lib/urlState";
 import { Link } from "./shared/ui/Link";
 
 const TypesPage = lazy(() => import("./pages/TypesPage").then((m) => ({ default: m.TypesPage })));
+const ModelCheckPage = lazy(() =>
+  import("./pages/ModelCheckPage").then((m) => ({ default: m.ModelCheckPage })),
+);
 export function App() {
   const [route, setRoute] = useState(() => parseLocation(location.search));
   useEffect(() => {
@@ -17,7 +20,13 @@ export function App() {
   }, []);
   useEffect(() => {
     document.title =
-      route.view === "job" ? ru.titleJob : route.view === "types" ? ru.titleTypes : ru.titleUpload;
+      route.view === "job"
+        ? ru.titleJob
+        : route.view === "types"
+          ? ru.titleTypes
+          : route.view === "model"
+            ? ru.modelTitle
+            : ru.titleUpload;
     window.scrollTo(0, 0);
     document.querySelector<HTMLElement>("h1")?.focus();
   }, [route]);
@@ -28,7 +37,11 @@ export function App() {
           f<span>·</span>
         </Link>
         <nav aria-label={ru.nav}>
-          <Link href="/" className={route.view !== "types" ? "active" : ""} aria-label={ru.newJob}>
+          <Link
+            href="/"
+            className={route.view === "upload" || route.view === "job" ? "active" : ""}
+            aria-label={ru.newJob}
+          >
             <FileVideo size={21} />
           </Link>
           <Link
@@ -37,6 +50,13 @@ export function App() {
             aria-label={ru.types}
           >
             <BookOpen size={21} />
+          </Link>
+          <Link
+            href="/?view=model"
+            className={route.view === "model" ? "active" : ""}
+            aria-label={ru.modelTitle}
+          >
+            <ScanEye size={21} />
           </Link>
         </nav>
         <ShieldCheck className="rail-bottom" size={20} />
@@ -57,13 +77,15 @@ export function App() {
             <JobPage key={route.id} id={route.id} />
           ) : route.view === "types" ? (
             <TypesPage />
+          ) : route.view === "model" ? (
+            <ModelCheckPage />
           ) : (
             <UploadPage />
           )}
         </Suspense>
         <footer>
           <span>{ru.disclaimer}</span>
-          <ReadyDot />
+          {route.view === "model" ? <span>{ru.modelFooter}</span> : <ReadyDot />}
         </footer>
       </main>
     </div>

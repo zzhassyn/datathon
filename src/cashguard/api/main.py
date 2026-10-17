@@ -15,7 +15,7 @@ from starlette.staticfiles import StaticFiles
 from cashguard.api.deps import key_digests
 from cashguard.api.errors import ui_error
 from cashguard.api.ratelimit import UiLimiter
-from cashguard.api.routes import admin, health, jury, ui
+from cashguard.api.routes import admin, health, jury, model_check, ui
 from cashguard.api.sweeper import sweep
 from cashguard.core.settings import Settings, get_settings
 from cashguard.jobs.repo import JobRepository
@@ -71,6 +71,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         redoc_url=None,
     )
     application.state.settings = settings
+    application.state.local_model_lock = asyncio.Lock()
     # Проверенный каталог норм: падение здесь лучше, чем выдуманные основания в ответах.
     catalog = load_catalog()
     application.state.catalog = catalog
@@ -125,6 +126,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ui.session_router,
         ui.router,
         health.router,
+        model_check.router,
     ):
         application.include_router(router)
     web = Path(settings.web_dist).resolve()

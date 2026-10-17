@@ -18,6 +18,8 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("CG_DATA_DIR", "CG_VAR_DIR", "var_dir"),
     )
     models_dir: Path = Path("models")
+    local_model_python: Path | None = None
+    local_model_weights: Path | None = None
     web_dist: Path = Path("web/dist")
     api_keys: SecretStr = SecretStr("")
     ui_access_code: SecretStr = SecretStr("")
