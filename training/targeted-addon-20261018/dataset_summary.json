@@ -1,0 +1,37 @@
+{
+  "name": "Forte_Targeted_Addon_20261018",
+  "status": "SUPPLEMENT_AI_REVIEWED_NOT_HUMAN_ACCEPTED",
+  "related_release": "open-annotated-v3-20261018",
+  "related_commit": "1ce6ab5215e40e3499eb07df1b5d69547cd10fa4",
+  "source_batch": "20261018_targeted_v1",
+  "new_unique_images": 59,
+  "candidate_images_by_class": {
+    "cash_counter": 7,
+    "stamp": 31,
+    "key": 21
+  },
+  "provisional_target_box_images": 13,
+  "awaiting_box_annotation": 46,
+  "yolo_target_counts": {
+    "cash_counter": {
+      "train": 5,
+      "val": 0,
+      "test": 0
+    },
+    "stamp": {
+      "train": 5,
+      "val": 1,
+      "test": 2
+    }
+  },
+  "new_videos": 0,
+  "new_vlm_qa": 0,
+  "new_banknote_detector_images": 0,
+  "full_14_class_annotation_images": 0,
+  "human_verified": false,
+  "training_executed": false,
+  "quality_measured": false,
+  "source_groups_crossing_splits": 0,
+  "merge_with_v3_requires_mapping_and_complete_annotation": true,
+  "existing_v3_data_included": false
+}

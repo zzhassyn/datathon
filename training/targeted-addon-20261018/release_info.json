@@ -1,0 +1,11 @@
+{
+  "repository": "zzhassyn/datathon",
+  "release_tag": "targeted-dataset-addon-20261018",
+  "asset_name": "Forte_Targeted_Addon_20261018.zip",
+  "asset_url": "https://github.com/zzhassyn/datathon/releases/download/targeted-dataset-addon-20261018/Forte_Targeted_Addon_20261018.zip",
+  "sha256": "18480969ab78f76a1a4923abdd38b4f4fe122dfe74db23bc8cd6e7c0018b4af4",
+  "bytes": 19127368,
+  "files": 109,
+  "training_executed": false,
+  "human_verified": false
+}
