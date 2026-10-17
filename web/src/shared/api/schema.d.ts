@@ -405,6 +405,29 @@ export interface components {
          * @enum {string}
          */
         ResultLevel: "full" | "partial" | "rules";
+        /** RuleCondition */
+        RuleCondition: {
+            /** Evidence Indices */
+            evidence_indices?: number[];
+            /** Id */
+            id: string;
+            /** Reason Ru */
+            reason_ru: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "met" | "not_met" | "unknown";
+            /** Text Ru */
+            text_ru: string;
+        };
+        /** RuleExplanation */
+        RuleExplanation: {
+            /** Conditions */
+            conditions: components["schemas"]["RuleCondition"][];
+            /** Rule Version */
+            rule_version: string;
+        };
         /**
          * SignalCode
          * @description Сигналы (B2): видны проверяющему в интерфейсе, на вердикт не влияют.
@@ -553,6 +576,7 @@ export interface components {
             video?: components["schemas"]["UiVideo"] | null;
             /** Violations */
             violations?: components["schemas"]["UiViolation"][];
+            visibility?: components["schemas"]["VisibilityAssessment"] | null;
         };
         /** UiLegalRef */
         UiLegalRef: {
@@ -608,6 +632,7 @@ export interface components {
             end_sec: number;
             /** Evidence */
             evidence: components["schemas"]["UiEvidence"][];
+            explanation?: components["schemas"]["RuleExplanation"] | null;
             /** Id */
             id: string;
             /** Legal */
@@ -648,6 +673,31 @@ export interface components {
          * @enum {string}
          */
         ViolationGroup: "leave" | "access" | "cashops" | "collection" | "discipline" | "presence" | "other";
+        /** VisibilityAssessment */
+        VisibilityAssessment: {
+            /** Checks */
+            checks: components["schemas"]["VisibilityCheck"][];
+            /** Method Version */
+            method_version: string;
+        };
+        /** VisibilityCheck */
+        VisibilityCheck: {
+            /** End Sec */
+            end_sec?: number | null;
+            /** Id */
+            id: string;
+            /** Reason Ru */
+            reason_ru: string;
+            /** Start Sec */
+            start_sec?: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "visible" | "limited" | "not_visible" | "unknown";
+            /** Target Ru */
+            target_ru: string;
+        };
         /**
          * VlmStatus
          * @enum {string}
