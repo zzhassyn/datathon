@@ -1,4 +1,4 @@
-"""Frozen jury rendering; temporary mappings until S0 publishes Python contracts.
+"""Frozen jury rendering; typed AnalysisResult integration lives in render.analysis.
 
 This module never manufactures evidence or converts an unrenderable positive
 finding into a clean result. Callers supply JPEG bytes from the evidence stage.

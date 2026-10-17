@@ -14,7 +14,7 @@ Supervisor поднимает API с reload и один `--role all` в свеж
 `comment=cg-stub:clean|violation`, созданные `scripts/make_synthetic_mov.py`.
 Имя файла не влияет на исход. Видео без метатега завершается ошибкой
 `UNSUPPORTED_VIDEO`; это не реальное обнаружение нарушений. `full` и `replay`
-пока завершаются явной ошибкой, поскольку S0 ещё не опубликовал runner/ports.
+пока завершаются явной ошибкой: ports опубликованы, реализации runner/стадий ещё нет.
 
 Воркеры используют отдельные liveness/progress heartbeat, сохраняют результат
 в `jobs/<id>/attempt-<uuid>/`, затем публикуют путь атомарным CAS в SQLite.
@@ -54,3 +54,13 @@ Supervisor поднимает API с reload и один `--role all` в свеж
 - [docs/architecture.md — процессы, режимы, поток данных](../../../docs/architecture.md)
 - [docs/runbook_mac.md — эксплуатация Mac](../../../docs/runbook_mac.md)
 - [docs/adr/ — архитектурные решения](../../../docs/adr/)
+
+
+## Подготовка K4
+
+`process_pipeline` вызывает frozen `load_stages/run_perception_stage`, затем
+`publish_analysis`. Публикация типизированного `AnalysisResult` проверена на синтетике:
+идентичность задания/sha256, безопасные JPEG, несколько событий, сигналы, нормы,
+неизменяемая attempt-папка и lease/CAS. Guards full/replay сохранены.
+Остались реальные стадии, передача прогресса, очередь VLM и прогрев; подробнее
+`scripts/README_BACKEND_HANDOFF.md`, раздел 8. Это не готовый AI-пайплайн.

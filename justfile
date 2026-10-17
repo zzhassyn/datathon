@@ -11,10 +11,10 @@ default:
 
 # ---------------------------------------------------------------- окружение
 
-# Окружение разработки: Python (+ web, когда появится web/package.json)
+# Окружение разработки: Python и web
 setup:
     uv sync --locked
-    @echo "web: pnpm -C web install --frozen-lockfile (после P0-S2-01)"
+    pnpm -C web install --frozen-lockfile
 
 # ---------------------------------------------------------------- качество
 
@@ -26,7 +26,10 @@ check:
     lint-imports
     python -m cashguard.contracts.export --check
     pytest -q -m "not mac and not slow"
-    @echo "web: biome ci + tsc -b подключит S2 (P0-S2-01)"
+    pnpm -C web lint
+    pnpm -C web typecheck
+    pnpm -C web test
+    pnpm -C web check:api
 
 # Все pytest-тесты (аргументы пробрасываются)
 test *args:
@@ -81,11 +84,11 @@ jury-sim url key n="5":
 
 # Playwright против API в stub-режиме
 e2e:
-    @echo "появится в P1-S2-03"
+    pnpm -C web e2e
 
 # Сборка web/dist
 build-web:
-    @echo "появится в P0-S2-01: pnpm -C web build"
+    pnpm -C web build
 
 # ---------------------------------------------------------------- перенос и трассы
 

@@ -18,11 +18,11 @@ import { Link } from "../shared/ui/Link";
 export function JobPage({ id }: { id: string }) {
   const q = useJob(id);
   const player = useRef<PlayerHandle>(null);
-  const [selected, setSelected] = useState(0);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const [localUrl] = useState(() => getPreview(id));
   const job = q.data;
-  const currentIndex = job && selected < job.violations.length ? selected : 0;
+  const currentIndex = Math.max(0, job?.violations.findIndex((v) => v.id === selectedId) ?? 0);
   const currentEvent = job?.violations[currentIndex];
   useEffect(() => () => clearPreview(id), [id]);
   useEffect(() => {
@@ -57,7 +57,7 @@ export function JobPage({ id }: { id: string }) {
         ]
       : [];
   function seek(time: number, context = false, index?: number) {
-    if (index !== undefined) setSelected(index);
+    if (index !== undefined) setSelectedId(job?.violations[index]?.id ?? null);
     player.current?.seek(time, context);
   }
   return (

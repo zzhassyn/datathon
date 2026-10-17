@@ -153,3 +153,41 @@ test("rate limit honors Retry-After without exposing raw server HTML", async ({ 
   });
   await expect(page.getByText("Internal detail")).toHaveCount(0);
 });
+
+test("selection follows event identity when provisional findings change", async ({ page }) => {
+  let final = false;
+  const event = (id: string, time: number) => ({
+    id,
+    code: "TEST",
+    title_ru: `Синтетическое событие ${id}`,
+    timecode_sec: time,
+    start_sec: time,
+    end_sec: time,
+    confidence: 0.8,
+    vlm_status: "skipped",
+    provisional: !final,
+    description_ru: "Проверка изменения предварительного списка",
+    evidence: [],
+    legal: [],
+  });
+  await page.route(endpoint, (route) =>
+    route.fulfill({
+      json: {
+        ...base,
+        status: final ? "done" : "running",
+        verdict: final ? "violation" : null,
+        provisional: !final,
+        violations: final ? [event("B", 8), event("A", 12)] : [event("A", 3), event("B", 8)],
+      },
+    }),
+  );
+  await page.goto(`/?job=${id}`);
+  await expect(page.locator(".event-choice")).toHaveCount(2);
+  await page.getByRole("button", { name: "Следующее", exact: true }).click();
+  await expect(page.locator(".event-card h3")).toHaveText("Синтетическое событие B");
+  final = true;
+  await expect(
+    page.getByRole("heading", { name: "Обнаружены признаки возможных нарушений", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator(".event-card h3")).toHaveText("Синтетическое событие B");
+});

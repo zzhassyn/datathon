@@ -1,4 +1,4 @@
-// Snapshot the actual backend schema; never invent the missing S0 contract.
+// Optional local runtime snapshot. Canonical generation: python -m cashguard.contracts.export.
 import { writeFile } from "node:fs/promises";
 
 const origin = process.env.CG_API_ORIGIN || "http://127.0.0.1:8127";

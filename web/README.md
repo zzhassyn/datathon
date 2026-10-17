@@ -1,67 +1,72 @@
 # CashGuard — frontend
 
-Минималистичный интерфейс из `codex/forte-frigate-ui`, перенесённый в `web/`. Разработка — ветка `codex/frontend-integration`; backend не изменяется.
+Минималистичный тёмный интерфейс Frigate/Forte. Интеграционная ветка:
+`codex/fullstack-integration` (содержит backend 42d44d7 и frontend 205d7c9).
+Старые ветки сохранены. В main изменения не объединены.
 
-## Запуск
+## Запуск целиком
 
-Node >=24.15 <25, pnpm 10.34.7.
-
-```sh
-pnpm install --frozen-lockfile
-pnpm dev
-```
-
-Прокси вычисляет порт по пути worktree как `scripts/port.py`. Для backend в другом checkout создайте `web/.env.local` с `CG_API_ORIGIN=http://127.0.0.1:8127`. Значение используется только Vite, браузер всегда обращается к своему origin.
-
-## Состояние контракта
-
-В main 41d7620 отсутствуют `contracts/ui.py` и экспортёр. S1 a46acdb отдаёт не типизированные JSON-ответы. `sync:api` сохраняет реальную OpenAPI из локального backend; `gen:api` генерирует TypeScript. `decode.ts` — временный валидирующий адаптер ответа, с выведенными типами представления. Он не заменяет согласованный контракт S0. После его публикации адаптер следует заменить импортами generated components и проверить drift.
-
-Нормы, идентификаторы событий и метаданные кадров в текущем S1 отсутствуют. UI не сочиняет их. Для отсутствующего основания используется «Норма не указана».
-
-## Проверки
+Python 3.12, uv 0.13.1, Node >=24.15 <25, pnpm 10.34.7. Из корня:
 
 ```sh
-pnpm gen:api
-pnpm typecheck
-pnpm lint
-pnpm test
-pnpm build
+uv sync --locked
+pnpm -C web install --frozen-lockfile
+uv run just build-web
+CG_PIPELINE_MODE=stub uv run just dev 8131
 ```
 
-`gen:api` должен оставлять `schema.d.ts` без изменений. До готовности S0 это проверка воспроизводимости снимка S1 a46acdb, не проверка финальных моделей контрактов. Корневой `uv run just check` пока недоступен на базе main 41d7620: отсутствуют общий `justfile` и Python packaging.
+Открыть http://127.0.0.1:8131/. В PowerShell переменная задаётся отдельно:
+`$env:CG_PIPELINE_MODE='stub'`, затем `uv run just dev 8131`.
+Статика и API работают с одного origin. Vite нужен только для разработки:
+`pnpm -C web dev`; `web/.env.local` может содержать
+`CG_API_ORIGIN=http://127.0.0.1:8131` для прокси.
 
-Для E2E нужен запущенный S1 backend в stub-режиме и синтетические MOV. После объединения backend/frontend в одном checkout:
+## Контракт и проверки
+
+Источник — `src/cashguard/contracts/ui.py`, примеры — `tests/fixtures/ui/*.json`.
+`decode.ts` использует сгенерированные типы и проверяет ответ при получении:
+job_id, статусы, вердикт, безопасные URL. Нормы и события приходят с сервера.
 
 ```sh
-# Из web/, Python — из подготовленного backend-окружения:
-python ../scripts/make_synthetic_mov.py e2e/fixtures/clean.mov --duration 12 --verdict clean
-python ../scripts/make_synthetic_mov.py e2e/fixtures/violation.mov --duration 12 --verdict violation
-pnpm build
-# После первой сборки запустите/перезапустите backend: он монтирует assets при старте.
-pnpm e2e --project=chrome-desktop --project=chrome-mobile
-pnpm exec playwright install webkit
-pnpm e2e --project=webkit --project=iphone
+uv run just schemas
+pnpm -C web gen:api
+uv run just check
+uv run just build-web
 ```
 
-Chrome должен быть установлен. Адрес тестового стенда задаётся `CG_E2E_BASE_URL` (по умолчанию `http://127.0.0.1:8127`). Тесты многократно загружают синтетику: запускайте их на отдельном локальном стенде с повышенным `CG_UI_RATE_UPLOADS`, не на публичном сервисе в окно жюри. Данные стенда должны храниться в отдельном `CG_DATA_DIR`. Видео, traces, скриншоты и browser artifacts игнорируются Git.
+`just check` включает Python, lint-imports, pytest, экспорт схем, Biome, TypeScript,
+Vitest и `check:api` (проверка дрейфа generated types без перезаписи файла).
 
-Если frontend и backend находятся в разных checkout, backend запускается с `CG_WEB_DIST`, указывающим на абсолютный путь к `web/dist` этого frontend. Код backend для этого менять не нужно.
+## Сквозные проверки
 
-## Что подключить интегратору
+Только на отдельном локальном стенде с синтетикой, не во время проверки жюри:
 
-1. Объединить утверждённый контракт S0 раньше зависимых UI-изменений. Экспортировать `UiJobView`, `UiViolation`, `UiEvidence`, `UiLegalRef`, `UiCatalog`, `AnalyzeAccepted`, `ReadyReport` и multipart request в OpenAPI.
-2. Заменить временный `decode.ts` на импорт generated components, сохранив проверки безопасных URL/ответов на границе. `openapi.json` и `schema.d.ts` не редактировать руками.
-3. Добавить стабильные `violations[].id`, проверенные `legal[]`, `evidence[].kind/width/height`, реальный каталог. UI уже показывает эти поля, если они приходят. Пока каталог пуст, UI не заявляет список поддерживаемых нарушений.
-4. Подключить реальные модели через backend. На фронте нет выбора модели и вычисления вердикта. Необходимо проверить реальное видео, несколько событий, источники и время ответа вместе с ML-командой.
-5. Проверить HEVC и поворот: интерфейс ожидает совместимый серверный H.264 preview. Текущий S1 только отмечает необходимость перекодирования.
-6. Проверить итоговую раздачу статики и API с одного origin, production-настройки лимитов и retention. Демо-ролики из банковского кейса в этой ветке не публикуются.
+```sh
+uv run python scripts/make_synthetic_mov.py web/e2e/fixtures/clean.mov --duration 12 --verdict clean
+uv run python scripts/make_synthetic_mov.py web/e2e/fixtures/violation.mov --duration 12 --verdict violation
+pnpm -C web exec playwright install webkit
+# После build запустить backend с отдельным CG_DATA_DIR, CG_PIPELINE_MODE=stub,
+# CG_UI_RATE_UPLOADS=200 и CG_UI_RATE_QUEUE=50.
+CG_E2E_BASE_URL=http://127.0.0.1:8131 uv run just e2e
+```
 
-Загрузка работает через XHR, GET — через openapi-fetch/TanStack Query. Таймаут одного GET 15 секунд; опрос возобновляется при сбое. Ни jury-ключа, ни вызовов `/api/v1/*`, ни облачных AI-вызовов в исполняемом UI-коде нет. К4 считается пройденной только после проверки реальных моделей; stub и browser fixtures её не заменяют.
+Chrome должен быть установлен. Проекты: chrome-desktop, chrome-mobile, webkit,
+iphone. Видео и браузерные отчёты в Git не попадают. Тесты с `page.route` проверяют
+состояния UI; они не заменяют прогон реального пайплайна.
 
+## Готовность
 
-## Рабочий экран
+K0–K3: загрузка XHR с прогрессом/отменой, очередь, опрос и восстановление по job_id,
+H.264-превью, события, четырёхсекундный контекст, кадры, источники, ошибки и повторы.
+Выбранное событие сохраняется по ID при обновлении предварительного списка.
+Контекст воспроизводится в основном плеере; отдельного файла мини-клипа нет.
 
-На главной — синтетическая демонстрационная камера и загрузка. На странице задания — видео со шкалой, очередь событий с миниатюрами справа, подробности выбранного момента снизу. Выбор события и кнопки предыдущего/следующего синхронизируют детали с видео. Контекст до четырёх секунд воспроизводится в основном плеере. На мобильном колонки складываются вертикально.
+K4 остаётся открытой. Подготовлена передача `AnalysisResult` через backend в UI,
+но в `pipeline/runner.py` ещё нет сборки реальных стадий. Не подключены распознавание,
+сцена/правила/вердикт, VLM и веса. Запуск `full`/`replay` пока намеренно отклоняется.
+Снятие запрета допустимо после реализации стадий и сквозной проверки на отложенных
+видео. Stub явно обозначен; неизвестный реальный ролик в нём получает `failed`.
 
-`src/features/player/demo/cash-desk.{svg,webm}` — иллюстрированная синтетическая сцена из старого прототипа, не материалы банковского кейса. Vite выдаёт их в `/assets`; видео загружается при запуске пользователем. Демо отделено от `/api/ui/jobs` и не создаёт результатов анализа.
+Ни ключа жюри, ни вызовов `/api/v1/*`, ни облачных AI в UI нет. GET — openapi-fetch
+и TanStack Query, загрузка — XHR. Демо на главной — иллюстрированная синтетическая
+камера из исходного дизайна, отдельно от результатов загрузки.

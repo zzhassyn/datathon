@@ -1,7 +1,6 @@
-"""Internal UI result fragment; not the missing S0 UiJobView contract.
+"""Legacy stub result fragment. Typed model findings use render.analysis instead.
 
-Do not publish this as UiJobView. S0's contracts/ui.py must validate/construct
-that model when it becomes available; lifecycle fields belong to API views.
+API views add lifecycle metadata and validate the assembled UiJobView.
 """
 
 from __future__ import annotations

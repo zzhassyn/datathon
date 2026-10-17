@@ -6,12 +6,12 @@
 ## 1. Код
 
 - Репозиторий: https://github.com/zzhassyn/datathon
-- Backend: ветка `s1/backend-core-jobs`. В `main` попадает только проверенное, fast-forward.
+- Объединённая ветка: `codex/fullstack-integration`. Исходная `s1/backend-core-jobs` сохранена. В `main` эта интеграция не объединена.
 - Контракты (`src/cashguard/contracts/**`), каталог (`configs/catalog`, `configs/legal`),
   `pyproject.toml`, `uv.lock`, `justfile` уже в `main` (контрольная точка K0).
 
 ```bash
-git clone --branch s1/backend-core-jobs https://github.com/zzhassyn/datathon.git cashguard
+git clone --branch codex/fullstack-integration https://github.com/zzhassyn/datathon.git cashguard
 cd cashguard
 git pull --ff-only
 ```
@@ -25,7 +25,9 @@ Python 3.12 и uv. Второй lock и `pip install` не используют�
 ```bash
 uv sync --locked                              # Windows / Linux, без ML
 uv sync --locked --extra ml --extra mac       # Mac (сервис с моделями)
-uv run just check                             # шлюз: ruff, format, basedpyright, import-linter, дрейф схем, pytest
+pnpm -C web install --frozen-lockfile
+uv run just check                             # Python + web + дрейф схем
+uv run just build-web
 ```
 
 `.venv`, `var/`, SQLite, ключи, видео и модели в Git не передаются и для stub не нужны.
@@ -79,10 +81,10 @@ Stub решает исход только по метатегу `comment=cg-stub
 | Точка | Содержание | Статус |
 |---|---|---|
 | K0 | контракт UI, OpenAPI, эталонные ответы, каталог, режим и честная готовность | сделано |
-| K1 | загрузка из браузера: прогресс, отмена, ошибки 413/415/507 на русском | следующая |
-| K2 | полный результат и медиа: перекодирование HEVC и поворота, отсутствующие и повреждённые файлы | |
-| K3 | устойчивость: перезапуск, зависший воркер, таймаут, нехватка диска, частичный результат | |
-| K4 | реальный пайплайн: наблюдения ML → правила → вердикт; replay-трассы | |
+| K1 | загрузка из браузера: прогресс, отмена, ошибки 413/415/507 на русском | сделано; 1148d10 |
+| K2 | полный результат и медиа: HEVC, поворот, PTS, отсутствующие и повреждённые файлы | сделано на синтетике; c6ae275 |
+| K3 | перезапуск, зависший worker, сроки, диск, предварительные события, восстановление | сделано; 302b77c |
+| K4 | реальный пайплайн: наблюдения ML → правила → вердикт; replay-трассы | НЕ закрыта; адаптер результата подготовлен |
 
 ## 6. Инварианты
 
@@ -98,3 +100,44 @@ Stub решает исход только по метатегу `comment=cg-stub
 - Тесты symlink требуют Developer Mode: без него пропускаются с причиной.
 - Тест SIGSTOP работает только на POSIX.
 - Shell-smoke — через Git Bash с `CG_PYTHON`, HTTP-проверки — `curl.exe`, не алиас PowerShell.
+
+
+## 8. Продолжение K4 — обязательные работы
+
+Готовый адаптер: `pipeline/render/analysis.py::render_analysis` и
+`PerceptionWorker.publish_analysis`. Он принимает утверждённый `AnalysisResult`,
+проверяет ID/sha256, интервалы, первый кадр, JPEG/размеры и безопасные пути;
+сохраняет immutable attempt и завершает задачу через lease/CAS. UI получает все
+события и сигналы, jury — первые пять по времени. Нормы берутся из результата,
+который должна сформировать legal-стадия. Адаптер не устанавливает применимость нормы.
+
+**Это не реализация распознавания или правил.** Для закрытия K4 ещё необходимы:
+
+1. ML: perception/evidence adapters, обученные веса, проверенные PTS/координаты,
+   экспорт/manifest и числовые replay-трассы. Одних весов недостаточно.
+2. Backend: реализация сборки сцены, правил и вердикта, затем `load_stages` и
+   `run_perception_stage` в `pipeline/runner.py`. Сейчас там `NotImplementedError`.
+   Реальные pos/neg примеры и применимость норм нужны для проверки правил.
+3. VLM: реализация worker/планировщика и budget fallback, прогрев и признаки готовности.
+   Нельзя просто снять guards в `api/main.py`, `workers/supervisor.py`, `warmup.py`:
+   иначе готовность и heartbeat прогресса будут недостоверными.
+4. Подключение прогресса стадий к job/worker heartbeat, передача предварительного
+   rules-результата в VLM через очередь. Текущий `process_pipeline` — подготовленный
+   вызов frozen runner и публикация его результата, без VLM-планировщика.
+5. Сквозной прогон на отложенных роликах: результат + preview + несколько событий +
+   четыре секунды контекста + соответствующие JPEG + нормы; замер времени и памяти.
+   Проверки с внедрённым контрактным результатом этот пункт не закрывают.
+
+Новые публичные API-поля для реализованных K0–K3 и адаптера K4 не понадобились.
+Frozen jury schema не менялась. Шаги выше выполняются до включения full/replay.
+
+## 9. Проверено в интеграционной ветке
+
+17.10.2026, macOS: `uv run just check` — 675 Python-тестов, 32 Vitest-теста,
+ruff/format, basedpyright, 7 границ импортов, экспорт 14 схем, Biome, tsc и TS drift.
+`pnpm build` — начальный JS 98,17 КБ gzip. Playwright — 48/48 (Chrome desktop/mobile,
+WebKit desktop/iPhone) против объединённого stub-сервера на порту 8131.
+HEVC/повороты/VFR, публикация типизированных результатов — отдельные Python-тесты
+на синтетике. Реальная точность ML, latency полного пайплайна и Windows в этом
+прогоне не проверялись. Неустранимых падений тестов нет; остаётся предупреждение
+Starlette о будущем переходе TestClient с httpx на httpx2, версии зависимостей не менялись.

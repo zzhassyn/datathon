@@ -17,7 +17,8 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "gen:api": "openapi-typescript src/shared/api/openapi.json -o src/shared/api/schema.d.ts",
-    "sync:api": "node sync-api.mjs"
+    "sync:api": "node sync-api.mjs",
+    "check:api": "openapi-typescript src/shared/api/openapi.json -o src/shared/api/schema.d.ts --check"
   },
   "dependencies": {
     "react": "19.3.1",

@@ -1,8 +1,8 @@
 # `src/cashguard/pipeline/render/` — рендер результатов
 
-> Владелец: S1. Реализован рендер frozen jury JSON; Python-контракты S0 ещё отсутствуют.
+> Владелец: S1. Рендер frozen jury JSON и адаптер утверждённого AnalysisResult.
 
-## Интерфейсы первой итерации
+## Интерфейсы
 
 - `jury.render_jury(job_id, violations, *, duration_sec=None, status="done", safe_fallback=True, reencode_jpeg=None)` возвращает обычный `dict` с ровно четырьмя ключами замороженной схемы. Временный внутренний вход — mappings; это не замена `contracts/findings.py`.
 - Нарушение содержит `type`, `pts_event` (или `timecode_sec`), `description`, `evidence_frames`. Кадр содержит `timestamp_sec` и `jpeg_bytes: bytes` либо строгий `image_base64`.
@@ -21,11 +21,18 @@ JPEG проверяется структурно (строгий base64, SOI/SOF
 PYTHONPATH=src .venv/bin/python -m pytest tests/unit/render -q
 ```
 
-После появления S0 `pyproject.toml`, `uv.lock` и `justfile`: `uv run pytest tests/unit/render -q`.
+`uv run pytest tests/unit/render tests/api/test_analysis_publication.py -q`.
 
-## Зависимости от S0/S3
+## Адаптер K4
 
-- `contracts/{jury,findings,ui}.py`: заменить временные mappings адаптерами утверждённых моделей.
-- `configs/catalog/*.yaml`: проверка русских названий типов по каталогу; stub явно помечен как synthetic.
-- `jsonschema` должен присутствовать в runtime dependency set, поскольку validation выполняется при обработке, а не только в тестах.
-- S3 evidence encoder и callback восстановления повреждённых пикселей.
+`analysis.render_analysis(result, evidence_dir)` принимает `AnalysisResult`, выдаёт
+`RenderedAnalysis(jury, ui, evidence)`. Проверяет безопасные имена и расположение
+кадров, декодирование JPEG, размеры, времена и связь первого кадра с событием,
+уникальность ID и соответствие вердикта. Нарушения сортируются по времени; UI
+получает все, jury — максимум пять. Сигналы не меняют jury-вердикт. Поля legal
+переносятся из результата без придумывания норм; применимость проверяется выше.
+`PerceptionWorker.publish_analysis` проверяет ID/sha256 исходного задания, атомарно
+сохраняет файлы в новую attempt-папку и публикует их через lease/CAS.
+
+Проверки адаптера используют только синтетику. Сборка реальных стадий runner и
+VLM-планировщик ещё не реализованы; guards full/replay не сняты.
