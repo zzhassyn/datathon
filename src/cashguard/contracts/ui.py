@@ -3,9 +3,9 @@
 В отличие от jury API кадры отдаются ссылками, а не base64, и есть сигналы.
 """
 
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from cashguard.contracts._base import Contract
 from cashguard.contracts.catalog import (
@@ -17,6 +17,9 @@ from cashguard.contracts.catalog import (
 )
 from cashguard.contracts.findings import EvidenceKind, VlmStatus
 from cashguard.contracts.jobs import JobStatus, PerceptionLevel, ResultLevel, StageState
+
+PipelineModeName = Literal["stub", "replay", "full"]
+"""``stub`` — демонстрационный режим без моделей: интерфейс обязан показать это явно."""
 
 
 class UiVideo(Contract):
@@ -33,6 +36,8 @@ class UiLegalRef(Contract):
     quote_ru: str | None = None
     url: str
     strength: LegalStrength
+    note_ru: str | None = None
+    """Оговорка: условие применимости, ссылка на FAQ 31 и т. п."""
 
 
 class UiEvidence(Contract):
@@ -45,7 +50,8 @@ class UiEvidence(Contract):
 
 class UiViolation(Contract):
     id: str
-    code: ViolationCode
+    code: str
+    """Код из каталога (``ViolationCode``) или служебный (``STUB_EVENT``) — для UI непрозрачен."""
     title_ru: str
     timecode_sec: float = Field(ge=0)
     start_sec: float = Field(ge=0)
@@ -55,12 +61,14 @@ class UiViolation(Contract):
     provisional: bool
     description_ru: str
     legal: list[UiLegalRef]
+    legal_note_ru: str | None = None
+    """Заполняется, если основание не установлено: сервер честно сообщает это текстом."""
     evidence: list[UiEvidence]
 
 
 class UiSignal(Contract):
     id: str
-    code: SignalCode
+    code: str
     title_ru: str
     t_sec: float = Field(ge=0)
     description_ru: str
@@ -82,7 +90,9 @@ class UiJobView(Contract):
 
     job_id: str
     status: JobStatus
-    created_at: float
+    pipeline_mode: PipelineModeName
+    created_at: str
+    """Время приёма, ISO 8601 UTC, например ``2026-10-17T15:48:09.983783Z``."""
     elapsed_sec: float = Field(ge=0)
     queue_position: int | None = None
     eta_sec: float | None = None
@@ -97,6 +107,23 @@ class UiJobView(Contract):
     signals: list[UiSignal] = Field(default_factory=list[UiSignal])
     timings: dict[str, float] | None = None
     error: UiError | None = None
+
+    @model_validator(mode="after")
+    def _invariants(self) -> Self:
+        if self.status == JobStatus.DONE:
+            if self.verdict is None:
+                msg = "status=done требует verdict"
+                raise ValueError(msg)
+            if (self.verdict == "violation") != bool(self.violations):
+                msg = "verdict=violation тогда и только тогда, когда есть события"
+                raise ValueError(msg)
+        elif self.verdict is not None:
+            msg = "verdict есть только у status=done"
+            raise ValueError(msg)
+        if self.status == JobStatus.FAILED and self.error is None:
+            msg = "status=failed требует понятную ошибку error"
+            raise ValueError(msg)
+        return self
 
 
 class UiCatalogType(Contract):

@@ -1,0 +1,97 @@
+{
+  "job_id": "00000000000000000000000000000003",
+  "status": "done",
+  "pipeline_mode": "full",
+  "created_at": "2026-10-17T09:00:00.000000Z",
+  "elapsed_sec": 31.7,
+  "queue_position": null,
+  "eta_sec": null,
+  "perception_level": "full",
+  "result_level": "full",
+  "stages": [
+    {
+      "code": "queued",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "probe",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "perception",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": 14.1,
+      "note_ru": null
+    },
+    {
+      "code": "rules",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "evidence",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "vlm",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": 9.8,
+      "note_ru": null
+    },
+    {
+      "code": "done",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    }
+  ],
+  "degradations": [],
+  "provisional": false,
+  "video": {
+    "url": "/api/ui/jobs/00000000000000000000000000000003/video.mp4",
+    "duration_sec": 25.9,
+    "width": 464,
+    "height": 848
+  },
+  "verdict": "no_violation",
+  "violations": [],
+  "signals": [
+    {
+      "id": "sig_doc_not_handed-1",
+      "code": "SIG_DOC_NOT_HANDED",
+      "title_ru": "Не наблюдается передача документа клиенту",
+      "t_sec": 19.5,
+      "description_ru": "С 17,0 по 19,5 с не наблюдается передача клиенту документа об операции. Сигнал для проверяющего, на вердикт не влияет.",
+      "evidence": [
+        {
+          "timestamp_sec": 19.5,
+          "url": "/api/ui/jobs/00000000000000000000000000000003/frames/01_event.jpg",
+          "kind": "event",
+          "width": 464,
+          "height": 848
+        }
+      ]
+    }
+  ],
+  "timings": {
+    "perception": 14.1,
+    "rules": 0.4,
+    "vlm": 9.8,
+    "total": 31.7
+  },
+  "error": null
+}

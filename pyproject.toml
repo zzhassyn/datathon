@@ -19,6 +19,8 @@ dependencies = [
   "psutil==7.2.2",
   "av==19.0.1",
   "numpy==2.3.5",
+  # Рендерер ответа жюри проверяет его по замороженной схеме во время работы.
+  "jsonschema==4.26.0",
 ]
 
 [project.optional-dependencies]
@@ -52,7 +54,6 @@ dev = [
   "pytest-timeout==2.4.0",
   "anyio==4.15.1",
   "httpx==0.28.1",
-  "jsonschema==4.26.0",
   "schemathesis==4.31.1",
   "syrupy==6.1.1",
   "ruff==0.17.1",
@@ -111,6 +112,8 @@ reportMissingModuleSource = false
 # ---------------------------------------------------------------- pytest
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# "." — чтобы тесты импортировали scripts.* (генератор синтетических видео).
+pythonpath = ["."]
 addopts = ["-ra", "--strict-markers"]
 timeout = 120
 markers = [

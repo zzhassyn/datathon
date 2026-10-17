@@ -1,0 +1,129 @@
+{
+  "job_id": "00000000000000000000000000000005",
+  "status": "done",
+  "pipeline_mode": "full",
+  "created_at": "2026-10-17T09:00:00.000000Z",
+  "elapsed_sec": 231.0,
+  "queue_position": null,
+  "eta_sec": null,
+  "perception_level": "fast",
+  "result_level": "rules",
+  "stages": [
+    {
+      "code": "queued",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "probe",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "perception",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": 168.0,
+      "note_ru": null
+    },
+    {
+      "code": "rules",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "evidence",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "vlm",
+      "status": "skipped",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "done",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    }
+  ],
+  "degradations": [
+    {
+      "stage": "perception",
+      "reason_ru": "Ускоренный режим распознавания: длинное видео и очередь."
+    },
+    {
+      "stage": "vlm",
+      "reason_ru": "Проверка Qwen пропущена: не хватило времени до срока ответа."
+    }
+  ],
+  "provisional": false,
+  "video": {
+    "url": "/api/ui/jobs/00000000000000000000000000000005/video.mp4",
+    "duration_sec": 25.9,
+    "width": 464,
+    "height": 848
+  },
+  "verdict": "violation",
+  "violations": [
+    {
+      "id": "other_visible_irregularity-1",
+      "code": "OTHER_VISIBLE_IRREGULARITY",
+      "title_ru": "Иное наблюдаемое отклонение от кассовой процедуры",
+      "timecode_sec": 52.4,
+      "start_sec": 52.4,
+      "end_sec": 52.4,
+      "confidence": 0.55,
+      "vlm_status": "skipped",
+      "provisional": false,
+      "description_ru": "В 52,4 с наблюдается отклонение от обычного хода операции: посторонний предмет закрывает рабочую зону кассира.",
+      "legal": [
+        {
+          "act_code": "PKO",
+          "act_title_ru": "Правила осуществления кассовых операций и операций по инкассации банкнот, монет и ценностей в банках второго уровня, филиалах банков-нерезидентов Республики Казахстан, Национальном операторе почты и юридических лицах, исключительной деятельностью которых является инкассация банкнот, монет и ценностей",
+          "clause": null,
+          "quote_ru": null,
+          "url": "https://adilet.zan.kz/rus/docs/V1900019680",
+          "strength": "none",
+          "note_ru": "Ссылка на уровне акта без пункта (FAQ 31): готового сопоставления «тип → норма» в analysis/case_analysis.md, раздел 7, нет (docs/legal_sources.md, раздел 9). Без этой записи находка остаётся сигналом."
+        }
+      ],
+      "legal_note_ru": "Конкретная норма для этого наблюдения не установлена; указан акт целиком (FAQ 31). Требуется проверка человеком.",
+      "evidence": [
+        {
+          "timestamp_sec": 52.4,
+          "url": "/api/ui/jobs/00000000000000000000000000000005/frames/01_event.jpg",
+          "kind": "event",
+          "width": 464,
+          "height": 848
+        },
+        {
+          "timestamp_sec": 50.9,
+          "url": "/api/ui/jobs/00000000000000000000000000000005/frames/01_context.jpg",
+          "kind": "context",
+          "width": 464,
+          "height": 848
+        }
+      ]
+    }
+  ],
+  "signals": [],
+  "timings": {
+    "perception": 168.0,
+    "rules": 0.9,
+    "total": 231.0
+  },
+  "error": null
+}

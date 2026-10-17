@@ -1,0 +1,224 @@
+{
+  "job_id": "00000000000000000000000000000004",
+  "status": "done",
+  "pipeline_mode": "full",
+  "created_at": "2026-10-17T09:00:00.000000Z",
+  "elapsed_sec": 44.9,
+  "queue_position": null,
+  "eta_sec": null,
+  "perception_level": "full",
+  "result_level": "full",
+  "stages": [
+    {
+      "code": "queued",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "probe",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "perception",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": 17.0,
+      "note_ru": null
+    },
+    {
+      "code": "rules",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "evidence",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "vlm",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": 15.2,
+      "note_ru": null
+    },
+    {
+      "code": "done",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    }
+  ],
+  "degradations": [],
+  "provisional": false,
+  "video": {
+    "url": "/api/ui/jobs/00000000000000000000000000000004/video.mp4",
+    "duration_sec": 25.9,
+    "width": 464,
+    "height": 848
+  },
+  "verdict": "violation",
+  "violations": [
+    {
+      "id": "no_client_id-1",
+      "code": "NO_CLIENT_ID",
+      "title_ru": "Приём наличных без предъявления документа клиента",
+      "timecode_sec": 10.0,
+      "start_sec": 8.5,
+      "end_sec": 12.5,
+      "confidence": 0.86,
+      "vlm_status": "confirmed",
+      "provisional": false,
+      "description_ru": "В 10,0 с кассир принимает наличные; документ, удостоверяющий личность клиента, в кадре не предъявлялся.",
+      "legal": [
+        {
+          "act_code": "PKO",
+          "act_title_ru": "Правила осуществления кассовых операций и операций по инкассации банкнот, монет и ценностей в банках второго уровня, филиалах банков-нерезидентов Республики Казахстан, Национальном операторе почты и юридических лицах, исключительной деятельностью которых является инкассация банкнот, монет и ценностей",
+          "clause": "п. 19 пп. 1)",
+          "quote_ru": "проводит визуальную идентификацию клиента, вносящего наличные деньги, с документом, удостоверяющим его личность, либо данными, подтверждающими (идентифицирующими) личность клиента, полученными посредством сервиса цифровых документов",
+          "url": "https://adilet.zan.kz/rus/docs/V1900019680",
+          "strength": "direct",
+          "note_ru": "Цифровой документ на телефоне тоже допустим."
+        }
+      ],
+      "legal_note_ru": null,
+      "evidence": [
+        {
+          "timestamp_sec": 10.0,
+          "url": "/api/ui/jobs/00000000000000000000000000000004/frames/01_event.jpg",
+          "kind": "event",
+          "width": 464,
+          "height": 848
+        },
+        {
+          "timestamp_sec": 10.0,
+          "url": "/api/ui/jobs/00000000000000000000000000000004/frames/01_zoom.jpg",
+          "kind": "zoom",
+          "width": 320,
+          "height": 320
+        },
+        {
+          "timestamp_sec": 8.5,
+          "url": "/api/ui/jobs/00000000000000000000000000000004/frames/01_context.jpg",
+          "kind": "context",
+          "width": 464,
+          "height": 848
+        }
+      ]
+    },
+    {
+      "id": "safe_key_left-2",
+      "code": "SAFE_KEY_LEFT",
+      "title_ru": "Ключ оставлен в замке сейфа",
+      "timecode_sec": 14.2,
+      "start_sec": 14.2,
+      "end_sec": 25.9,
+      "confidence": 0.78,
+      "vlm_status": "confirmed",
+      "provisional": false,
+      "description_ru": "В 14,2 с кассир покидает помещение; в замке сейфа остаётся ключ.",
+      "legal": [
+        {
+          "act_code": "PKO",
+          "act_title_ru": "Правила осуществления кассовых операций и операций по инкассации банкнот, монет и ценностей в банках второго уровня, филиалах банков-нерезидентов Республики Казахстан, Национальном операторе почты и юридических лицах, исключительной деятельностью которых является инкассация банкнот, монет и ценностей",
+          "clause": "п. 80",
+          "quote_ru": "ключей от специальных устройств, находящихся на рабочем месте кассового работника, предназначенных для хранения наличных денег (металлический шкаф, сейф, тележка, ящики стола), определяется внутренними документами банка, обеспечивающими исключение их несанкционированного использования",
+          "url": "https://adilet.zan.kz/rus/docs/V1900019680",
+          "strength": "indirect",
+          "note_ru": "Отсылка к внутренним документам банка."
+        }
+      ],
+      "legal_note_ru": null,
+      "evidence": [
+        {
+          "timestamp_sec": 14.2,
+          "url": "/api/ui/jobs/00000000000000000000000000000004/frames/02_event.jpg",
+          "kind": "event",
+          "width": 464,
+          "height": 848
+        },
+        {
+          "timestamp_sec": 14.2,
+          "url": "/api/ui/jobs/00000000000000000000000000000004/frames/02_zoom.jpg",
+          "kind": "zoom",
+          "width": 320,
+          "height": 320
+        },
+        {
+          "timestamp_sec": 12.7,
+          "url": "/api/ui/jobs/00000000000000000000000000000004/frames/02_context.jpg",
+          "kind": "context",
+          "width": 464,
+          "height": 848
+        }
+      ]
+    },
+    {
+      "id": "pc_unlocked-3",
+      "code": "PC_UNLOCKED",
+      "title_ru": "Уход с рабочего места без блокировки компьютера",
+      "timecode_sec": 18.0,
+      "start_sec": 18.0,
+      "end_sec": 25.9,
+      "confidence": 0.86,
+      "vlm_status": "unverified",
+      "provisional": false,
+      "description_ru": "В 18,0 с кассир выходит из кассы; экран ноутбука остаётся включённым и не заблокирован.",
+      "legal": [
+        {
+          "act_code": "TIB",
+          "act_title_ru": "Требования к обеспечению информационной безопасности банков, филиалов банков-нерезидентов Республики Казахстан и организаций, осуществляющих отдельные виды банковских операций",
+          "clause": "п. 73 пп. 6)",
+          "quote_ru": "недопущение работы в информационных системах под чужими учетными записями",
+          "url": "https://adilet.zan.kz/rus/docs/V2600038336",
+          "strength": "indirect",
+          "note_ru": "Незаблокированный компьютер в отсутствие кассира позволяет работать под его учётной записью. Прямой обязанности блокировать компьютер вручную в актах нет."
+        },
+        {
+          "act_code": "TIB",
+          "act_title_ru": "Требования к обеспечению информационной безопасности банков, филиалов банков-нерезидентов Республики Казахстан и организаций, осуществляющих отдельные виды банковских операций",
+          "clause": "п. 71 пп. 9)",
+          "quote_ru": "при неактивности пользователя более 30 (тридцати) минут информационная система автоматически завершает сеанс работы пользователя либо блокирует рабочую станцию или ноутбук",
+          "url": "https://adilet.zan.kz/rus/docs/V2600038336",
+          "strength": "indirect",
+          "note_ru": "Только в интерфейсе, в описание жюри не идёт: автоблокировка через 30 минут — требование к системе, а не к кассиру."
+        }
+      ],
+      "legal_note_ru": null,
+      "evidence": [
+        {
+          "timestamp_sec": 18.0,
+          "url": "/api/ui/jobs/00000000000000000000000000000004/frames/03_event.jpg",
+          "kind": "event",
+          "width": 464,
+          "height": 848
+        },
+        {
+          "timestamp_sec": 18.0,
+          "url": "/api/ui/jobs/00000000000000000000000000000004/frames/03_zoom.jpg",
+          "kind": "zoom",
+          "width": 320,
+          "height": 320
+        }
+      ]
+    }
+  ],
+  "signals": [],
+  "timings": {
+    "perception": 17.0,
+    "rules": 0.6,
+    "vlm": 15.2,
+    "total": 44.9
+  },
+  "error": null
+}

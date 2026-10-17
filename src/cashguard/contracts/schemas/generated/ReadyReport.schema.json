@@ -51,6 +51,15 @@
     "checks": {
       "$ref": "#/$defs/ReadyChecks"
     },
+    "pipeline_mode": {
+      "enum": [
+        "stub",
+        "replay",
+        "full"
+      ],
+      "title": "Pipeline Mode",
+      "type": "string"
+    },
     "ready": {
       "title": "Ready",
       "type": "boolean"
@@ -75,6 +84,7 @@
   "required": [
     "ready",
     "checks",
+    "pipeline_mode",
     "version"
   ],
   "title": "ReadyReport",

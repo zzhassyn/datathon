@@ -475,6 +475,15 @@
           "checks": {
             "$ref": "#/components/schemas/ReadyChecks"
           },
+          "pipeline_mode": {
+            "enum": [
+              "stub",
+              "replay",
+              "full"
+            ],
+            "title": "Pipeline Mode",
+            "type": "string"
+          },
           "ready": {
             "title": "Ready",
             "type": "boolean"
@@ -498,6 +507,7 @@
         "required": [
           "ready",
           "checks",
+          "pipeline_mode",
           "version"
         ],
         "title": "ReadyReport",
@@ -845,7 +855,7 @@
         "properties": {
           "created_at": {
             "title": "Created At",
-            "type": "number"
+            "type": "string"
           },
           "degradations": {
             "items": {
@@ -893,6 +903,15 @@
                 "type": "null"
               }
             ]
+          },
+          "pipeline_mode": {
+            "enum": [
+              "stub",
+              "replay",
+              "full"
+            ],
+            "title": "Pipeline Mode",
+            "type": "string"
           },
           "provisional": {
             "default": false,
@@ -987,6 +1006,7 @@
         "required": [
           "job_id",
           "status",
+          "pipeline_mode",
           "created_at",
           "elapsed_sec",
           "stages"
@@ -1015,6 +1035,17 @@
               }
             ],
             "title": "Clause"
+          },
+          "note_ru": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note Ru"
           },
           "quote_ru": {
             "anyOf": [
@@ -1048,7 +1079,8 @@
         "additionalProperties": false,
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/SignalCode"
+            "title": "Code",
+            "type": "string"
           },
           "description_ru": {
             "title": "Description Ru",
@@ -1121,7 +1153,8 @@
         "additionalProperties": false,
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/ViolationCode"
+            "title": "Code",
+            "type": "string"
           },
           "confidence": {
             "maximum": 1.0,
@@ -1155,6 +1188,17 @@
             },
             "title": "Legal",
             "type": "array"
+          },
+          "legal_note_ru": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legal Note Ru"
           },
           "provisional": {
             "title": "Provisional",

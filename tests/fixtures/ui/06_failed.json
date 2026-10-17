@@ -1,0 +1,38 @@
+{
+  "job_id": "00000000000000000000000000000006",
+  "status": "failed",
+  "pipeline_mode": "full",
+  "created_at": "2026-10-17T09:00:00.000000Z",
+  "elapsed_sec": 2.1,
+  "queue_position": null,
+  "eta_sec": null,
+  "perception_level": null,
+  "result_level": null,
+  "stages": [
+    {
+      "code": "queued",
+      "status": "done",
+      "progress": 1.0,
+      "elapsed_sec": null,
+      "note_ru": null
+    },
+    {
+      "code": "probe",
+      "status": "failed",
+      "progress": 0.0,
+      "elapsed_sec": null,
+      "note_ru": "Видео не читается"
+    }
+  ],
+  "degradations": [],
+  "provisional": false,
+  "video": null,
+  "verdict": null,
+  "violations": [],
+  "signals": [],
+  "timings": null,
+  "error": {
+    "code": "UNSUPPORTED_VIDEO",
+    "message_ru": "Не удалось прочитать видео: файл повреждён или формат не поддерживается. Загрузите .mov или .mp4 (H.264/HEVC)."
+  }
+}

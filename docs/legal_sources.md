@@ -48,7 +48,7 @@
 
 Как ссылаться в тексте: «п. X Правил …, утв. постановлением Правления НБРК от … № …».
 
-Ожидаемое содержимое `configs/legal/acts.yaml` (v0, владелец S0). Корневая модель — `Acts{acts: list[ActEntry], do_not_cite: list[str]}` из `contracts/catalog.py`. `ActEntry` содержит поле `cite_ru` — краткую форму для правовой фразы (раздел 6.2):
+Ожидаемое содержимое `configs/legal/acts.yaml` (v0, владелец S0). Корневая модель — `ActsFile{acts: list[ActEntry], do_not_cite: list[DoNotCite{title_ru, reason_ru}]}` из `contracts/catalog.py`; `status` — `in_force | repealed`. `ActEntry` содержит поле `cite_ru` — краткую форму для правовой фразы (раздел 6.2):
 
 ```yaml
 acts:

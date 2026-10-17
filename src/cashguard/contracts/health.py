@@ -29,6 +29,8 @@ class ReadyReport(Contract):
 
     ready: bool
     checks: ReadyChecks
+    pipeline_mode: Literal["stub", "replay", "full"]
+    """В режиме ``stub`` модели не загружены: ``models_loaded`` честно ``false``."""
     vlm_quant: str | None = None
     version: str
 

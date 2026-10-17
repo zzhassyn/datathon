@@ -7,7 +7,7 @@
 
 | Файл | Что делает |
 |---|---|
-| `acts.yaml` | корневая модель `Acts`: список `acts` (`ActEntry`: `act_code`, `title_ru`, `cite_ru`, `issuer`, `number`, `date`, `registration_no`, `adilet_id`, `url`, `status`) и список `do_not_cite` (утратившие силу акты). `cite_ru` — краткая ссылка для правовой фразы `{act_cite}` ([docs/legal_sources.md](../../docs/legal_sources.md), раздел 6.2) |
+| `acts.yaml` | корневая модель `ActsFile`: список `acts` (`ActEntry`: `act_code`, `title_ru`, `cite_ru`, `issuer`, `number`, `date`, `registration_no`, `adilet_id`, `url`, `status`) и список `do_not_cite` (`DoNotCite{title_ru, reason_ru}` — утратившие силу акты); `status` — `in_force | repealed`. `cite_ru` — краткая ссылка для правовой фразы `{act_cite}` ([docs/legal_sources.md](../../docs/legal_sources.md), раздел 6.2) |
 
 ## Акты v0
 

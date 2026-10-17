@@ -46,26 +46,6 @@
       "title": "ResultLevel",
       "type": "string"
     },
-    "SignalCode": {
-      "description": "Сигналы (B2): видны проверяющему в интерфейсе, на вердикт не влияют.",
-      "enum": [
-        "SIG_SEAL_NOT_INSPECTED",
-        "SIG_BAG_OPENED_WITHOUT_COLLECTOR",
-        "SIG_RECOUNT_WITHOUT_SECOND_EMPLOYEE",
-        "SIG_STAFF_CASH_TRANSFER",
-        "SIG_DOC_NOT_HANDED",
-        "SIG_REJECT_TRAY_TO_CLIENT",
-        "SIG_NO_SIGNATURE_SEEN",
-        "SIG_NO_STAMP_SEEN",
-        "SIG_MULTI_DOC_SINGLE_RECOUNT",
-        "SIG_SAFE_CLOSED_WITHOUT_COUNT",
-        "SIG_SAFE_WITHOUT_PC",
-        "SIG_CASH_TO_STAFF",
-        "SIG_CAMERA_OBSTRUCTED"
-      ],
-      "title": "SignalCode",
-      "type": "string"
-    },
     "StageCode": {
       "enum": [
         "queued",
@@ -236,6 +216,18 @@
           "default": null,
           "title": "Clause"
         },
+        "note_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note Ru"
+        },
         "quote_ru": {
           "anyOf": [
             {
@@ -269,7 +261,8 @@
       "additionalProperties": false,
       "properties": {
         "code": {
-          "$ref": "#/$defs/SignalCode"
+          "title": "Code",
+          "type": "string"
         },
         "description_ru": {
           "title": "Description Ru",
@@ -342,7 +335,8 @@
       "additionalProperties": false,
       "properties": {
         "code": {
-          "$ref": "#/$defs/ViolationCode"
+          "title": "Code",
+          "type": "string"
         },
         "confidence": {
           "maximum": 1,
@@ -376,6 +370,18 @@
           },
           "title": "Legal",
           "type": "array"
+        },
+        "legal_note_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Legal Note Ru"
         },
         "provisional": {
           "title": "Provisional",
@@ -416,39 +422,6 @@
       "title": "UiViolation",
       "type": "object"
     },
-    "ViolationCode": {
-      "description": "Коды, влияющие на вердикт: 17 из датасета (группа A), 8 видимых новых (B1) и прочее.",
-      "enum": [
-        "CASH_WITHHELD",
-        "NO_CLIENT_ID",
-        "PREV_CASH_ON_DESK",
-        "MIXED_CLIENT_CASH",
-        "RECOUNT_WITHOUT_CLIENT",
-        "NO_AUTH_CHECK",
-        "VALUABLES_LEFT",
-        "SAFE_OPEN",
-        "SAFE_KEY_LEFT",
-        "PC_UNLOCKED",
-        "DOOR_NOT_CLOSED",
-        "OUTSIDER_IN_CASH_ROOM",
-        "THIRD_PERSON_DURING_SERVICE",
-        "COLLECTOR_NOT_VERIFIED",
-        "BAG_CASH_NO_RECOUNT",
-        "PERSONAL_ITEMS",
-        "FOOD_DRINK",
-        "PHONE_CASHIER",
-        "LEFT_DURING_SERVICE",
-        "PAYOUT_WITHOUT_RECOUNT",
-        "CHANGE_BEFORE_PREPARED",
-        "STORAGE_UNESCORTED",
-        "CASH_CONCEALED",
-        "CASH_TRANSFER_OUTSIDE_OP",
-        "UNATTENDED_PRESENCE",
-        "OTHER_VISIBLE_IRREGULARITY"
-      ],
-      "title": "ViolationCode",
-      "type": "string"
-    },
     "VlmStatus": {
       "enum": [
         "confirmed",
@@ -465,7 +438,7 @@
   "properties": {
     "created_at": {
       "title": "Created At",
-      "type": "number"
+      "type": "string"
     },
     "degradations": {
       "items": {
@@ -516,6 +489,15 @@
         }
       ],
       "default": null
+    },
+    "pipeline_mode": {
+      "enum": [
+        "stub",
+        "replay",
+        "full"
+      ],
+      "title": "Pipeline Mode",
+      "type": "string"
     },
     "provisional": {
       "default": false,
@@ -615,6 +597,7 @@
   "required": [
     "job_id",
     "status",
+    "pipeline_mode",
     "created_at",
     "elapsed_sec",
     "stages"
