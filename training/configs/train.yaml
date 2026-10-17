@@ -1,0 +1,89 @@
+# Профили обучения детектора (08_train_detect.py --profile <имя>).
+# Время — оценки для MacBook Pro M2 Pro 16 ГБ (MPS); точное время печатается после первой эпохи.
+
+common: &common
+  device: auto            # mps на Mac
+  workers: 4              # на MPS и CPU не действует: Ultralytics 8.4 ставит workers=0 (загрузка кадров
+                          # и мозаика — в основном потоке); работает только на CUDA
+  cache: false            # ram: ~1,6 ГБ (≈1,3 тыс. кадров при 864) — эпоха быстрее, т. к. JPEG не декодируется
+                          # каждый раз; но на 16 ГБ вместе с YOLO26l@864 памяти впритык, поэтому выключено.
+                          # Для smoke/pseudo можно включить (cache: ram), если свободно ≥ 8 ГБ
+  plots: true
+  seed: 26
+  # аугментации под другой ракурс камеры, других людей и освещение
+  hsv_h: 0.015
+  hsv_s: 0.6
+  hsv_v: 0.4
+  degrees: 8.0
+  translate: 0.1
+  scale: 0.5
+  shear: 2.0
+  perspective: 0.0007
+  fliplr: 0.5
+  mosaic: 1.0
+  close_mosaic: 10
+
+profiles:
+  smoke:                  # 5–10 мин: проверка, что обучение на MPS работает, и замер скорости
+    <<: *common
+    model: yolo26n.pt
+    imgsz: 640
+    epochs: 3
+    close_mosaic: 0       # иначе при epochs < close_mosaic мозаика выключена с 0-й эпохи и замер не похож на обучение
+    batch: 8
+    fraction: 0.25
+    dataset: pseudo
+
+  calib_full:             # 10–20 мин: замер скорости и памяти ровно в настройках full (YOLO26l, 864, freeze=10);
+    <<: *common           # по нему 08_train_detect.py прогнозирует full и full_m точнее, чем по smoke (n@640)
+    model: yolo26l.pt
+    imgsz: 864
+    epochs: 2             # 1-я эпоха — прогрев MPS, в прогноз идёт 2-я
+    close_mosaic: 0
+    freeze: 10
+    batch: 8
+    fraction: 0.15
+    plots: false
+    dataset: pseudo
+
+  pseudo:                 # ~1–1.5 ч: базовая модель на автоматической разметке, пока люди правят разметку
+    <<: *common
+    model: yolo26s.pt
+    imgsz: 864
+    epochs: 30
+    patience: 8
+    batch: 8
+    dataset: pseudo
+
+  full:                   # ~2–3 ч: основная модель на проверенной разметке
+    <<: *common
+    model: yolo26l.pt
+    imgsz: 864
+    epochs: 50
+    patience: 10
+    freeze: 10
+    batch: 8              # при нехватке памяти — 4
+    dataset: reviewed
+
+  full_m:                 # запасной: быстрее на ~20–25 %, чуть ниже точность
+    <<: *common
+    model: yolo26m.pt
+    imgsz: 864
+    epochs: 50
+    patience: 10
+    freeze: 10
+    batch: 8
+    dataset: reviewed
+
+cls:                      # классификаторы состояний по фрагментам (12_train_cls.py --task <имя>)
+  common: &cls_common
+    device: auto
+    model: yolo26s-cls.pt
+    imgsz: 224
+    epochs: 30
+    patience: 8
+    batch: 32
+  tasks:
+    screen:    {<<: *cls_common, classes: [active, locked, "off"]}   # off в кавычках: иначе YAML читает false
+    safe_lock: {<<: *cls_common, classes: [key, no_key]}
+    door:      {<<: *cls_common, classes: [closed, open]}

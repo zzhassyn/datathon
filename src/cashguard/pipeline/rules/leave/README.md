@@ -1,0 +1,27 @@
+# `src/cashguard/pipeline/rules/leave/` — уход с рабочего места
+
+> **Назначение:** Правила, где кассир покидает рабочее место и оставляет что-то в неверном состоянии.
+> **Владелец:** S4 · **Статус:** черновик v1, 17.10.2026 (каркас: кода ещё нет)
+
+## Планируемые файлы
+
+| Файл | Что делает |
+|---|---|
+| `pc_unlocked.py` | `PC_UNLOCKED`: кассир вышел, экран `active` ещё ≥ 2 с; таймкод — момент выхода |
+| `safe_key_left.py` | `SAFE_KEY_LEFT`: кассир вышел, в замке сейфа `key` (или ключ на столе); таймкод — момент выхода |
+| `valuables_left.py` | `VALUABLES_LEFT`: кассир вышел, в зоне стола остаются `cash` или `collection_bag`; таймкод — момент выхода |
+| `safe_open.py` | `SAFE_OPEN`: `safe_open` ≥ N с, кассира нет у сейфа; таймкод — начало состояния |
+| `left_during_service.py` | `LEFT_DURING_SERVICE`: идёт сеанс обслуживания, кассир вышел; таймкод — выход |
+| `unattended_presence.py` | `UNATTENDED_PRESENCE`: кассир вышел, а деньги или сейф открыты; другой человек трогает деньги или сейф |
+
+## Правила
+
+- Каждый файл — класс с `@register_rule`, протокол `Rule`: `code`, `version`, `verdict_impact`, `evaluate(ctx) -> list[Candidate]`.
+- Тест `tests/unit/rules/<CODE>_test.py`, фикстуры `tests/fixtures/timelines/<CODE>_{pos,neg}_*.json`.
+- Кандидат не должен срабатывать на 19 чистых роликах (`uv run just eval-replay`).
+- Только Python + numpy: модуль работает в режиме replay на Windows без моделей и Mac.
+
+## Документы
+
+- [docs/violation_catalog.md — коды нарушений и сигналов](../../../../../docs/violation_catalog.md)
+- [docs/structure.md — дерево, владельцы, имена](../../../../../docs/structure.md)

@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cashguard:schema:jury_job:v1",
+  "$comment": "FROZEN. Рукописная схема ответа GET /api/v1/jobs/{job_id} по ТЗ, раздел 10. Оракул для tests/contract и pipeline/render/jury.py. Менять только с одобрения человека (владелец S0). Описание и тесты: docs/api.md.",
+  "title": "JuryJobResponse",
+  "description": "Ответ jury API о статусе и результате обработки видео. Ровно четыре ключа верхнего уровня, лишние ключи запрещены на всех уровнях.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["job_id", "status", "verdict", "violations"],
+  "properties": {
+    "job_id": {
+      "description": "Идентификатор задачи из ответа POST /api/v1/analyze. Сервис выдаёт uuid4 hex (32 символа), но схема, как и ТЗ, требует только непустую строку.",
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "description": "processing (внутренние queued и running), done или failed.",
+      "type": "string",
+      "enum": ["processing", "done", "failed"]
+    },
+    "verdict": {
+      "description": "violation или no_violation при status=done; null при processing и failed.",
+      "type": ["string", "null"],
+      "enum": ["violation", "no_violation", null]
+    },
+    "violations": {
+      "description": "Список нарушений. Пустой при processing, failed и verdict=no_violation; не пустой при verdict=violation.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/violation" }
+    }
+  },
+  "allOf": [
+    {
+      "$comment": "done => verdict не null; processing/failed => verdict null и violations пустой.",
+      "if": {
+        "properties": { "status": { "const": "done" } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "verdict": { "type": "string", "enum": ["violation", "no_violation"] }
+        }
+      },
+      "else": {
+        "properties": {
+          "verdict": { "const": null },
+          "violations": { "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "$comment": "verdict=violation => хотя бы одно нарушение.",
+      "if": {
+        "properties": { "verdict": { "const": "violation" } },
+        "required": ["verdict"]
+      },
+      "then": {
+        "properties": { "violations": { "minItems": 1 } }
+      }
+    },
+    {
+      "$comment": "verdict=no_violation => список нарушений пустой.",
+      "if": {
+        "properties": { "verdict": { "const": "no_violation" } },
+        "required": ["verdict"]
+      },
+      "then": {
+        "properties": { "violations": { "maxItems": 0 } }
+      }
+    }
+  ],
+  "$defs": {
+    "violation": {
+      "title": "JuryViolation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "timecode_sec", "description", "evidence_frames"],
+      "properties": {
+        "type": {
+          "description": "Тип нарушения: стабильная русская строка title_ru из configs/catalog/<CODE>.yaml.",
+          "type": "string",
+          "minLength": 1
+        },
+        "timecode_sec": {
+          "description": "Таймкод события в секундах от начала видео (PTS), float, округление до 0.01.",
+          "type": "number",
+          "minimum": 0
+        },
+        "description": {
+          "description": "Что видно на видео и почему это может быть нарушением, плюс фраза с правовым основанием.",
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_frames": {
+          "description": "1-3 кадра-доказательства JPEG в base64; первый кадр снят в момент timecode_sec.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/evidence_frame" }
+        }
+      }
+    },
+    "evidence_frame": {
+      "title": "JuryEvidenceFrame",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timestamp_sec", "image_base64"],
+      "properties": {
+        "timestamp_sec": {
+          "description": "Время кадра в секундах от начала видео (PTS сэмплированного кадра).",
+          "type": "number",
+          "minimum": 0
+        },
+        "image_base64": {
+          "description": "Сырой JPEG в стандартном base64 без префикса data: и без переводов строк. Любой JPEG начинается с байтов FF D8 FF, поэтому строка начинается с /9j/.",
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^/9j/",
+          "contentEncoding": "base64",
+          "contentMediaType": "image/jpeg"
+        }
+      }
+    }
+  }
+}

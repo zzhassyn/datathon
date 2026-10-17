@@ -1,0 +1,47 @@
+# Данные хакатона нельзя публиковать и хранить вне хакатона (FAQ п. 6) — в git не попадают
+data/
+*.mov
+*.mp4
+*.zip
+
+# Результаты обучения и веса
+runs/
+models/pretrained/
+models/hf/
+*.safetensors
+models/**/*.pt
+models/**/*.mlpackage
+models/**/*.onnx
+*.pt
+
+# Окружения и кэши
+.venv*/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+node_modules/
+dist/
+
+# Label Studio (локальная база и медиа)
+label-studio-data/
+.label-studio/
+
+# Системные
+.DS_Store
+Thumbs.db
+
+# Состояние сервиса, секреты и сборки (продукт CashGuard)
+var/
+*.sqlite3*
+.env
+!.env.example
+.claude/worktrees/
+web/dist/
+
+# Модели целиком: веса, пакеты Core ML и манифесты живут только на Mac (версии и sha256 — в configs/models.yaml)
+models/
+
+# Полные ответы jury API с base64-кадрами (smoke_jury.sh пишет в var/smoke/)
+result_*.json

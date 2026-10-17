@@ -1,0 +1,16 @@
+# Окончания строк: скрипты и конфиги всегда LF (bash на macOS не выполняет скрипты с CRLF).
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.csv text eol=lf
+
+# Двоичные файлы: без преобразования окончаний строк и без текстового diff
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.pt binary
+*.mlpackage binary
+*.mlpackage/** binary
