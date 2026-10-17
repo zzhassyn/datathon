@@ -1,0 +1,42 @@
+# Параметры подготовки данных. Пути — относительно корня репозитория,
+# корень данных можно переопределить переменной окружения KASSA_DATA_DIR.
+
+paths:
+  data_dir: data                      # всё, что ниже, — внутри data_dir (в git не попадает)
+  raw_videos: raw/open/videos         # сюда распаковать videos/ из open.zip
+  raw_labels: raw/open/open_labels.xlsx
+  catalog: analysis/labels_typed.csv  # каталог событий с типами и сценами (в git, относительно корня репо)
+  manifest: manifest.csv
+  frames: frames
+  prelabels: prelabels
+  labels: labels                      # проверенная человеком разметка (тот же формат, что prelabels)
+  external_raw: external              # сырые внешние датасеты
+  external_converted: external_converted
+  yolo: yolo                          # собранные датасеты для Ultralytics
+  crops: crops                        # фрагменты для классификаторов состояний
+  runs: runs                          # относительно корня репо: результаты обучения
+  models: models                      # относительно корня репо: экспортированные модели
+
+frames:
+  base_fps: 1.0            # общий шаг по всем роликам
+  event_fps: 4.0           # плотнее вокруг размеченных событий
+  event_window_sec: 3.0    # ± секунд вокруг каждого таймкода нарушения
+  jpeg_quality: 92
+  dedup_phash_distance: 4  # кадры ближе этого (Хэмминг по pHash) внутри видео считаются дублями
+  keep_native_resolution: true   # 464x848 без уменьшения
+
+prelabel:
+  device: auto             # auto: mps на Mac, cuda если есть, иначе cpu
+  coco_model: yolo26x.pt   # готовая COCO-модель для person/laptop/phone/cup/сумок
+  coco_conf: 0.30
+  gdino_model: IDEA-Research/grounding-dino-base   # для теста на слабом ПК: grounding-dino-tiny
+  gdino_box_threshold: 0.30
+  gdino_text_threshold: 0.25
+  nms_iou: 0.6             # подавление дублей внутри класса
+  static_keyframes: 5      # по скольким кадрам видео усреднять рамку неподвижного предмета
+  min_box_area_frac: 0.0005  # отбрасывать совсем мелкие рамки (доля площади кадра)
+
+split:
+  val_scenes: [L4]         # сцена целиком уходит в валидацию (камера/раскладка, которых модель не видела)
+  loso: true               # дополнительно собрать фолды leave-one-scene-out (L1..L5)
+  external_in_val: false   # внешние датасеты — только в train, оценка — только на наших роликах

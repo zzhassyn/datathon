@@ -1,0 +1,24 @@
+# Шаблон подключения внешних датасетов (06_merge_external.py).
+# Скопируйте в external_datasets.yaml и опишите каждый датасет.
+#
+# Правила:
+# - внешние кадры идут ТОЛЬКО в train; валидация — только на наших роликах;
+# - лицензия датасета должна разрешать коммерческое использование
+#   (FAQ п. 24 и п. 34 — права на решение получает банк);
+# - classes: соответствие «класс датасета -> наш класс»; всё, что не указано, отбрасывается;
+# - max_images ограничивает вклад датасета: время обучения растёт пропорционально числу кадров.
+
+datasets:
+  - name: example_banknotes          # короткое имя латиницей, станет префиксом файлов ext_<name>_
+    enabled: false
+    format: yolo                     # yolo | coco
+    path: external/example_banknotes # относительно data_dir
+    # для yolo: images/ и labels/ (+ data.yaml c names); для coco: images/ + annotations.json
+    license: "CC-BY-4.0"             # записать фактическую лицензию
+    source_url: "https://..."
+    max_images: 800
+    classes:
+      banknote: cash
+      money: cash
+      person: person
+      handbag: personal_bag

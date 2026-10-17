@@ -1,0 +1,108 @@
+# 14 классов детектора YOLO26 (см. analysis/detection_design.md, раздел «Что обучаем»).
+# id — индекс класса в YOLO-разметке; порядок менять нельзя после начала разметки.
+#
+# prelabel — откуда берётся автоматическая предварительная разметка:
+#   coco:  классы готовой COCO-модели YOLO26 (точнее всего для людей и бытовых предметов)
+#   gdino: текстовые подсказки для Grounding DINO (открытый словарь)
+# static — предмет стоит на месте (камера неподвижна). Его рамку можно разметить
+#   один раз на видео и размножить на все кадры этого видео (03_prelabel делает это сам).
+# review — на что смотреть при ручной правке.
+
+classes:
+  - id: 0
+    name: person
+    ru: человек
+    prelabel: {coco: [person]}
+    static: false
+    review: "Все люди, включая частично видимых за столом. Отражения в стекле НЕ размечать."
+
+  - id: 1
+    name: cash
+    ru: наличные (купюры, пачка)
+    prelabel: {gdino: ["stack of banknotes", "paper money", "bundle of cash"]}
+    static: false
+    review: "Самый важный и самый шумный класс. Деньги на столе и в руках."
+
+  - id: 2
+    name: collection_bag
+    ru: инкассаторская сумка
+    prelabel: {gdino: ["green fabric bag", "sealed cash bag"]}
+    static: false
+    review: "Зелёная тканевая сумка с пломбой. Не путать с личной сумкой."
+
+  - id: 3
+    name: safe_closed
+    ru: сейф закрыт
+    prelabel: {gdino: ["closed metal safe", "grey metal cabinet"]}
+    static: true
+    review: "Дверца закрыта. При открытой дверце — класс safe_open."
+
+  - id: 4
+    name: safe_open
+    ru: сейф открыт
+    prelabel: {gdino: ["open safe door", "open metal cabinet"]}
+    static: false
+    review: "Дверца открыта хотя бы частично. Рамка — весь сейф вместе с дверцей."
+
+  - id: 5
+    name: laptop
+    ru: ноутбук
+    prelabel: {coco: [laptop]}
+    static: true
+    review: "Корпус вместе с экраном. Состояние экрана — отдельный классификатор."
+
+  - id: 6
+    name: door
+    ru: дверь кассы
+    prelabel: {gdino: ["glass door", "door handle"]}
+    static: true
+    review: "Стеклянная дверь входа. Рамка — полотно двери."
+
+  - id: 7
+    name: counting_machine
+    ru: счётная машинка
+    prelabel: {gdino: ["banknote counting machine", "money counter"]}
+    static: true
+    review: "Крупный чёрный аппарат с лотком. Не путать с детектором подлинности."
+
+  - id: 8
+    name: auth_detector
+    ru: детектор подлинности
+    prelabel: {gdino: ["banknote detector", "small black device with light"]}
+    static: true
+    review: "Плоский чёрный прибор с подсветкой рядом с машинкой."
+
+  - id: 9
+    name: id_document
+    ru: удостоверение / документ клиента
+    prelabel: {gdino: ["id card", "plastic card", "identity document"]}
+    static: false
+    review: "Карточка удостоверения, служебное удостоверение инкассатора."
+
+  - id: 10
+    name: phone
+    ru: телефон
+    prelabel: {coco: [cell phone]}
+    static: false
+    review: "Смартфон в руках или на столе. Чей телефон — решают правила по зонам."
+
+  - id: 11
+    name: cup
+    ru: стакан / бутылка
+    prelabel: {coco: [cup, bottle, wine glass]}
+    static: false
+    review: "Любая посуда для напитков."
+
+  - id: 12
+    name: personal_bag
+    ru: личная сумка
+    prelabel: {coco: [handbag, backpack, suitcase]}
+    static: false
+    review: "Сумка или рюкзак сотрудника. Инкассаторская сумка — класс collection_bag."
+
+  - id: 13
+    name: outerwear
+    ru: верхняя одежда
+    prelabel: {gdino: ["jacket", "coat"]}
+    static: false
+    review: "Куртка или пальто, снятые и положенные на стол или стул. Одежду на человеке НЕ размечать."

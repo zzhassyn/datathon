@@ -1,0 +1,17 @@
+# Окружение обучения (macOS arm64 и Linux/Windows для отладки). Python 3.12.
+# Установка:  uv venv --python 3.12 .venv-train && uv pip install -r training/requirements.txt
+torch>=2.7            # MPS на Apple Silicon; >=2.7 нужно и для RF-DETR
+torchvision
+ultralytics>=8.4.179  # YOLO26 detect / pose / cls (AGPL-3.0, разрешено организаторами)
+transformers>=5.0     # Grounding DINO для пред-разметки (Apache-2.0)
+opencv-python>=4.10
+av>=14                # PyAV: декодирование .mov
+imagehash>=4.3        # отсев почти одинаковых кадров
+pillow
+numpy
+pandas>=2.2
+openpyxl>=3.1         # чтение open_labels.xlsx
+pyyaml>=6.0
+tqdm
+psutil
+coremltools>=9.0 ; sys_platform == "darwin"   # экспорт в Core ML только на Mac

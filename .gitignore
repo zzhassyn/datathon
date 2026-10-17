@@ -1,0 +1,33 @@
+# Данные хакатона нельзя публиковать и хранить вне хакатона (FAQ п. 6) — в git не попадают
+data/
+*.mov
+*.mp4
+*.zip
+
+# Результаты обучения и веса
+runs/
+models/pretrained/
+models/hf/
+*.safetensors
+models/**/*.pt
+models/**/*.mlpackage
+models/**/*.onnx
+*.pt
+
+# Окружения и кэши
+.venv*/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+node_modules/
+dist/
+
+# Label Studio (локальная база и медиа)
+label-studio-data/
+.label-studio/
+
+# Системные
+.DS_Store
+Thumbs.db
