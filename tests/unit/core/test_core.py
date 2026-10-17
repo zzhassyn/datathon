@@ -29,7 +29,10 @@ def test_ids_and_runtime_paths(tmp_path):
 def test_symlink_cannot_escape_runtime(tmp_path):
     outside = tmp_path.parent / (tmp_path.name + "-outside")
     outside.mkdir()
-    (tmp_path / "linked").symlink_to(outside, target_is_directory=True)
+    try:
+        (tmp_path / "linked").symlink_to(outside, target_is_directory=True)
+    except OSError as exc:  # Windows без режима разработчика: WinError 1314
+        pytest.skip(f"нет права на symlink в этой ОС: {exc}")
     with pytest.raises(ValueError):
         safe_child(tmp_path, "linked", "secret")
 

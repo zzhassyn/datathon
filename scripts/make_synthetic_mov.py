@@ -43,7 +43,7 @@ def make_synthetic_mov(
                     container.mux(packet)
             for packet in stream.encode():
                 container.mux(packet)
-        with open(temporary, "rb") as handle:
+        with open(temporary, "r+b") as handle:  # Windows: fsync нужен доступ на запись
             os.fsync(handle.fileno())
         os.replace(temporary, path)
     finally:

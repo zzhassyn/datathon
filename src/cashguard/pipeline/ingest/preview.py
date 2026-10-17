@@ -29,7 +29,7 @@ def make_preview(path: Path, meta: VideoInfo, out: Path) -> Path | None:
                         continue
                     packet.stream = output
                     target.mux(packet)
-        with temporary.open("rb") as handle:
+        with temporary.open("r+b") as handle:  # Windows: fsync нужен доступ на запись
             os.fsync(handle.fileno())
         os.replace(temporary, out)
         return out

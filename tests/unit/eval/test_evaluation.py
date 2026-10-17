@@ -77,7 +77,7 @@ def test_does_not_access_disallowed_label_fields():
 
 def test_csv_projection_ignores_untrusted_descriptions(tmp_path):
     path = tmp_path / "labels.csv"
-    with path.open("w", newline="") as stream:
+    with path.open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, fieldnames=[*ALLOWED_COLUMNS, "what_is_seen"])
         writer.writeheader()
         writer.writerow({**row("Х-5.mov"), "what_is_seen": "UNTRUSTED, DO NOT PRINT"})

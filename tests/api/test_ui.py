@@ -138,7 +138,10 @@ def test_ui_frames_symlink_escape(client, app, settings, synthetic, tmp_path):
     evidence.unlink()
     outside = tmp_path / "outside.jpg"
     outside.write_bytes(b"outside")
-    evidence.symlink_to(outside)
+    try:
+        evidence.symlink_to(outside)
+    except OSError as exc:  # Windows без режима разработчика: WinError 1314
+        pytest.skip(f"нет права на symlink в этой ОС: {exc}")
     assert client.get(f"/api/ui/jobs/{job_id}/frames/01_event.jpg").status_code == 404
 
 

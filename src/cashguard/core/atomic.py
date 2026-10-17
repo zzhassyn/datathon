@@ -41,7 +41,8 @@ def atomic_write_json(path: Path, value: Any) -> Path:
 
 def durable_replace(source: Path, target: Path) -> None:
     """Publish an already-streamed file without loading it into memory."""
-    with Path(source).open("rb") as handle:
+    # "r+b": на Windows fsync требует дескриптор с правом записи (EBADF на "rb").
+    with Path(source).open("r+b") as handle:
         os.fsync(handle.fileno())
     os.replace(source, target)
     fsync_directory(Path(target).parent)
