@@ -6,6 +6,7 @@ import { readRecent, saveRecent } from "../features/recent/recentStore";
 import { SignalList } from "../features/signals/SignalList";
 import { clearPreview, getPreview } from "../features/upload/previewStore";
 import { VerdictBanner } from "../features/verdict/VerdictBanner";
+import { VisibilityPanel } from "../features/verdict/VisibilityPanel";
 import { EventQueue } from "../features/violations/EventQueue";
 import { ViolationCard } from "../features/violations/ViolationCard";
 import { HttpError } from "../shared/api/errors";
@@ -167,6 +168,11 @@ export function JobPage({ id }: { id: string }) {
                 </div>
                 {job.status !== "failed" && (
                   <>
+                    <VisibilityPanel
+                      assessment={job.visibility}
+                      provisional={job.provisional}
+                      onSeek={(t) => seek(t)}
+                    />
                     {currentEvent && (
                       <section
                         className="events"

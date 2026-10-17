@@ -3,6 +3,8 @@ import type { components } from "./schema";
 // Generated transport types; only legal URLs are sanitized for presentation.
 export type LegalView = Omit<components["schemas"]["UiLegalRef"], "url"> & { url: string | null };
 export type EvidenceView = components["schemas"]["UiEvidence"];
+export type ExplanationView = components["schemas"]["RuleExplanation"];
+export type VisibilityView = components["schemas"]["VisibilityAssessment"];
 export type EventView = Omit<components["schemas"]["UiViolation"], "legal"> & {
   legal: LegalView[];
 };
@@ -81,15 +83,81 @@ export function decodeEvidence(value: unknown): EvidenceView {
     height: numeric(v.height),
   };
 }
+
+function diagnosticText(value: unknown) {
+  const result = text(value);
+  if (!result.trim()) throw new Error("Empty diagnostic text");
+  return result;
+}
+function uniqueIds(items: { id: string }[]) {
+  if (new Set(items.map((item) => item.id)).size !== items.length)
+    throw new Error("Duplicate diagnostic identity");
+}
+function decodeExplanation(value: unknown, evidenceCount: number): ExplanationView | null {
+  if (value == null) return null;
+  const v = record(value);
+  const conditions = array(v.conditions).map((value) => {
+    const item = record(value);
+    const status = oneOf(item.status, ["met", "not_met", "unknown"]);
+    const indices = array(item.evidence_indices ?? []).map((value) => {
+      const index = numeric(value);
+      if (!Number.isInteger(index) || index < 0 || index >= evidenceCount)
+        throw new Error("Invalid condition evidence reference");
+      return index;
+    });
+    if (new Set(indices).size !== indices.length || (status !== "unknown" && !indices.length))
+      throw new Error("Condition requires unique supporting evidence");
+    return {
+      id: diagnosticText(item.id),
+      text_ru: diagnosticText(item.text_ru),
+      status,
+      reason_ru: diagnosticText(item.reason_ru),
+      evidence_indices: indices,
+    };
+  });
+  if (!conditions.length) throw new Error("Empty explanation");
+  uniqueIds(conditions);
+  return { rule_version: diagnosticText(v.rule_version), conditions };
+}
+function decodeVisibility(value: unknown): VisibilityView | null {
+  if (value == null) return null;
+  const v = record(value);
+  const checks = array(v.checks).map((value) => {
+    const item = record(value);
+    const status = oneOf(item.status, ["visible", "limited", "not_visible", "unknown"]);
+    const start = optionalNumber(item.start_sec);
+    const end = optionalNumber(item.end_sec);
+    if (
+      (start === null) !== (end === null) ||
+      (start !== null && (start < 0 || end === null || start > end)) ||
+      (status !== "unknown" && start === null)
+    )
+      throw new Error("Invalid visibility interval");
+    return {
+      id: diagnosticText(item.id),
+      target_ru: diagnosticText(item.target_ru),
+      status,
+      reason_ru: diagnosticText(item.reason_ru),
+      start_sec: start,
+      end_sec: end,
+    };
+  });
+  if (!checks.length) throw new Error("Empty visibility assessment");
+  uniqueIds(checks);
+  return { method_version: diagnosticText(v.method_version), checks };
+}
+
 function decodeEvent(value: unknown): EventView {
   const v = record(value);
+  const evidence = array(v.evidence).map(decodeEvidence);
   return {
     id: text(v.id),
     code: text(v.code),
     title_ru: text(v.title_ru),
     timecode_sec: numeric(v.timecode_sec),
     description_ru: text(v.description_ru),
-    evidence: array(v.evidence).map(decodeEvidence),
+    evidence,
+    explanation: decodeExplanation(v.explanation, evidence.length),
     legal: array(v.legal ?? []).map(decodeLegal),
     legal_note_ru: optionalText(v.legal_note_ru),
     start_sec: numeric(v.start_sec),
@@ -113,7 +181,7 @@ export function decodeJob(value: unknown, expectedId: string): JobView {
   const video = v.video == null ? null : record(v.video);
   const error = v.error == null ? null : record(v.error);
   return {
-    visibility: null,
+    visibility: decodeVisibility(v.visibility),
     timings:
       v.timings == null
         ? null

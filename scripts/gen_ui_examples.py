@@ -349,6 +349,66 @@ def build_examples() -> dict[str, UiJobView]:
             )
         ],
     )
+    # Explicit synthetic example for diagnostics; never used as an analysis response.
+    diagnostics = ex["07_stub_demo"].model_dump(mode="json")
+    diagnostics["job_id"] = "0" * 31 + "8"
+    diagnostics["video"]["url"] = f"/api/ui/jobs/{diagnostics['job_id']}/video.mp4"
+    event = diagnostics["violations"][0]
+    event["evidence"][0]["url"] = f"/api/ui/jobs/{diagnostics['job_id']}/frames/01_event.jpg"
+    event["explanation"] = {
+        "rule_version": "synthetic-example-v1",
+        "conditions": [
+            {
+                "id": "visible-test-area",
+                "text_ru": "Тестовая область видна",
+                "status": "met",
+                "reason_ru": "Синтетический пример подтверждённого условия.",
+                "evidence_indices": [0],
+            },
+            {
+                "id": "blocked-test-area",
+                "text_ru": "Тестовая область перекрыта",
+                "status": "not_met",
+                "reason_ru": "Синтетический пример опровергнутого условия.",
+                "evidence_indices": [0],
+            },
+            {
+                "id": "safe-state",
+                "text_ru": "Состояние сейфа можно определить",
+                "status": "unknown",
+                "reason_ru": "В синтетическом примере нет наблюдения сейфа.",
+                "evidence_indices": [],
+            },
+        ],
+    }
+    diagnostics["visibility"] = {
+        "method_version": "synthetic-example-v1",
+        "checks": [
+            {
+                "id": "test-area",
+                "target_ru": "Тестовая область",
+                "status": "visible",
+                "reason_ru": "Синтетический пример доступной области.",
+                "start_sec": 0,
+                "end_sec": 2,
+            },
+            {
+                "id": "details",
+                "target_ru": "Мелкие детали",
+                "status": "limited",
+                "reason_ru": "Синтетический пример ограничения видимости.",
+                "start_sec": 1,
+                "end_sec": 2,
+            },
+            {
+                "id": "safe",
+                "target_ru": "Сейф",
+                "status": "unknown",
+                "reason_ru": "Оценка этого объекта в примере не выполнялась.",
+            },
+        ],
+    }
+    ex["08_diagnostics_demo"] = UiJobView.model_validate(diagnostics)
     return ex
 
 
