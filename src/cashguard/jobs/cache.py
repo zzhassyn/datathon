@@ -10,9 +10,7 @@ class ResultCache:
     def __init__(self, database: Database) -> None:
         self.db = database
 
-    def get(
-        self, sha256: str, pipeline_version: str, config_hash: str
-    ) -> JobRecord | None:
+    def get(self, sha256: str, pipeline_version: str, config_hash: str) -> JobRecord | None:
         row = (
             self.db.connect()
             .execute(

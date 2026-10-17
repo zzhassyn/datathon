@@ -25,9 +25,9 @@ class CachePolicy:
 
     async def __call__(self, scope, receive, send):
         async def send_message(message):
-            if message["type"] == "http.response.start" and scope.get(
-                "path", ""
-            ).startswith("/api/v1/"):
+            if message["type"] == "http.response.start" and scope.get("path", "").startswith(
+                "/api/v1/"
+            ):
                 headers = [
                     (key, value)
                     for key, value in message.get("headers", [])
@@ -45,9 +45,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     if settings.pipeline_mode != "stub":
         raise RuntimeError("S0 runner integration required for replay/full mode")
     settings.paths.ensure()
-    repo = JobRepository(
-        settings.db_path, deadlines_path=Path("configs/deadlines.yaml")
-    )
+    repo = JobRepository(settings.db_path, deadlines_path=Path("configs/deadlines.yaml"))
 
     @asynccontextmanager
     async def lifespan(application):
@@ -76,7 +74,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.add_middleware(
         GZipMiddleware,
         minimum_size=1024,
-        exclude_content_types=["video/mp4", "image/jpeg"],
+        exclude_content_types=("video/mp4", "image/jpeg"),
     )
     application.add_middleware(CachePolicy)
 
@@ -112,9 +110,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         application.include_router(router)
     web = Path(settings.web_dist).resolve()
     if (web / "assets").is_dir():
-        application.mount(
-            "/assets", StaticFiles(directory=web / "assets"), name="assets"
-        )
+        application.mount("/assets", StaticFiles(directory=web / "assets"), name="assets")
 
     @application.get("/", include_in_schema=False)
     async def index():

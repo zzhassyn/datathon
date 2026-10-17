@@ -21,9 +21,7 @@ def key_digests(value: str) -> list[tuple[str, bytes]]:
     return result
 
 
-async def require_api_key(
-    request: Request, key: str | None = Security(api_key_header)
-) -> str:
+async def require_api_key(request: Request, key: str | None = Security(api_key_header)) -> str:
     if not key:
         raise HTTPException(401, "invalid or missing API key")
     digest = hashlib.sha256(key.encode()).digest()

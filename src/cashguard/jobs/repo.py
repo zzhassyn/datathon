@@ -136,9 +136,7 @@ class JobRepository:
 
     def get_job(self, job_id: str) -> JobRecord | None:
         return _job(
-            self.db.connect()
-            .execute("SELECT * FROM jobs WHERE id=?", (job_id,))
-            .fetchone()
+            self.db.connect().execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
         )
 
     def resolve_job(self, job_id: str) -> JobRecord | None:
@@ -175,9 +173,7 @@ class JobRepository:
         values: dict[str, Any] = {
             "id": job_id,
             "source": source,
-            "priority": priority
-            if priority is not None
-            else (0 if source == "jury" else 1),
+            "priority": priority if priority is not None else (0 if source == "jury" else 1),
             "client_ip": client_ip,
             "status": "queued",
             "received_at": now,
@@ -194,9 +190,7 @@ class JobRepository:
             "rotation": rotation,
             "needs_transcode": int(needs_transcode),
         }
-        values.update(
-            {key: value for key, value in tiers.as_dict().items() if key != "t0"}
-        )
+        values.update({key: value for key, value in tiers.as_dict().items() if key != "t0"})
         with self.db.transaction() as connection:
             parent = None
             if deduplicate:
@@ -251,7 +245,8 @@ class JobRepository:
                 tuple(values.values()),
             ).fetchone()
         result = _job(row)
-        assert result is not None
+        if result is None:  # инвариант: строка только что прочитана/записана в транзакции
+            raise RuntimeError("нарушен инвариант очереди: result is None")
         return result
 
     def link_job(self, job_id: str, parent_id: str) -> bool:
@@ -332,9 +327,7 @@ class JobRepository:
                 (now, job_id, owner, lease_token, now - 0.5),
             ).rowcount
             if updated:
-                connection.execute(
-                    "UPDATE workers SET progress_at=? WHERE name=?", (now, owner)
-                )
+                connection.execute("UPDATE workers SET progress_at=? WHERE name=?", (now, owner))
         return updated == 1
 
     def report_progress(
@@ -358,9 +351,7 @@ class JobRepository:
                 (stage_code, frac, now, job_id, owner, lease_token, now - 0.5),
             ).rowcount
             if updated:
-                connection.execute(
-                    "UPDATE workers SET progress_at=? WHERE name=?", (now, owner)
-                )
+                connection.execute("UPDATE workers SET progress_at=? WHERE name=?", (now, owner))
                 connection.execute(
                     "INSERT INTO job_events(job_id,at,kind,data_json) VALUES(?,?,?,?)",
                     (
@@ -373,16 +364,12 @@ class JobRepository:
         return updated == 1
 
     @staticmethod
-    def _paths(
-        jury_path: str | Path, ui_result_path: str | Path | None
-    ) -> tuple[str, str | None]:
+    def _paths(jury_path: str | Path, ui_result_path: str | Path | None) -> tuple[str, str | None]:
         if not Path(jury_path).is_file():
             raise ValueError("jury result must be published before database transition")
         if ui_result_path is not None and not Path(ui_result_path).is_file():
             raise ValueError("UI result must be published before database transition")
-        return str(jury_path), str(
-            ui_result_path
-        ) if ui_result_path is not None else None
+        return str(jury_path), str(ui_result_path) if ui_result_path is not None else None
 
     def set_provisional(
         self,
@@ -573,7 +560,8 @@ class JobRepository:
         count = 0
         for row in rows:
             job = _job(row)
-            assert job is not None
+            if job is None:  # инвариант: строка только что прочитана/записана в транзакции
+                raise RuntimeError("нарушен инвариант очереди: job is None")
             if (
                 job.jury_path
                 and Path(job.jury_path).is_file()
@@ -603,7 +591,8 @@ class JobRepository:
         )
         for row in overdue:
             job = _job(row)
-            assert job is not None
+            if job is None:  # инвариант: строка только что прочитана/записана в транзакции
+                raise RuntimeError("нарушен инвариант очереди: job is None")
             # If a worker published a valid result between the two queries, it
             # gets finalized on the next tick rather than being failed here.
             if (
@@ -634,7 +623,8 @@ class JobRepository:
         changed = 0
         for row in rows:
             job = _job(row)
-            assert job is not None
+            if job is None:  # инвариант: строка только что прочитана/записана в транзакции
+                raise RuntimeError("нарушен инвариант очереди: job is None")
             # A stale heartbeat alone is insufficient to safely reassign work:
             # the supervisor first verifies and kills the old process. Otherwise
             # two live processes could perform the same expensive inference.
@@ -693,9 +683,7 @@ class JobRepository:
             .fetchone()[0]
         )
 
-    def active_count(
-        self, client_ip: str | None = None, source: str | None = None
-    ) -> int:
+    def active_count(self, client_ip: str | None = None, source: str | None = None) -> int:
         return (
             self.db.connect()
             .execute(
@@ -754,6 +742,5 @@ class JobRepository:
 
     def workers(self) -> list[dict[str, Any]]:
         return [
-            dict(row)
-            for row in self.db.connect().execute("SELECT * FROM workers ORDER BY name")
+            dict(row) for row in self.db.connect().execute("SELECT * FROM workers ORDER BY name")
         ]

@@ -80,7 +80,8 @@ def test_settings_environment_and_redaction(monkeypatch, tmp_path):
     assert settings.parsed_api_keys() == {"jury": "secret-one", "team": "secret-two"}
     assert "secret-one" not in repr(settings)
     assert settings.max_upload_bytes == 100_000_000
-    assert Settings(var_dir=tmp_path / "override").var_dir == tmp_path / "override"
+    override = Settings(var_dir=tmp_path / "override")  # pyright: ignore[reportCallIssue] — алиас поля
+    assert override.var_dir == tmp_path / "override"
     result = redact_secrets(
         None,
         "info",

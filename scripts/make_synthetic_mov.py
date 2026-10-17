@@ -19,9 +19,7 @@ def make_synthetic_mov(
         raise ValueError("duration must be (0, 3600] and fps must be [1, 60]")
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    fd, temporary = tempfile.mkstemp(
-        prefix=".synthetic-", suffix=".part", dir=path.parent
-    )
+    fd, temporary = tempfile.mkstemp(prefix=".synthetic-", suffix=".part", dir=path.parent)
     os.close(fd)
     try:
         with av.open(temporary, "w", format="mov") as container:
@@ -31,9 +29,7 @@ def make_synthetic_mov(
             stream.options = {"preset": "ultrafast", "crf": "28", "threads": "1"}
             for index in range(math.ceil(duration * fps)):
                 frame = av.VideoFrame(160, 96, "rgb24")
-                color = bytes(
-                    (190, 45, 30) if verdict == "violation" else (20, 135, 80)
-                )
+                color = bytes((190, 45, 30) if verdict == "violation" else (20, 135, 80))
                 row = color * 160
                 # Fill stride padding too: never expose uninitialised frame memory.
                 padded = row + bytes(frame.planes[0].line_size - len(row))
@@ -52,9 +48,7 @@ def make_synthetic_mov(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Создать синтетический MOV для stub API"
-    )
+    parser = argparse.ArgumentParser(description="Создать синтетический MOV для stub API")
     parser.add_argument("output", type=Path)
     parser.add_argument("--verdict", choices=["clean", "violation"], default="clean")
     parser.add_argument("--duration", type=float, default=2.0)

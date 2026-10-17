@@ -149,10 +149,7 @@ def test_stream_limit_without_content_length(app, settings):
 def test_low_storage_507(client, app, auth, monkeypatch):
     monkeypatch.setattr("cashguard.api.upload.disk_free_gb", lambda path: -1)
     assert (
-        client.post(
-            "/api/v1/analyze", files={"file": ("x", b"x")}, headers=auth
-        ).status_code
-        == 507
+        client.post("/api/v1/analyze", files={"file": ("x", b"x")}, headers=auth).status_code == 507
     )
     assert list(app.state.settings.paths.jobs_dir.iterdir()) == []
 
@@ -180,9 +177,7 @@ def test_advisory_unknown_atom(client, synthetic, auth, tmp_path):
     assert post(client, path, auth).status_code == 200
 
 
-def test_dedup_new_ids_restart_and_lazy_finalize(
-    client, app, synthetic, auth, settings
-):
+def test_dedup_new_ids_restart_and_lazy_finalize(client, app, synthetic, auth, settings):
     first = post(client, synthetic, auth).json()["job_id"]
     second = post(client, synthetic, auth).json()["job_id"]
     assert first != second
@@ -207,30 +202,20 @@ def test_dedup_new_ids_restart_and_lazy_finalize(
         verdict="no_violation",
         n_violations=0,
     )
-    app.state.repo.db.connect().execute(
-        "UPDATE jobs SET finalize_at=0 WHERE id=?", (first,)
-    )
+    app.state.repo.db.connect().execute("UPDATE jobs SET finalize_at=0 WHERE id=?", (first,))
     response = client.get(f"/api/v1/jobs/{second}", headers=auth)
     assert response.json() == {**result, "job_id": second}
     from fastapi.testclient import TestClient
 
     with TestClient(create_app(settings)) as restarted:
-        assert (
-            restarted.get(f"/api/v1/jobs/{second}", headers=auth).json()
-            == response.json()
-        )
+        assert restarted.get(f"/api/v1/jobs/{second}", headers=auth).json() == response.json()
 
 
 def test_json_errors_admin_and_health(client, auth):
     assert client.get("/health").json() == {"status": "ok"}
     assert client.get("/ready").status_code == 503
     assert client.get("/api/v1/admin/status", headers=auth).status_code == 403
-    assert (
-        client.get(
-            "/api/v1/admin/status", headers={"X-API-Key": "test-team"}
-        ).status_code
-        == 200
-    )
+    assert client.get("/api/v1/admin/status", headers={"X-API-Key": "test-team"}).status_code == 200
     for method, path, status in [
         ("get", "/missing", 404),
         ("get", "/api/v1/analyze", 405),
@@ -240,9 +225,7 @@ def test_json_errors_admin_and_health(client, auth):
         assert set(response.json()) == {"detail"}
 
 
-def test_file_fsync_happens_before_sql_commit(
-    client, app, synthetic, auth, monkeypatch
-):
+def test_file_fsync_happens_before_sql_commit(client, app, synthetic, auth, monkeypatch):
     calls = []
     fsync = os.fsync
     create = app.state.repo.create_job
@@ -264,10 +247,7 @@ def test_file_fsync_happens_before_sql_commit(
 
 
 def test_multipart_headers_are_bounded(client, app, auth):
-    body = (
-        b'--x\r\nContent-Disposition: form-data; name="file"; filename="'
-        + b"x" * 20_000
-    )
+    body = b'--x\r\nContent-Disposition: form-data; name="file"; filename="' + b"x" * 20_000
     response = client.post(
         "/api/v1/analyze",
         content=body,
@@ -308,7 +288,7 @@ def test_api_import_does_not_load_models():
         [
             sys.executable,
             "-c",
-            "import cashguard.api.main, sys; forbidden={'torch','ultralytics','coremltools','mlx','mlx_vlm','cv2'}; assert not forbidden.intersection(sys.modules)",
+            "import cashguard.api.main, sys; forbidden={'torch','ultralytics','coremltools','mlx','mlx_vlm','cv2'}; assert not forbidden.intersection(sys.modules)",  # noqa: E501
         ],
         check=False,
         capture_output=True,

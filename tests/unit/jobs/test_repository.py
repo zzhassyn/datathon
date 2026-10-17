@@ -125,12 +125,7 @@ def test_dedupe_versioned_active_and_full_only(repo, tmp_path):
         result_level="rules",
     )
     assert repo.get_job(linked.id).status == "done"
-    assert (
-        ResultCache(repo.db).get(
-            first.sha256, first.pipeline_version, first.config_hash
-        )
-        is None
-    )
+    assert ResultCache(repo.db).get(first.sha256, first.pipeline_version, first.config_hash) is None
     second = create(repo)
     assert second.linked_to is None
     repo.finalize(
@@ -141,9 +136,7 @@ def test_dedupe_versioned_active_and_full_only(repo, tmp_path):
         result_level="full",
     )
     assert (
-        ResultCache(repo.db)
-        .get(second.sha256, second.pipeline_version, second.config_hash)
-        .id
+        ResultCache(repo.db).get(second.sha256, second.pipeline_version, second.config_hash).id
         == second.id
     )
     cached = create(repo)
@@ -239,23 +232,15 @@ def test_progress_throttled_and_worker_heartbeat_does_not_hide_stall(repo):
     repo.claim_next("worker", now=101)
     repo.worker_heartbeat("worker", state="busy", job_id=job.id, now=101)
     token = repo.get_job(job.id).lease_token
-    assert not repo.report_progress(
-        job.id, "worker", "decode", 0.1, now=101.2, lease_token=token
-    )
-    assert repo.report_progress(
-        job.id, "worker", "decode", 0.2, now=101.5, lease_token=token
-    )
-    assert not repo.report_progress(
-        job.id, "worker", "decode", 0.3, now=101.9, lease_token=token
-    )
+    assert not repo.report_progress(job.id, "worker", "decode", 0.1, now=101.2, lease_token=token)
+    assert repo.report_progress(job.id, "worker", "decode", 0.2, now=101.5, lease_token=token)
+    assert not repo.report_progress(job.id, "worker", "decode", 0.3, now=101.9, lease_token=token)
     repo.worker_heartbeat("worker", now=110)
     worker = repo.workers()[0]
     assert worker["alive_at"] == 110
     assert worker["progress_at"] == 101.5
     assert worker["job_id"] == job.id
-    assert (
-        repo.db.connect().execute("SELECT COUNT(*) FROM job_events").fetchone()[0] == 1
-    )
+    assert repo.db.connect().execute("SELECT COUNT(*) FROM job_events").fetchone()[0] == 1
 
 
 def test_priority_queue_and_ip_active_counts(repo):
@@ -308,7 +293,8 @@ def test_v1_database_migrates_without_losing_jobs(tmp_path):
     connection.execute(
         """INSERT INTO jobs(id,source,status,received_at,vision_target,vlm_start_cutoff,
         vlm_stop,finalize_at,perception_hard_stop,input_path,sha256,pipeline_version,config_hash,lease_owner,lease_pid)
-        VALUES(?, 'jury','running',100,250,280,310,325,335,'synthetic.mov','sha','v1','hash','worker',123)""",
+        VALUES(?, 'jury','running',100,250,280,310,325,335,
+               'synthetic.mov','sha','v1','hash','worker',123)""",
         ("a" * 32,),
     )
     connection.commit()
@@ -336,9 +322,7 @@ def test_retry_with_same_worker_name_rejects_every_stale_mutation(repo, tmp_path
     assert not repo.set_provisional(
         job.id, jury_path=result, verdict="no_violation", n_violations=0, **kwargs
     )
-    assert not repo.beat_progress(
-        job.id, "worker", now=110, lease_token=first.lease_token
-    )
+    assert not repo.beat_progress(job.id, "worker", now=110, lease_token=first.lease_token)
     assert not repo.report_progress(
         job.id, "worker", "stale", 1, now=110, lease_token=first.lease_token
     )
@@ -371,9 +355,7 @@ def test_stale_recovery_snapshot_cannot_requeue_new_attempt(repo):
     assert current.attempts_perception == 2
 
 
-def test_sweeper_snapshot_cannot_finalize_an_obsolete_provisional(
-    repo, tmp_path, monkeypatch
-):
+def test_sweeper_snapshot_cannot_finalize_an_obsolete_provisional(repo, tmp_path, monkeypatch):
     job = create(repo)
     claim = repo.claim_next("worker", now=101)
     first = publish(tmp_path, job)
@@ -409,9 +391,7 @@ def test_sweeper_snapshot_cannot_finalize_an_obsolete_provisional(
     assert repo.get_job(job.id).verdict == "violation"
 
 
-def test_sweeper_cannot_fail_a_concurrently_published_provisional(
-    repo, tmp_path, monkeypatch
-):
+def test_sweeper_cannot_fail_a_concurrently_published_provisional(repo, tmp_path, monkeypatch):
     job = create(repo)
     claim = repo.claim_next("worker", now=101)
     original = repo.fail
@@ -444,18 +424,14 @@ def test_jury_duplicate_promotes_queued_ui_parent(repo):
     assert repo.queue_position(unrelated.id) == 1
 
 
-def test_retention_retries_failed_disk_cleanup_without_dangling_rows(
-    repo, tmp_path, monkeypatch
-):
+def test_retention_retries_failed_disk_cleanup_without_dangling_rows(repo, tmp_path, monkeypatch):
     from cashguard.jobs import retention
 
     paths = RuntimePaths(tmp_path / "runtime")
     paths.ensure()
     job = create(repo)
     result = atomic_write_json(paths.job_dir(job.id) / "jury.json", {})
-    repo.finalize(
-        job.id, jury_path=result, verdict="no_violation", n_violations=0, now=110
-    )
+    repo.finalize(job.id, jury_path=result, verdict="no_violation", n_violations=0, now=110)
     original = retention.shutil.rmtree
 
     def disk_error(*args, **kwargs):

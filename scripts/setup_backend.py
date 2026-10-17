@@ -32,9 +32,7 @@ def main() -> None:
     environment = root / ".venv"
     python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
     if not environment.exists():
-        subprocess.run(
-            ["uv", "venv", "--python", "3.12", str(environment)], cwd=root, check=True
-        )
+        subprocess.run(["uv", "venv", "--python", "3.12", str(environment)], cwd=root, check=True)
     if not python.is_file():
         raise SystemExit(
             ".venv существует, но Python не найден. Сохраните её отдельно и повторите setup."

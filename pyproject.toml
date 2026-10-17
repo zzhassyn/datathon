@@ -110,7 +110,7 @@ ignore = [
 "src/cashguard/cli.py" = ["S603", "S607"]
 "scripts/**" = ["S101", "S603", "S607"]
 # SQL собирается из констант модуля, значения — только параметрами.
-"src/cashguard/jobs/**" = ["S608"]
+"src/cashguard/jobs/**" = ["S608", "E501"]  # длинные SQL-строки читаются целиком
 
 [tool.ruff.lint.isort]
 known-first-party = ["cashguard"]

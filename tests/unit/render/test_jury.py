@@ -22,9 +22,7 @@ JOB_ID = "a" * 32
 @pytest.fixture
 def jpeg():
     fixture = json.loads((ROOT / "tests/fixtures/jury_example.json").read_text())
-    return base64.b64decode(
-        fixture["violations"][0]["evidence_frames"][0]["image_base64"]
-    )
+    return base64.b64decode(fixture["violations"][0]["evidence_frames"][0]["image_base64"])
 
 
 def finding(jpeg, time=1.234, **overrides):
@@ -187,9 +185,7 @@ def test_does_not_mutate_inputs(jpeg):
 def test_ui_fragment_contains_urls_never_base64(jpeg):
     jury = render_jury(JOB_ID, [finding(jpeg)], duration_sec=2)
     fragment = build_ui_result_fragment(JOB_ID, jury, evidence_names=[["0_event.jpg"]])
-    assert fragment["violations"][0]["evidence"][0]["url"].endswith(
-        "/frames/0_event.jpg"
-    )
+    assert fragment["violations"][0]["evidence"][0]["url"].endswith("/frames/0_event.jpg")
     assert "base64" not in json.dumps(fragment)
     assert "status" not in fragment  # This is not a fabricated UiJobView.
 

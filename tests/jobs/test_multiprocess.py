@@ -15,9 +15,7 @@ def claim_process(path, owner, barrier, output):
 def finalize_process(path, job_id, result, barrier, output):
     repo = JobRepository(path)
     barrier.wait(timeout=10)
-    output.put(
-        repo.finalize(job_id, jury_path=result, verdict="no_violation", n_violations=0)
-    )
+    output.put(repo.finalize(job_id, jury_path=result, verdict="no_violation", n_violations=0))
     repo.db.close()
 
 
@@ -26,8 +24,7 @@ def run_race(target, args):
     barrier = context.Barrier(2)
     output = context.Queue()
     processes = [
-        context.Process(target=target, args=(*arguments, barrier, output))
-        for arguments in args
+        context.Process(target=target, args=(*arguments, barrier, output)) for arguments in args
     ]
     for process in processes:
         process.start()

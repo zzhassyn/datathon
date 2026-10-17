@@ -15,9 +15,7 @@ def generate_keys(path: Path, *, rotate: bool = False) -> None:
     exists = any(line.strip().startswith("CG_API_KEYS=") for line in lines)
     if exists and not rotate:
         raise FileExistsError("Ключи уже существуют; для замены нужен --rotate")
-    value = (
-        f"CG_API_KEYS=jury:{secrets.token_urlsafe(32)},team:{secrets.token_urlsafe(32)}"
-    )
+    value = f"CG_API_KEYS=jury:{secrets.token_urlsafe(32)},team:{secrets.token_urlsafe(32)}"
     lines = [line for line in lines if not line.strip().startswith("CG_API_KEYS=")]
     lines.append(value)
     fd, tmp_name = tempfile.mkstemp(prefix=".env-", dir=path.parent)

@@ -7,6 +7,7 @@ import sqlite3
 import threading
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any, cast
 
 import pytest
 
@@ -68,7 +69,7 @@ def test_cancel_during_committed_insert_preserves_durable_video(app, monkeypatch
     )
 
     async def exercise():
-        task = asyncio.create_task(ingest_upload(SimpleNamespace(app=app)))
+        task = asyncio.create_task(ingest_upload(cast("Any", SimpleNamespace(app=app))))
         try:
             assert await asyncio.to_thread(committed.wait, 3)
             task.cancel()
@@ -109,9 +110,7 @@ def test_corrupted_canonical_jury_never_returned_as_done(
     assert_failed_jury(client.get(f"/api/v1/jobs/{job_id}", headers=auth), job_id)
 
 
-def test_corrupted_materialized_linked_jury_is_not_served(
-    client, app, synthetic, auth, settings
-):
+def test_corrupted_materialized_linked_jury_is_not_served(client, app, synthetic, auth, settings):
     canonical = upload(client, synthetic, auth)
     linked = upload(client, synthetic, auth)
     assert app.state.repo.get_job(linked).linked_to == canonical
@@ -144,9 +143,7 @@ def test_storage_exhaustion_before_commit_returns_507_and_cleans_up(
         def full_metadata(*args, **kwargs):
             raise OSError(errno.ENOSPC, "injected full storage")
 
-        monkeypatch.setattr(
-            "cashguard.api.ingest_service.atomic_write_json", full_metadata
-        )
+        monkeypatch.setattr("cashguard.api.ingest_service.atomic_write_json", full_metadata)
     else:
 
         def full_database(*args, **kwargs):

@@ -21,9 +21,7 @@ _HIGHER_BETTER = {
 _LOWER_BETTER = {"dt_median", "dt_p90", "clean_firings"}
 
 
-def compare_baseline(
-    current: Mapping[str, Any], baseline: Mapping[str, Any]
-) -> dict[str, Any]:
+def compare_baseline(current: Mapping[str, Any], baseline: Mapping[str, Any]) -> dict[str, Any]:
     """Report regressions without inventing S0's not-yet-approved tolerances."""
     tolerance = baseline.get("tolerance", {})
     deltas = {}
@@ -45,9 +43,7 @@ def compare_baseline(
         ):
             regressions.append(name)
     new_clean = {
-        video_id: sorted(
-            set(codes) - set(baseline.get("clean_firings", {}).get(video_id, []))
-        )
+        video_id: sorted(set(codes) - set(baseline.get("clean_firings", {}).get(video_id, [])))
         for video_id, codes in current.get("clean_firings", {}).items()
     }
     new_clean = {video_id: codes for video_id, codes in new_clean.items() if codes}
@@ -61,10 +57,7 @@ def compare_baseline(
         "new_clean_firings": new_clean,
         "unavailable": unavailable,
         "incomplete": incomplete,
-        "passed": not regressions
-        and not new_clean
-        and not unavailable
-        and not incomplete,
+        "passed": not regressions and not new_clean and not unavailable and not incomplete,
     }
 
 
@@ -95,9 +88,7 @@ def summary_text(report: Mapping[str, Any]) -> str:
 
 def _write_atomic(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, name = tempfile.mkstemp(
-        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
-    )
+    descriptor, name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
             stream.write(content)

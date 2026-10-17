@@ -20,10 +20,7 @@ async def status(request: Request, principal: str = Security(require_api_key)):
             "vlm": await run_in_threadpool(repo.queue_depth, stage="vlm"),
         },
         "workers": [
-            {
-                k: worker.get(k)
-                for k in ("name", "role", "pid", "state", "alive_at", "progress_at")
-            }
+            {k: worker.get(k) for k in ("name", "role", "pid", "state", "alive_at", "progress_at")}
             for worker in workers
         ],
     }

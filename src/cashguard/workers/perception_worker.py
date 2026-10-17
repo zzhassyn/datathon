@@ -2,8 +2,8 @@
 
 import uuid
 
-import av
 import structlog
+from av.error import FFmpegError
 
 from cashguard.core.atomic import atomic_write_bytes, atomic_write_json
 from cashguard.core.budget import Budget
@@ -42,9 +42,7 @@ class PerceptionWorker(Worker):
                 return
             # Each lease publishes immutable files. A late worker cannot replace
             # the winning CAS result after recovery or deadline finalization.
-            directory = (
-                self.settings.paths.job_dir(job.id) / f"attempt-{uuid.uuid4().hex}"
-            )
+            directory = self.settings.paths.job_dir(job.id) / f"attempt-{uuid.uuid4().hex}"
             for name, jpeg in result.evidence.items():
                 atomic_write_bytes(directory / "evidence" / name, jpeg)
             jury_path = atomic_write_json(directory / "jury.json", result.jury)
@@ -124,7 +122,7 @@ class PerceptionWorker(Worker):
                 lease_owner=self.name,
                 lease_token=job.lease_token,
             )
-        except (av.FFmpegError, OSError, ValueError, RuntimeError):
+        except (FFmpegError, OSError, ValueError, RuntimeError):
             # Public/API errors never include arbitrary codec text or local paths.
             self.repo.fail(
                 job.id,

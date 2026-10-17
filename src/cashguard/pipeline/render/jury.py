@@ -24,9 +24,7 @@ class RenderError(ValueError):
 
 @lru_cache(maxsize=1)
 def _validator() -> Draft202012Validator:
-    path = (
-        Path(__file__).resolve().parents[2] / "contracts/schemas/jury_job.schema.json"
-    )
+    path = Path(__file__).resolve().parents[2] / "contracts/schemas/jury_job.schema.json"
     schema = json.loads(path.read_text(encoding="utf-8"))
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema)
@@ -167,9 +165,7 @@ def _jpeg(frame: Mapping[str, Any], reencode: Callable[[bytes], bytes] | None) -
     return base64.b64encode(raw).decode("ascii")
 
 
-def validate_jury(
-    document: Mapping[str, Any], *, duration_sec: float | None = None
-) -> None:
+def validate_jury(document: Mapping[str, Any], *, duration_sec: float | None = None) -> None:
     """Validate the frozen schema and additional documented renderer invariants."""
     duration_sec = _duration(duration_sec)
     error = next(_validator().iter_errors(document), None)
@@ -186,11 +182,7 @@ def validate_jury(
     previous = -1.0
     for violation in violations:
         event = _number(violation["timecode_sec"])
-        if (
-            event < previous
-            or event < 0
-            or (duration_sec is not None and event > duration_sec)
-        ):
+        if event < previous or event < 0 or (duration_sec is not None and event > duration_sec):
             raise RenderError("Нарушения должны быть по времени в пределах видео")
         if event != round(event, 2):
             raise RenderError("Таймкод должен быть округлён до 0.01")
@@ -266,9 +258,7 @@ def render_jury(
                 raise RenderError("Требуется 1–3 evidence кадра")
             evidence = []
             for index, frame in enumerate(frames[:3]):
-                timestamp = _time(
-                    frame.get("timestamp_sec"), duration_sec, safe_fallback
-                )
+                timestamp = _time(frame.get("timestamp_sec"), duration_sec, safe_fallback)
                 if index == 0 and timestamp != event:
                     # Frame timestamp is the source PTS. Never relabel pixels
                     # with an invented timestamp; anchor the event to this PTS.
@@ -278,9 +268,7 @@ def render_jury(
                 evidence.append(
                     {
                         "timestamp_sec": timestamp,
-                        "image_base64": _jpeg(
-                            frame, reencode_jpeg if safe_fallback else None
-                        ),
+                        "image_base64": _jpeg(frame, reencode_jpeg if safe_fallback else None),
                     }
                 )
             normalized.append(

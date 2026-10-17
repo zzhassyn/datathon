@@ -67,10 +67,7 @@ def purge_expired(
                 valid_job_id(job_id)
                 and not path.is_symlink()
                 and path.is_dir()
-                and (
-                    path.name.startswith(".expired-")
-                    or path.stat().st_mtime < orphan_cutoff
-                )
+                and (path.name.startswith(".expired-") or path.stat().st_mtime < orphan_cutoff)
                 and repo.get_job(job_id) is None
             ):
                 try:

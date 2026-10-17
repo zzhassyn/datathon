@@ -11,9 +11,7 @@ from cashguard.core.paths import RuntimePaths
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_prefix="CG_", extra="ignore", populate_by_name=True
-    )
+    model_config = SettingsConfigDict(env_prefix="CG_", extra="ignore", populate_by_name=True)
 
     data_dir: Path = Field(
         default=Path("var"),
@@ -89,7 +87,6 @@ class Settings(BaseSettings):
 
 
 def get_settings() -> Settings:
-    env_file = Path(
-        os.environ.get("CG_ENV_FILE", "~/.config/cashguard/.env")
-    ).expanduser()
-    return Settings(_env_file=env_file if env_file.is_file() else None)
+    env_file = Path(os.environ.get("CG_ENV_FILE", "~/.config/cashguard/.env")).expanduser()
+    # pydantic-settings принимает _env_file при создании; в сигнатуре его нет.
+    return Settings(_env_file=env_file if env_file.is_file() else None)  # pyright: ignore[reportCallIssue]

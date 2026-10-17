@@ -82,9 +82,7 @@ def labels_from_rows(rows: Iterable[Mapping[str, str]]) -> dict[str, LabelVideo]
                 or row["type_code"].startswith("SIG_")
             ):
                 raise ValueError("Некорректное эталонное событие")
-            state["events"].append(
-                LabelEvent(row["type_code"], timecode, row["confidence"])
-            )
+            state["events"].append(LabelEvent(row["type_code"], timecode, row["confidence"]))
         elif row["type_code"] or row["timecode_sec"]:
             raise ValueError("Чистая метка не может содержать событие")
     return {

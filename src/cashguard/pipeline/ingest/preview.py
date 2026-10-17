@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 import av
+from av.error import FFmpegError
 
 from .probe import VideoInfo
 
@@ -33,7 +34,7 @@ def make_preview(path: Path, meta: VideoInfo, out: Path) -> Path | None:
             os.fsync(handle.fileno())
         os.replace(temporary, out)
         return out
-    except (av.FFmpegError, OSError, ValueError):
+    except (FFmpegError, OSError, ValueError):
         return None
     finally:
         temporary.unlink(missing_ok=True)

@@ -20,8 +20,8 @@ def evaluate_traces(
 ) -> dict[str, Any]:
     """Inject S0's scene/rules runner; never infer predictions from gold labels."""
     predictions = {}
-    for video_id, trace in traces.items():
-        video_id = canonical_video_id(video_id)
+    for raw_id, trace in traces.items():
+        video_id = canonical_video_id(raw_id)
         if video_id in predictions:
             raise ValueError("Повторная трасса канонического видео")
         if video_id not in labels:
@@ -44,9 +44,7 @@ def load_predictions(path: str | Path) -> dict[str, Prediction]:
             if not isinstance(event, dict) or set(event) != {"code", "timecode_sec"}:
                 raise ValueError("Предсказание события содержит неизвестные поля")
             events.append(PredictionEvent(event["code"], event["timecode_sec"]))
-        output[video_id] = Prediction(
-            row["verdict"], tuple(events), row.get("jury_valid")
-        )
+        output[video_id] = Prediction(row["verdict"], tuple(events), row.get("jury_valid"))
     return output
 
 
@@ -59,9 +57,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path)
     parser.add_argument("--baseline", type=Path)
     args = parser.parse_args(argv)
-    report = calculate_metrics(
-        load_labels(args.labels), load_predictions(args.predictions)
-    )
+    report = calculate_metrics(load_labels(args.labels), load_predictions(args.predictions))
     report["source"] = "numeric_predictions"
     if args.baseline:
         baseline = json.loads(args.baseline.read_text(encoding="utf-8"))

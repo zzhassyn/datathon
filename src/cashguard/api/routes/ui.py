@@ -13,17 +13,12 @@ from cashguard.api.views import lookup, result_path, ui_view
 
 def session_token(request):
     secret = request.app.state.settings.ui_access_code.get_secret_value()
-    return hmac.new(
-        secret.encode(), b"cashguard-ui-session-v1", hashlib.sha256
-    ).hexdigest()
+    return hmac.new(secret.encode(), b"cashguard-ui-session-v1", hashlib.sha256).hexdigest()
 
 
 async def require_ui_session(request: Request):
-    if (
-        request.app.state.settings.ui_access_code.get_secret_value()
-        and not hmac.compare_digest(
-            request.cookies.get("cg_ui", ""), session_token(request)
-        )
+    if request.app.state.settings.ui_access_code.get_secret_value() and not hmac.compare_digest(
+        request.cookies.get("cg_ui", ""), session_token(request)
     ):
         raise HTTPException(401, "UI access code required")
 
@@ -50,9 +45,7 @@ async def session(request: Request):
         code = value.get("code", "")
     except (ValueError, AttributeError):
         raise HTTPException(422, "invalid request") from None
-    if not isinstance(code, str) or not hmac.compare_digest(
-        code.encode(), secret.encode()
-    ):
+    if not isinstance(code, str) or not hmac.compare_digest(code.encode(), secret.encode()):
         raise HTTPException(401, "invalid access code")
     response = JSONResponse({"ok": True}, headers={"Cache-Control": "no-store"})
     response.set_cookie(
@@ -79,9 +72,7 @@ async def get_job(job_id: str, request: Request):
     return JSONResponse(
         view,
         headers={
-            "Cache-Control": "private, max-age=60"
-            if view["status"] == "done"
-            else "no-store"
+            "Cache-Control": "private, max-age=60" if view["status"] == "done" else "no-store"
         },
     )
 

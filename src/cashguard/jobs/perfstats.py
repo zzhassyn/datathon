@@ -29,8 +29,6 @@ class PerfStats:
 
     def get(self, key: str, default: float | None = None) -> float | None:
         row = (
-            self.db.connect()
-            .execute("SELECT ewma FROM perf_stats WHERE key=?", (key,))
-            .fetchone()
+            self.db.connect().execute("SELECT ewma FROM perf_stats WHERE key=?", (key,)).fetchone()
         )
         return row[0] if row else default

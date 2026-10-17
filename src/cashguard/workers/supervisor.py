@@ -41,9 +41,7 @@ class Supervisor:
         shutdown_timeout: float = 30.0,
     ) -> None:
         self.settings = settings
-        self.repo = JobRepository(
-            settings.db_path, deadlines_path=Path("configs/deadlines.yaml")
-        )
+        self.repo = JobRepository(settings.db_path, deadlines_path=Path("configs/deadlines.yaml"))
         self.stop_event = threading.Event()
         self.restart_base, self.shutdown_timeout = restart_base, shutdown_timeout
         self.children: list[Child] = []
@@ -96,9 +94,7 @@ class Supervisor:
     def _start(self, child: Child) -> None:
         child.process = subprocess.Popen(child.command, env=self._environment())
         child.started_at = time.time()
-        structlog.get_logger().info(
-            "child_started", name=child.name, pid=child.process.pid
-        )
+        structlog.get_logger().info("child_started", name=child.name, pid=child.process.pid)
 
     @staticmethod
     def _matches(child: Child) -> bool:
@@ -147,11 +143,7 @@ class Supervisor:
                     30, self.restart_base * 2 ** min(child.failures - 1, 10)
                 )
                 child.process = None
-            if (
-                child.process is None
-                and mono >= child.next_start
-                and not self.stop_event.is_set()
-            ):
+            if child.process is None and mono >= child.next_start and not self.stop_event.is_set():
                 self._start(child)
             self._kill_stalled(child, workers, now)
         self.repo.requeue_dead()
@@ -161,9 +153,7 @@ class Supervisor:
             api = next((child for child in self.children if child.name == "api"), None)
             if api is not None and api.process is not None:
                 host = (
-                    "127.0.0.1"
-                    if self.settings.host in {"0.0.0.0", "::"}
-                    else self.settings.host
+                    "127.0.0.1" if self.settings.host in {"0.0.0.0", "::"} else self.settings.host  # noqa: S104 — сравнение, не привязка
                 )
                 try:
                     with urlopen(
@@ -178,9 +168,7 @@ class Supervisor:
                     self._health_failures = 0
 
     @staticmethod
-    def _terminate_tree(
-        process: subprocess.Popen, *, force: bool = False
-    ) -> list[psutil.Process]:
+    def _terminate_tree(process: subprocess.Popen, *, force: bool = False) -> list[psutil.Process]:
         # Include uvicorn's reload child, which must not outlive its supervisor.
         try:
             parent = psutil.Process(process.pid)

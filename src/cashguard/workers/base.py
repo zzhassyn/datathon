@@ -14,17 +14,13 @@ from cashguard.workers.warmup import warmup
 
 
 class Worker:
-    def __init__(
-        self, settings: Settings, *, name: str | None = None, role: str = "all"
-    ) -> None:
+    def __init__(self, settings: Settings, *, name: str | None = None, role: str = "all") -> None:
         if role not in {"all", "perception"}:
             raise ValueError("VLM worker принадлежит S6 и ещё не подключён")
         self.settings = settings
         self.role = role
         self.name = name or f"{role}-{os.getpid()}"
-        self.repo = JobRepository(
-            settings.db_path, deadlines_path=Path("configs/deadlines.yaml")
-        )
+        self.repo = JobRepository(settings.db_path, deadlines_path=Path("configs/deadlines.yaml"))
         self.stop_event = threading.Event()
         self.heartbeat_stop = threading.Event()
         self.completed = 0
@@ -73,9 +69,7 @@ class Worker:
 
     def run(self, *, once: bool = False) -> None:
         self.repo.register_worker(self.name, self.role, os.getpid(), state="warming")
-        heartbeat = threading.Thread(
-            target=self._heartbeat, name="worker-heartbeat", daemon=True
-        )
+        heartbeat = threading.Thread(target=self._heartbeat, name="worker-heartbeat", daemon=True)
         heartbeat.start()
         if threading.current_thread() is threading.main_thread():
             signal.signal(signal.SIGTERM, lambda *_: self.stop())

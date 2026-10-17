@@ -34,9 +34,7 @@ class Prediction:
     jury_valid: bool | None = None
 
     def __post_init__(self) -> None:
-        verdict_events = [
-            event for event in self.events if not event.code.startswith("SIG_")
-        ]
+        verdict_events = [event for event in self.events if not event.code.startswith("SIG_")]
         if self.verdict not in {"violation", "no_violation"}:
             raise ValueError("Оценка требует конечного вердикта")
         if (self.verdict == "violation") != bool(verdict_events):
@@ -93,8 +91,8 @@ def calculate_metrics(
     inferred from numerical predictions, and no rule/model accuracy is claimed.
     """
     canonical: dict[str, Prediction] = {}
-    for video_id, prediction in predictions.items():
-        video_id = canonical_video_id(video_id)
+    for raw_id, prediction in predictions.items():
+        video_id = canonical_video_id(raw_id)
         if video_id in canonical:
             raise ValueError("Два предсказания одного канонического видео")
         if video_id not in labels:
@@ -120,15 +118,11 @@ def calculate_metrics(
             predicted_violation = False
         else:
             predicted_events = [
-                event
-                for event in prediction.events
-                if not event.code.startswith("SIG_")
+                event for event in prediction.events if not event.code.startswith("SIG_")
             ]
             predicted_violation = prediction.verdict == "violation"
             signal_counts.update(
-                event.code
-                for event in prediction.events
-                if event.code.startswith("SIG_")
+                event.code for event in prediction.events if event.code.startswith("SIG_")
             )
             if prediction.jury_valid is not None:
                 schema_checked += 1
@@ -150,19 +144,14 @@ def calculate_metrics(
         matches = dict(match_events(label.events, predicted_events))
         counts["unmatched_predictions"] += len(predicted_events) - len(matches)
         type_found += sum(
-            event.code in {pred.code for pred in predicted_events}
-            for event in label.events
+            event.code in {pred.code for pred in predicted_events} for event in label.events
         )
         for index, event in enumerate(label.events):
             predicted = predicted_events[matches[index]] if index in matches else None
             pred_code = predicted.code if predicted else "MISS"
             confusion[event.code][pred_code] += 1
-            delta = (
-                None
-                if predicted is None
-                else predicted.timecode_sec - event.timecode_sec
-            )
-            if delta is not None:
+            delta = None if predicted is None else predicted.timecode_sec - event.timecode_sec
+            if predicted is not None and delta is not None:
                 absolute.append(abs(delta))
                 signed_by_code[event.code].append(delta)
                 hit_1s += abs(delta) <= 1
@@ -176,9 +165,7 @@ def calculate_metrics(
                     "label_code": event.code,
                     "label_time": event.timecode_sec,
                     "prediction_code": pred_code,
-                    "prediction_time": None
-                    if predicted is None
-                    else predicted.timecode_sec,
+                    "prediction_time": None if predicted is None else predicted.timecode_sec,
                     "delta_sec": delta,
                 }
             )

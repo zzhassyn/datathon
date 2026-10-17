@@ -48,6 +48,7 @@ def test_worker_publishes_durable_jury_and_ui(tmp_path, make_video):
     repository = JobRepository(settings.db_path)
     done = repository.get_job(job.id)
     assert done.status == "done" and done.attempts_perception == 1
+    assert done.jury_path and done.ui_result_path
     result = json.loads(Path(done.jury_path).read_text())
     ui = json.loads(Path(done.ui_result_path).read_text())
     assert result["verdict"] == ui["verdict"] == "violation"
@@ -67,7 +68,7 @@ def test_expired_job_fails_without_fake_result(tmp_path, make_video):
     result = JobRepository(settings.db_path).get_job(job.id)
     assert result.status == "failed"
     assert result.error_code == "PIPELINE_CRASH"
-    assert "истекло" in result.error_msg
+    assert "истекло" in (result.error_msg or "")
     assert result.jury_path is None
 
 
@@ -75,9 +76,7 @@ def test_killed_worker_restarts_and_completes_same_job(tmp_path, make_video):
     settings = Settings(data_dir=tmp_path, stub_delay_sec=1)
     job = create_job(settings, make_video)
     repository = JobRepository(settings.db_path)
-    supervisor = Supervisor(
-        settings, start_api=False, restart_base=0.05, shutdown_timeout=2
-    )
+    supervisor = Supervisor(settings, start_api=False, restart_base=0.05, shutdown_timeout=2)
     try:
         wait_for(supervisor, lambda: repository.get_job(job.id).status == "running")
         original = supervisor.children[0].process
@@ -87,9 +86,8 @@ def test_killed_worker_restarts_and_completes_same_job(tmp_path, make_video):
         finished = repository.get_job(job.id)
         assert finished.attempts_perception == 2
         assert finished.perception_level == "fast"
-        assert (
-            json.loads(Path(finished.jury_path).read_text())["verdict"] == "violation"
-        )
+        assert finished.jury_path
+        assert json.loads(Path(finished.jury_path).read_text())["verdict"] == "violation"
         assert supervisor.children[0].process.pid != original.pid
     finally:
         supervisor.close()
@@ -99,17 +97,14 @@ def test_crashes_stop_after_two_attempts(tmp_path, make_video):
     settings = Settings(data_dir=tmp_path, stub_delay_sec=2)
     job = create_job(settings, make_video)
     repository = JobRepository(settings.db_path)
-    supervisor = Supervisor(
-        settings, start_api=False, restart_base=0.05, shutdown_timeout=2
-    )
+    supervisor = Supervisor(settings, start_api=False, restart_base=0.05, shutdown_timeout=2)
     try:
         for expected_attempt in (1, 2):
             wait_for(
                 supervisor,
                 lambda expected_attempt=expected_attempt: (
                     repository.get_job(job.id).status == "running"
-                    and repository.get_job(job.id).attempts_perception
-                    == expected_attempt
+                    and repository.get_job(job.id).attempts_perception == expected_attempt
                 ),
             )
             process = supervisor.children[0].process
@@ -122,16 +117,14 @@ def test_crashes_stop_after_two_attempts(tmp_path, make_video):
         supervisor.close()
 
 
-def test_alive_heartbeat_preserves_busy_job_and_does_not_fake_progress(
-    tmp_path, make_video
-):
+def test_alive_heartbeat_preserves_busy_job_and_does_not_fake_progress(tmp_path, make_video):
     settings = Settings(data_dir=tmp_path, heartbeat_interval_sec=0.02)
     job = create_job(settings, make_video)
     repository = JobRepository(settings.db_path)
     entered, release = threading.Event(), threading.Event()
 
     class WaitingWorker(Worker):
-        def process(self, current):
+        def process(self, current):  # pyright: ignore[reportIncompatibleMethodOverride]
             entered.set()
             release.wait(timeout=3)
             self.repo.fail(
@@ -165,9 +158,7 @@ def test_supervisor_kills_stalled_worker_before_requeue(tmp_path, make_video):
     settings = Settings(data_dir=tmp_path, stub_delay_sec=1)
     job = create_job(settings, make_video)
     repository = JobRepository(settings.db_path)
-    supervisor = Supervisor(
-        settings, start_api=False, restart_base=0.05, shutdown_timeout=2
-    )
+    supervisor = Supervisor(settings, start_api=False, restart_base=0.05, shutdown_timeout=2)
     try:
         wait_for(supervisor, lambda: repository.get_job(job.id).status == "running")
         original = supervisor.children[0].process

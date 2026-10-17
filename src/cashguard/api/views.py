@@ -43,9 +43,7 @@ def result_path(request: Request, job, name: str) -> Path:
 def jury_file(request: Request, original, resolved) -> Path:
     source = result_path(request, resolved, "jury")
     stat = source.stat()
-    validate_file(
-        str(source), stat.st_mtime_ns, stat.st_size, resolved.id, resolved.duration_sec
-    )
+    validate_file(str(source), stat.st_mtime_ns, stat.st_size, resolved.id, resolved.duration_sec)
     if original.id == resolved.id:
         return source
     # Linked jobs retain a distinct public identity. Materialize once, after done.
@@ -75,18 +73,14 @@ def validate_file(path: str, mtime_ns: int, size: int, job_id: str, duration: fl
 
 
 def validate_ui_fragment(fragment):
-    if not isinstance(fragment, dict) or not isinstance(
-        fragment.get("violations"), list
-    ):
+    if not isinstance(fragment, dict) or not isinstance(fragment.get("violations"), list):
         raise TypeError("invalid ui fragment")
     if fragment.get("verdict") not in {"violation", "no_violation"}:
         raise ValueError("invalid ui verdict")
     if (fragment["verdict"] == "violation") != bool(fragment["violations"]):
         raise ValueError("invalid ui verdict")
     for violation in fragment["violations"]:
-        if not isinstance(violation, dict) or not isinstance(
-            violation.get("evidence"), list
-        ):
+        if not isinstance(violation, dict) or not isinstance(violation.get("evidence"), list):
             raise TypeError("invalid ui evidence")
         for frame in violation["evidence"]:
             if not isinstance(frame, dict) or not isinstance(frame.get("url"), str):
@@ -147,9 +141,7 @@ def ui_view(request: Request, job_id: str) -> dict:
         "created_at": datetime.fromtimestamp(original.received_at, UTC)
         .isoformat()
         .replace("+00:00", "Z"),
-        "elapsed_sec": round(
-            max(0, (job.finished_at or time.time()) - original.received_at), 2
-        ),
+        "elapsed_sec": round(max(0, (job.finished_at or time.time()) - original.received_at), 2),
         "queue_position": request.app.state.repo.queue_position(job_id),
         "eta_sec": None,
         "perception_level": job.perception_level,
@@ -161,13 +153,8 @@ def ui_view(request: Request, job_id: str) -> dict:
                 "reason_ru": "Демонстрационный stub: AI-модели не подключены.",
             }
         ]
-        + [
-            {"stage": "pipeline", "reason_ru": str(reason)}
-            for reason in job.degradations
-        ],
-        "provisional": bool(
-            job.provisional_at and job.status not in {"done", "failed"}
-        ),
+        + [{"stage": "pipeline", "reason_ru": str(reason)} for reason in job.degradations],
+        "provisional": bool(job.provisional_at and job.status not in {"done", "failed"}),
         "video": {
             "url": f"/api/ui/jobs/{job_id}/video.mp4",
             "duration_sec": original.duration_sec,
@@ -185,9 +172,5 @@ def ui_view(request: Request, job_id: str) -> dict:
             "message_ru": "Сохранённый результат не читается.",
         }
         if corrupt
-        else (
-            {"code": job.error_code, "message_ru": job.error_msg}
-            if job.error_code
-            else None
-        ),
+        else ({"code": job.error_code, "message_ru": job.error_msg} if job.error_code else None),
     }

@@ -61,6 +61,8 @@ class DiskTarget(BaseTarget):
         if self.size > self.limit:
             raise HTTPException(413, "file too large")
         self.sha256.update(chunk)
+        if self.handle is None:
+            raise RuntimeError("файл загрузки не открыт")
         self.handle.write(chunk)
 
     def on_finish(self):
@@ -95,10 +97,7 @@ async def receive_video(
             raise HTTPException(422, "invalid content length") from None
         if size > limit:
             raise HTTPException(413, "file too large")
-    if (
-        await run_in_threadpool(disk_free_gb, settings.paths.jobs_dir)
-        < settings.min_free_disk_gb
-    ):
+    if await run_in_threadpool(disk_free_gb, settings.paths.jobs_dir) < settings.min_free_disk_gb:
         raise HTTPException(507, "insufficient storage")
     directory.mkdir(parents=True, exist_ok=False)
     temporary = directory / "input.part"
@@ -111,9 +110,7 @@ async def receive_video(
         total = 0
         header = bytearray()
         header_complete = False
-        remaining = max(
-            0.001, settings.upload_timeout_sec - (time.time() - received_at)
-        )
+        remaining = max(0.001, settings.upload_timeout_sec - (time.time() - received_at))
         async with asyncio.timeout(remaining):
             async for chunk in request.stream():
                 total += len(chunk)

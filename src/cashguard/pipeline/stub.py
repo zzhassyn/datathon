@@ -39,7 +39,7 @@ def run_stub_analysis(
     budget: Budget,
     duration_sec: float | None = None,
     delay_sec: float = 0.0,
-    progress: Callable[[float], None] | None = None,
+    progress: Callable[[float], object] | None = None,
 ) -> StubAnalysis:
     import av
 
@@ -56,9 +56,7 @@ def run_stub_analysis(
         raise StubInputError(str(error)) from error
     duration_sec = metadata.duration_sec
     checkpoint(0.0)
-    with av.open(
-        str(path), format="mov", options={"protocol_whitelist": "file"}
-    ) as container:
+    with av.open(str(path), format="mov", options={"protocol_whitelist": "file"}) as container:
         marker = container.metadata.get("comment", "")
         if marker not in {"cg-stub:clean", "cg-stub:violation"}:
             raise StubInputError(

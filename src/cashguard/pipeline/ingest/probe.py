@@ -8,6 +8,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import av
+from av.error import FFmpegError
 
 
 class UnsupportedVideo(ValueError):
@@ -31,9 +32,7 @@ class VideoInfo:
 def probe(path: Path | str, *, deep: bool = False) -> VideoInfo:
     try:
         # Explicit mov demuxer prevents playlists and external URL protocols.
-        with av.open(
-            str(path), format="mov", options={"protocol_whitelist": "file"}
-        ) as container:
+        with av.open(str(path), format="mov", options={"protocol_whitelist": "file"}) as container:
             streams = container.streams.video
             stream = streams[0] if streams else None
             duration = float(container.duration or 0) / av.time_base
@@ -71,7 +70,7 @@ def probe(path: Path | str, *, deep: bool = False) -> VideoInfo:
                 stub,
                 codec != "h264" or rotation % 360 != 0,
             )
-    except (av.FFmpegError, OSError, ValueError, OverflowError) as exc:
+    except (FFmpegError, OSError, ValueError, OverflowError) as exc:
         if isinstance(exc, UnsupportedVideo):
             raise
         raise UnsupportedVideo("Контейнер видео не читается") from exc

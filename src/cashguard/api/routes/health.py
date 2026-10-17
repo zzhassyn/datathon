@@ -21,9 +21,7 @@ def readiness(request):
 
     def alive(role):
         return any(
-            w["role"] in {role, "all"}
-            and now - w["alive_at"] < 10
-            and psutil.pid_exists(w["pid"])
+            w["role"] in {role, "all"} and now - w["alive_at"] < 10 and psutil.pid_exists(w["pid"])
             for w in workers
         )
 
@@ -35,8 +33,7 @@ def readiness(request):
         "free_mem_ok": psutil.virtual_memory().available / 1_000_000_000
         >= settings.min_free_mem_gb,
         "disk_ok": shutil.disk_usage(settings.var_dir).free / 1_000_000_000 >= 5,
-        "queue_ok": request.app.state.repo.active_count(source="ui")
-        < settings.ui_rate_queue,
+        "queue_ok": request.app.state.repo.active_count(source="ui") < settings.ui_rate_queue,
     }
     return {
         "ready": all(checks.values()),

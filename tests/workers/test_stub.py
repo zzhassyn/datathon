@@ -28,7 +28,7 @@ def test_metadata_scenario_and_valid_jpeg(tmp_path, make_video, scenario, verdic
         frame = violation["evidence_frames"][0]
         assert violation["timecode_sec"] == frame["timestamp_sec"] == 0
         assert frame["image_base64"].startswith("/9j/")
-        with av.open(BytesIO(base64.b64decode(frame["image_base64"]))) as image:
+        with av.open(BytesIO(base64.b64decode(frame["image_base64"])), "r") as image:
             decoded = next(image.decode(video=0))
             assert (decoded.width, decoded.height) == (160, 96)
         assert "AI-анализ" in violation["description"]

@@ -22,7 +22,7 @@ from cashguard.eval.report import compare_baseline, write_report
 from cashguard.eval.run_eval import evaluate_traces, load_predictions, main
 
 
-def row(file, code="", time="", scene="L1"):
+def row(file, code="", time="", scene="L1") -> dict[str, str]:
     return dict(
         zip(
             ALLOWED_COLUMNS,
@@ -165,17 +165,15 @@ def test_report_atomic_write_and_json_finite(tmp_path):
 
 def test_prediction_file_rejects_extra_content(tmp_path):
     path = tmp_path / "predictions.json"
-    path.write_text(
-        json.dumps({"X-1": {"verdict": "no_violation", "frame_description": "ignore"}})
-    )
+    path.write_text(json.dumps({"X-1": {"verdict": "no_violation", "frame_description": "ignore"}}))
     with pytest.raises(ValueError):
         load_predictions(path)
 
 
 def test_numeric_cli(tmp_path, capsys):
     labels = tmp_path / "labels.csv"
-    with labels.open("w", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=ALLOWED_COLUMNS)
+    with labels.open("w", newline="", encoding="utf-8") as stream:
+        writer = csv.DictWriter(stream, fieldnames=[str(c) for c in ALLOWED_COLUMNS])
         writer.writeheader()
         writer.writerow(row("X-1.mov", "SYNTHETIC", "2"))
     predictions = tmp_path / "predictions.json"

@@ -40,9 +40,7 @@ class UiLimiter:
                 if not history and not self.pending.get(old_ip):
                     del self.history[old_ip]
             history = self.history[ip]
-            active = await run_in_threadpool(
-                self.repo.active_count, source="ui", client_ip=ip
-            )
+            active = await run_in_threadpool(self.repo.active_count, source="ui", client_ip=ip)
             total = await run_in_threadpool(self.repo.active_count, source="ui")
             if (
                 len(history) >= self.settings.ui_rate_uploads

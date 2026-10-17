@@ -5,11 +5,11 @@ from pathlib import Path
 import httpx
 import pytest
 from fastapi.testclient import TestClient
+from scripts.make_synthetic_mov import make_synthetic_mov
 
 from cashguard.api.main import create_app
 from cashguard.pipeline.render.jury import validate_jury
 from cashguard.workers.perception_worker import PerceptionWorker
-from scripts.make_synthetic_mov import make_synthetic_mov
 
 
 def upload(client, path, url="/api/ui/jobs", headers=None):
@@ -29,9 +29,7 @@ def test_complete_ui_and_jury_scenario(client, app, settings, tmp_path, verdict,
     assert accepted.status_code == 200
     job_id = accepted.json()["job_id"]
     assert client.get(f"/api/ui/jobs/{job_id}").json()["status"] == "queued"
-    preview = client.get(
-        f"/api/ui/jobs/{job_id}/video.mp4", headers={"Range": "bytes=0-99"}
-    )
+    preview = client.get(f"/api/ui/jobs/{job_id}/video.mp4", headers={"Range": "bytes=0-99"})
     assert preview.status_code == 206
     assert len(preview.content) == 100
     assert preview.headers["cache-control"].startswith("private")
@@ -153,9 +151,7 @@ def test_five_parallel_jury_uploads_and_linked_evidence(app, synthetic, auth, se
             data = synthetic.read_bytes()
             responses = await asyncio.gather(
                 *[
-                    client.post(
-                        "/api/v1/analyze", files={"file": ("x", data)}, headers=auth
-                    )
+                    client.post("/api/v1/analyze", files={"file": ("x", data)}, headers=auth)
                     for _ in range(5)
                 ]
             )

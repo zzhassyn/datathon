@@ -23,8 +23,7 @@ def redact_secrets(_: Any, __: str, event: dict[str, Any]) -> dict[str, Any]:
     def clean(value: Any) -> Any:
         if isinstance(value, dict):
             return {
-                k: "[redacted]" if k.lower() in _PRIVATE else clean(v)
-                for k, v in value.items()
+                k: "[redacted]" if k.lower() in _PRIVATE else clean(v) for k, v in value.items()
             }
         if isinstance(value, (list, tuple)):
             return [clean(v) for v in value]
@@ -38,17 +37,16 @@ def configure_logging(path: Path | None = None, level: int = logging.INFO) -> No
     if path is not None:
         path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         handlers = [RotatingFileHandler(path, maxBytes=10_000_000, backupCount=5)]
-    logging.basicConfig(
-        level=level, format="%(message)s", handlers=handlers, force=True
-    )
+    logging.basicConfig(level=level, format="%(message)s", handlers=handlers, force=True)
+    processors: list[Any] = [
+        structlog.contextvars.merge_contextvars,
+        redact_secrets,
+        structlog.processors.TimeStamper(fmt="iso", utc=True),
+        structlog.processors.add_log_level,
+        structlog.processors.JSONRenderer(),
+    ]
     structlog.configure(
-        processors=[
-            structlog.contextvars.merge_contextvars,
-            redact_secrets,
-            structlog.processors.TimeStamper(fmt="iso", utc=True),
-            structlog.processors.add_log_level,
-            structlog.processors.JSONRenderer(),
-        ],
+        processors=processors,
         logger_factory=structlog.stdlib.LoggerFactory(),
         cache_logger_on_first_use=True,
     )
