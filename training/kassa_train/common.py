@@ -14,6 +14,10 @@ from pathlib import Path
 
 import yaml
 
+# Операции, которых нет в MPS, — на CPU. PyTorch читает переменную один раз при import torch, а common
+# импортируется каждым шагом раньше torch (pick_device импортирует его лениво), поэтому — здесь.
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TRAINING_DIR = REPO_ROOT / "training"
 CONFIG_DIR = TRAINING_DIR / "configs"
@@ -22,6 +26,10 @@ CONFIG_DIR = TRAINING_DIR / "configs"
 DUPLICATES = {"X-47": "X-4", "X-48": "X-5"}
 
 _CYRILLIC_X = {"Х": "X", "х": "x"}
+# «╒-13», «ò-13», «╨Ñ-13»: имя «Х-13» из zip без флага UTF-8 (встроенный архиватор Windows),
+# распакованное в другой кодировке. Все ролики называются Х-<номер>, поэтому 1–2 не-ASCII символа
+# перед «-<цифры>» — это испорченная «Х».
+_MOJIBAKE_X_RE = re.compile(r"[^\x00-\x7f]{1,2}(-\d+)")
 
 
 def load_yaml(path: Path) -> dict:
@@ -55,6 +63,9 @@ def norm_video_id(name: str) -> str:
     stem = Path(str(name).strip()).stem if "." in str(name) else str(name).strip()
     for cyr, lat in _CYRILLIC_X.items():
         stem = stem.replace(cyr, lat)
+    m = _MOJIBAKE_X_RE.fullmatch(stem)
+    if m:
+        stem = "X" + m.group(1)
     return stem.upper()
 
 

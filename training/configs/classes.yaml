@@ -6,6 +6,11 @@
 #   gdino: текстовые подсказки для Grounding DINO (открытый словарь)
 # static — предмет стоит на месте (камера неподвижна). Его рамку можно разметить
 #   один раз на видео и размножить на все кадры этого видео (03_prelabel делает это сам).
+# max_instances — сколько таких предметов бывает в кадре (только для static): разные подсказки
+#   DINO для одного предмета иначе дают две рамки в каждом кадре ролика.
+# Подсказки DINO разных классов лучше делать без общих слов: класс рамки решают слова, которых
+#   нет у других классов (у safe_open это «open» — поэтому «open metal cabinet» убрана: её общие
+#   с safe_closed «metal cabinet» давали «сейф открыт» на закрытом сейфе).
 # review — на что смотреть при ручной правке.
 
 classes:
@@ -35,12 +40,13 @@ classes:
     ru: сейф закрыт
     prelabel: {gdino: ["closed metal safe", "grey metal cabinet"]}
     static: true
+    max_instances: 1
     review: "Дверца закрыта. При открытой дверце — класс safe_open."
 
   - id: 4
     name: safe_open
     ru: сейф открыт
-    prelabel: {gdino: ["open safe door", "open metal cabinet"]}
+    prelabel: {gdino: ["open safe door"]}
     static: false
     review: "Дверца открыта хотя бы частично. Рамка — весь сейф вместе с дверцей."
 
@@ -49,6 +55,7 @@ classes:
     ru: ноутбук
     prelabel: {coco: [laptop]}
     static: true
+    max_instances: 1
     review: "Корпус вместе с экраном. Состояние экрана — отдельный классификатор."
 
   - id: 6
@@ -56,6 +63,7 @@ classes:
     ru: дверь кассы
     prelabel: {gdino: ["glass door", "door handle"]}
     static: true
+    max_instances: 2
     review: "Стеклянная дверь входа. Рамка — полотно двери."
 
   - id: 7
@@ -63,6 +71,7 @@ classes:
     ru: счётная машинка
     prelabel: {gdino: ["banknote counting machine", "money counter"]}
     static: true
+    max_instances: 1
     review: "Крупный чёрный аппарат с лотком. Не путать с детектором подлинности."
 
   - id: 8
@@ -70,6 +79,7 @@ classes:
     ru: детектор подлинности
     prelabel: {gdino: ["banknote detector", "small black device with light"]}
     static: true
+    max_instances: 1
     review: "Плоский чёрный прибор с подсветкой рядом с машинкой."
 
   - id: 9

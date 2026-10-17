@@ -3,8 +3,11 @@
 
 common: &common
   device: auto            # mps на Mac
-  workers: 4
-  cache: false            # true/ram не включать на 16 ГБ — памяти не хватит вместе с системой
+  workers: 4              # на MPS и CPU не действует: Ultralytics 8.4 ставит workers=0 (загрузка кадров
+                          # и мозаика — в основном потоке); работает только на CUDA
+  cache: false            # ram: ~1,6 ГБ (≈1,3 тыс. кадров при 864) — эпоха быстрее, т. к. JPEG не декодируется
+                          # каждый раз; но на 16 ГБ вместе с YOLO26l@864 памяти впритык, поэтому выключено.
+                          # Для smoke/pseudo можно включить (cache: ram), если свободно ≥ 8 ГБ
   plots: true
   seed: 26
   # аугментации под другой ракурс камеры, других людей и освещение
@@ -26,8 +29,21 @@ profiles:
     model: yolo26n.pt
     imgsz: 640
     epochs: 3
+    close_mosaic: 0       # иначе при epochs < close_mosaic мозаика выключена с 0-й эпохи и замер не похож на обучение
     batch: 8
     fraction: 0.25
+    dataset: pseudo
+
+  calib_full:             # 10–20 мин: замер скорости и памяти ровно в настройках full (YOLO26l, 864, freeze=10);
+    <<: *common           # по нему 08_train_detect.py прогнозирует full и full_m точнее, чем по smoke (n@640)
+    model: yolo26l.pt
+    imgsz: 864
+    epochs: 2             # 1-я эпоха — прогрев MPS, в прогноз идёт 2-я
+    close_mosaic: 0
+    freeze: 10
+    batch: 8
+    fraction: 0.15
+    plots: false
     dataset: pseudo
 
   pseudo:                 # ~1–1.5 ч: базовая модель на автоматической разметке, пока люди правят разметку
@@ -68,6 +84,6 @@ cls:                      # классификаторы состояний по
     patience: 8
     batch: 32
   tasks:
-    screen:    {<<: *cls_common, classes: [active, locked, off]}
+    screen:    {<<: *cls_common, classes: [active, locked, "off"]}   # off в кавычках: иначе YAML читает false
     safe_lock: {<<: *cls_common, classes: [key, no_key]}
     door:      {<<: *cls_common, classes: [closed, open]}

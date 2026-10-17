@@ -9,6 +9,9 @@ av>=14                # PyAV: декодирование .mov
 imagehash>=4.3        # отсев почти одинаковых кадров
 pillow
 numpy
+# Экспорт в Core ML: coremltools ломается на numpy>=2.4 (apple/coremltools#2633); Ultralytics 8.4
+# проверяет это при экспорте и пытается переустановить numpy через pip, которого в uv-окружении нет.
+numpy<=2.3.5 ; sys_platform == "darwin"
 pandas>=2.2
 openpyxl>=3.1         # чтение open_labels.xlsx
 pyyaml>=6.0

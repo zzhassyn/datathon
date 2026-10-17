@@ -14,6 +14,7 @@ paths:
   external_converted: external_converted
   yolo: yolo                          # собранные датасеты для Ultralytics
   crops: crops                        # фрагменты для классификаторов состояний
+  labelstudio: labelstudio            # задачи и интерфейс для Label Studio (04_labelstudio_export.py)
   runs: runs                          # относительно корня репо: результаты обучения
   models: models                      # относительно корня репо: экспортированные модели
 
@@ -23,6 +24,8 @@ frames:
   event_window_sec: 3.0    # ± секунд вокруг каждого таймкода нарушения
   jpeg_quality: 92
   dedup_phash_distance: 4  # кадры ближе этого (Хэмминг по pHash) внутри видео считаются дублями
+  dedup_phash_size: 16     # pHash 16x16 = 256 бит: при 8x8 (64 бит) соседние кадры неподвижной камеры
+                           # отличаются на ~2 бита и порог 4 оставлял ~180 кадров из 1714
   keep_native_resolution: true   # 464x848 без уменьшения
 
 prelabel:
@@ -32,6 +35,8 @@ prelabel:
   gdino_model: IDEA-Research/grounding-dino-base   # для теста на слабом ПК: grounding-dino-tiny
   gdino_box_threshold: 0.30
   gdino_text_threshold: 0.25
+  safe_open_threshold: 0.45  # «сейф открыт» только при такой уверенности DINO (по слову open): при 0.35
+                             # закрытый сейф в X-1/X-44 почти в каждом кадре размечался открытым
   nms_iou: 0.6             # подавление дублей внутри класса
   static_keyframes: 5      # по скольким кадрам видео усреднять рамку неподвижного предмета
   min_box_area_frac: 0.0005  # отбрасывать совсем мелкие рамки (доля площади кадра)

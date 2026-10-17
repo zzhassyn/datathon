@@ -1,6 +1,6 @@
 # План обучения моделей (MacBook Pro M2 Pro, 16 ГБ)
 
-> **Статус ветки `training-plan`:** установка окружения (`setup_mac.sh`) и загрузка моделей (`download_models.sh`) готовы — их можно запускать. Скрипты этапов A–D (`training/scripts/`) добавляются в эту же ветку: после их появления выполнить `git pull`.
+> **Статус ветки `training-plan`:** готовы установка окружения (`setup_mac.sh`), загрузка моделей (`download_models.sh`) и скрипты этапов A–D (`training/scripts/`, `run_stage_a.sh`, `run_stage_c.sh`). Если окружение на Mac собрано раньше, после `git pull` повторите `bash training/setup_mac.sh`: он не пересоздаёт `.venv-train`, а только обновляет пакеты (в том числе `numpy<=2.3.5` для экспорта в Core ML).
 
 Пайплайн готовит данные и обучает модели из [analysis/detection_design.md](../analysis/detection_design.md):
 
@@ -26,11 +26,13 @@ git clone git@github.com:zzhassyn/datathon.git && cd datathon
 git checkout training-plan
 brew install uv                      # если ещё нет
 bash training/setup_mac.sh           # окружение .venv-train: PyTorch (MPS), Ultralytics, transformers
-bash training/download_models.sh     # веса YOLO26, Grounding DINO, Qwen3.5-4B (8 и 4 бит)
+caffeinate -i bash training/download_models.sh   # веса YOLO26, Grounding DINO, Qwen3.5-4B (8 и 4 бит); Mac на зарядке
 source .venv-train/bin/activate
 ```
 
-`download_models.sh` можно перезапускать: уже скачанное пропускается. Флаг `--no-qwen` пропускает модели сервиса (~8 ГБ), если сейчас нужно только обучение.
+`download_models.sh` можно перезапускать: уже скачанное пропускается, оборванное докачивается. Если файл не скачался, скрипт печатает строку `!! … не скачан` и завершается с кодом 1 — просто запустите его ещё раз. Флаг `--no-qwen` пропускает модели сервиса (~8 ГБ), если сейчас нужно только обучение.
+
+**Mac не должен засыпать.** Загрузка (~9,5 ГБ) и этапы A и C (по 2–3 ч) встают, когда Mac засыпает: при простое, при закрытой крышке, на батарее — вместе с выключением экрана. `download_models.sh`, `run_stage_a.sh` и `run_stage_c.sh` сами запускаются под `caffeinate` (Mac не уснёт от простоя). Держите Mac **на зарядке и с открытой крышкой**. Отдельные шаги `python training/scripts/…` запускайте так же: `caffeinate -i python training/scripts/08_train_detect.py …`.
 
 Данные: распаковать `open.zip`. Нужна такая структура:
 
@@ -45,7 +47,7 @@ data/raw/open/open_labels.xlsx
 python training/scripts/00_check_env.py
 ```
 
-## Этап A — автоматически, можно запускать сразу (~2 ч машинного времени)
+## Этап A — автоматически, можно запускать сразу (~2–2,5 ч машинного времени)
 
 Одной командой: `bash training/run_stage_a.sh`. Или по шагам:
 
@@ -56,23 +58,43 @@ python training/scripts/00_check_env.py
 | A3 | `python training/scripts/03_prelabel.py` | `data/prelabels/…txt` (формат YOLO) + `.json` с уверенностью. Люди, ноутбук, телефон, стакан, сумки — готовая COCO-модель YOLO26x; остальное — Grounding DINO; неподвижные предметы размножаются по всем кадрам видео | 15–30 мин |
 | A4 | `python training/scripts/07_build_dataset.py --source pseudo` | `data/yolo/pseudo/` + `dataset.yaml`; валидация — целая сцена L4 | < 1 мин |
 | A5 | `python training/scripts/08_train_detect.py --profile smoke` | пробное обучение: проверка MPS и **реальное время эпохи** (`runs/detect/smoke/timing.json`) | 5–10 мин |
+| A5b | `python training/scripts/08_train_detect.py --profile calib_full` | замер ровно в настройках `full` (YOLO26l, 864, freeze=10) на 15 % кадров: **прогноз этапа C** и проверка памяти (`runs/detect/calib_full/timing.json`). В `run_stage_a.sh` сбой этого шага этап не останавливает; `CALIB=0` — пропустить | 10–20 мин |
 | A6 | `python training/scripts/08_train_detect.py --profile pseudo` | базовый детектор на автоматической разметке: на нём можно отлаживать сервис, пока люди правят разметку | ~1–1,5 ч |
 
-После A5 смотрите `timing.json`: там секунды на эпоху и прогноз для профилей `pseudo` и `full`.
+После A3 проверьте сейф: в `data/prelabels/X-20/*.json` (с 6-й секунды сейф открыт) поле `safe_open_score_raw` должно быть заметно выше, чем в `data/prelabels/X-1/*.json` (сейф закрыт). Рамка `safe_open` ставится, только если оценка ≥ `prelabel.safe_open_threshold` (0.45, `configs/pipeline.yaml`). Если открытый сейф в X-20 не размечен, а у X-1 оценки ниже, поставьте порог между ними и переразметьте сейфовые ролики: `python training/scripts/03_prelabel.py --videos X-20 X-35 X-39 --force` (или `--safe-open-threshold`).
+
+После A5 смотрите `timing.json`: там секунды на эпоху (и сколько из них ушло на загрузку кадров) и прогноз для профилей `pseudo`, `full`, `full_m`. Прогноз по `smoke` (маленькая модель, 640) для `full` грубый; точный — по `calib_full`. Если в `calib_full` не хватило памяти, Ultralytics сам уменьшит batch, а скрипт напишет, какой batch поставить для `full`.
 
 ## Этап B — ручная правка разметки (люди, 3–5 ч, параллельно с A6)
 
+Label Studio живёт в отдельном окружении `.venv-ls` (он тянет много зависимостей), а скрипты пайплайна — в `.venv-train`. Поэтому нужны **два терминала**.
+
+Терминал 1 — обучающее окружение, экспорт задач:
+
 ```bash
-python training/scripts/04_labelstudio_export.py     # задачи для Label Studio с предварительной разметкой
-# отдельное окружение: Label Studio тянет много зависимостей
-uv venv --python 3.12 .venv-ls && source .venv-ls/bin/activate && uv pip install label-studio
-# переменные и шаг импорта скрипт печатает сам; данные остаются локально
-label-studio start
+source .venv-train/bin/activate
+python training/scripts/04_labelstudio_export.py     # задачи с предварительной разметкой; печатает переменные для Label Studio
+```
+
+Терминал 2 — Label Studio (работает, пока открыт терминал):
+
+```bash
+[ -x .venv-ls/bin/python ] || uv venv --python 3.12 .venv-ls
+source .venv-ls/bin/activate && uv pip install label-studio
+export LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED=true
+export LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT="<путь, который напечатал 04>"
+label-studio start                                   # данные остаются локально
+```
+
+Терминал 1 — после экспорта из Label Studio (Export → JSON):
+
+```bash
+source .venv-train/bin/activate                      # не .venv-ls: импорту нужен PyYAML из .venv-train
 python training/scripts/05_labelstudio_import.py --export <файл экспорта Label Studio JSON>
 ```
 
 Как сэкономить время:
-1. **Неподвижные предметы** — сейф, ноутбук, дверь, машинка, детектор. Достаточно поправить рамку на первом кадре видео; при импорте она размножится на все кадры видео. Отдельно размечаются только кадры, где сейф открыт.
+1. **Неподвижные предметы** — сейф, ноутбук, дверь, машинка, детектор. Достаточно поправить рамку на первом кадре видео; при импорте она размножится на все кадры видео. Ложный предмет (например, «детектор», которого нет) достаточно удалить на первом кадре — при импорте он уйдёт из всех кадров ролика, где рамки не правились; кадры, где вы сами правили или удаляли рамки этого класса, импорт не трогает. Отдельно размечаются только кадры, где сейф открыт.
 2. **Начать с кадров вокруг нарушений** (`--only-event-frames`): они важнее всего для правил.
 3. **По каждому классу смотреть подсказку** из `configs/classes.yaml` → `review`. Самые шумные классы после автоматической разметки: `cash`, `id_document`, `auth_detector`, `safe_open`.
 4. **Хватит ~600–800 проверенных кадров.** Остальные кадры в обучение не идут.
@@ -91,7 +113,7 @@ python training/scripts/10_export_coreml.py --weights yolo26l-pose.pt   # гот
 
 `09_eval_detect.py` даёт точность по каждому классу на сцене, которой не было в обучении. Это главный показатель устойчивости к новому ракурсу. Модели и `models/manifest.json` (sha256, классы, размер входа) забирает сервис.
 
-Если на этапе C не хватает памяти, в `configs/train.yaml` для `full` поставьте `batch: 4` или возьмите профиль `full_m`.
+**Память.** Скрипты ставят `PYTORCH_MPS_HIGH_WATERMARK_RATIO=1.0`: при нехватке памяти MPS сообщает «out of memory», и Ultralytics в первой эпохе сам уменьшает batch вдвое (8 → 4), а не уходит в swap. Во время первой эпохи откройте «Мониторинг системы» → «Память»: если «Использовано подкачки» растёт на гигабайты, остановите обучение (Ctrl+C) и в `configs/train.yaml` для `full` поставьте `batch: 4` или возьмите профиль `full_m` (`PROFILE=full_m bash training/run_stage_c.sh`).
 
 ## Этап D — классификаторы состояний (~30 мин людей + минуты обучения)
 
@@ -133,7 +155,7 @@ python training/scripts/12_train_cls.py --task door
 | Этап | Кто | Время |
 |---|---|---|
 | 0. Подготовка Mac | человек | 15–20 мин |
-| A. Кадры, предварительная разметка, пробное и базовое обучение | Mac | ~2 ч |
+| A. Кадры, предварительная разметка, пробное обучение, замер для этапа C, базовое обучение | Mac | ~2–2,5 ч |
 | B. Ручная правка разметки | люди, параллельно с A6 | 3–5 ч |
 | C. Полное обучение, оценка, Core ML | Mac | 2–3 ч (+2–3 ч на каждую 1 тыс. внешних кадров) |
 | D. Классификаторы состояний | люди + Mac | ~1 ч |
