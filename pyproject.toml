@@ -90,13 +90,27 @@ extend-exclude = ["training", "analysis", "web", "*.md"]
 select = ["E", "F", "I", "B", "UP", "SIM", "PL", "RUF", "S"]
 ignore = [
   "PLR0913", # много аргументов: сигнатуры стадий заданы контрактом
+  "PLR0917",
+  "PLR0911", # сложность функций контролируем ревью, а не счётчиком
+  "PLR0912",
+  "PLR0915",
+  "PLR2004", # «магические» числа: лимиты и коды HTTP читаются нагляднее на месте
+  "PLC0415", # импорт внутри функции — намеренная изоляция тяжёлых и ML-библиотек от процесса API
   "RUF001",  # кириллица в строках — норма для текстов пользователю
   "RUF002",
   "RUF003",
+  "RUF005",
+  "SIM105",
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "PLR2004", "S603", "S607"]
+"tests/**" = ["S101", "S603", "S607", "S608"]
+# Супервизор и CLI намеренно запускают свежие интерпретаторы (spawn) — ADR-0002.
+"src/cashguard/workers/**" = ["S603", "S607"]
+"src/cashguard/cli.py" = ["S603", "S607"]
+"scripts/**" = ["S101", "S603", "S607"]
+# SQL собирается из констант модуля, значения — только параметрами.
+"src/cashguard/jobs/**" = ["S608"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["cashguard"]
@@ -108,6 +122,19 @@ pythonVersion = "3.12"
 typeCheckingMode = "standard"
 strict = ["src/cashguard/contracts"]
 reportMissingModuleSource = false
+
+# Тесты обращаются к Optional-результатам, которые заведомо заполнены в сценарии теста.
+[[tool.basedpyright.executionEnvironments]]
+root = "tests"
+extraPaths = ["."]
+reportOptionalMemberAccess = false
+reportOptionalSubscript = false
+
+[[tool.basedpyright.executionEnvironments]]
+root = "src"
+
+[[tool.basedpyright.executionEnvironments]]
+root = "scripts"
 
 # ---------------------------------------------------------------- pytest
 [tool.pytest.ini_options]
