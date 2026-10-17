@@ -5,6 +5,7 @@ const id = "a".repeat(32);
 const base = {
   job_id: id,
   status: "done",
+  pipeline_mode: "full",
   verdict: "no_violation",
   created_at: "2026-10-17T00:00:00Z",
   elapsed_sec: 1,
@@ -21,13 +22,24 @@ it("renders missing norms as absent without fabricating references", () => {
       ...base,
       verdict: "violation",
       violations: [
-        { title_ru: "Synthetic", timecode_sec: 1, description_ru: "Test", evidence: [] },
+        {
+          id: "event-1",
+          code: "TEST",
+          title_ru: "Synthetic",
+          timecode_sec: 1,
+          start_sec: 1,
+          end_sec: 2,
+          confidence: 0.8,
+          vlm_status: "skipped",
+          description_ru: "Test",
+          evidence: [],
+        },
       ],
     },
     id,
   );
   expect(job.violations[0].legal).toEqual([]);
-  expect(job.violations[0].id).toBeNull();
+  expect(job.violations[0].id).toBe("event-1");
 });
 it("rejects external media, base64 and non-Adilet normative links", () => {
   expect(() => mediaUrl("https://example.org/a.jpg")).toThrow();

@@ -1,6 +1,21 @@
-// Temporary boundary for S1 a46acdb's untyped OpenAPI responses.
-// These are inferred presentation values, NOT an agreed UiJobView contract.
-// Replace the boundary with generated S0 components when contracts/ui.py is exported.
+import type { components } from "./schema";
+
+// Generated transport types; only legal URLs are sanitized for presentation.
+export type LegalView = Omit<components["schemas"]["UiLegalRef"], "url"> & { url: string | null };
+export type EvidenceView = components["schemas"]["UiEvidence"];
+export type EventView = Omit<components["schemas"]["UiViolation"], "legal"> & {
+  legal: LegalView[];
+};
+export type JobView = Omit<
+  Required<components["schemas"]["UiJobView"]>,
+  "violations" | "signals"
+> & { violations: EventView[]; signals: Required<components["schemas"]["UiSignal"]>[] };
+function oneOf<const T extends string>(value: unknown, values: readonly T[]): T {
+  const candidate = text(value);
+  const found = values.find((entry) => entry === candidate);
+  if (!found) throw new Error("Invalid enum value");
+  return found;
+}
 export function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new Error("Invalid API object");
@@ -44,54 +59,68 @@ export function legalUrl(value: unknown) {
     return null;
   }
 }
-export function decodeLegal(value: unknown) {
+export function decodeLegal(value: unknown): LegalView {
   const v = record(value);
   return {
+    act_code: text(v.act_code),
     act_title_ru: text(v.act_title_ru),
     clause: optionalText(v.clause),
     quote_ru: optionalText(v.quote_ru),
     url: legalUrl(v.url),
-    strength: optionalText(v.strength),
+    strength: oneOf(v.strength, ["direct", "indirect", "none"]),
+    note_ru: optionalText(v.note_ru),
   };
 }
-export function decodeEvidence(value: unknown) {
+export function decodeEvidence(value: unknown): EvidenceView {
   const v = record(value);
   return {
     url: mediaUrl(v.url),
     timestamp_sec: numeric(v.timestamp_sec),
-    kind: optionalText(v.kind),
-    width: optionalNumber(v.width),
-    height: optionalNumber(v.height),
+    kind: oneOf(v.kind, ["event", "zoom", "context"]),
+    width: numeric(v.width),
+    height: numeric(v.height),
   };
 }
-function decodeEvent(value: unknown) {
+function decodeEvent(value: unknown): EventView {
   const v = record(value);
   return {
-    id: optionalText(v.id),
-    code: optionalText(v.code),
+    id: text(v.id),
+    code: text(v.code),
     title_ru: text(v.title_ru),
     timecode_sec: numeric(v.timecode_sec),
     description_ru: text(v.description_ru),
     evidence: array(v.evidence).map(decodeEvidence),
     legal: array(v.legal ?? []).map(decodeLegal),
-    start_sec: optionalNumber(v.start_sec),
-    end_sec: optionalNumber(v.end_sec),
-    confidence: optionalNumber(v.confidence),
-    vlm_status: optionalText(v.vlm_status),
+    legal_note_ru: optionalText(v.legal_note_ru),
+    start_sec: numeric(v.start_sec),
+    end_sec: numeric(v.end_sec),
+    confidence: numeric(v.confidence),
+    vlm_status: oneOf(v.vlm_status, ["confirmed", "downweighted", "unverified", "skipped"]),
     provisional: v.provisional === true,
   };
 }
-export function decodeJob(value: unknown, expectedId: string) {
+export function decodeJob(value: unknown, expectedId: string): JobView {
   const v = record(value);
   if (v.job_id !== expectedId) throw new Error("Job identity mismatch");
-  const status = text(v.status);
-  const verdict = optionalText(v.verdict);
+  const status = oneOf(v.status, ["queued", "running", "done", "failed"]);
+  const verdict = v.verdict == null ? null : oneOf(v.verdict, ["violation", "no_violation"]);
   if (status === "done" && verdict !== "violation" && verdict !== "no_violation")
     throw new Error("Missing final verdict");
+  if (status !== "done" && verdict !== null) throw new Error("Premature verdict");
+  if (status === "done" && (verdict === "violation") !== array(v.violations).length > 0)
+    throw new Error("Verdict mismatch");
+  if (status === "failed" && !v.error) throw new Error("Missing failure reason");
   const video = v.video == null ? null : record(v.video);
   const error = v.error == null ? null : record(v.error);
   return {
+    timings:
+      v.timings == null
+        ? null
+        : Object.fromEntries(
+            Object.entries(record(v.timings)).map(([key, value]) => [key, numeric(value)]),
+          ),
     job_id: expectedId,
+    pipeline_mode: oneOf(v.pipeline_mode, ["stub", "replay", "full"]),
     status,
     verdict,
     created_at: text(v.created_at),
@@ -99,8 +128,10 @@ export function decodeJob(value: unknown, expectedId: string) {
     queue_position: optionalNumber(v.queue_position),
     eta_sec: optionalNumber(v.eta_sec),
     provisional: v.provisional === true,
-    perception_level: optionalText(v.perception_level),
-    result_level: optionalText(v.result_level),
+    perception_level:
+      v.perception_level == null ? null : oneOf(v.perception_level, ["full", "fast", "min"]),
+    result_level:
+      v.result_level == null ? null : oneOf(v.result_level, ["full", "partial", "rules"]),
     video: video
       ? {
           url: mediaUrl(video.url),
@@ -113,7 +144,8 @@ export function decodeJob(value: unknown, expectedId: string) {
     signals: array(v.signals ?? []).map((value) => {
       const s = record(value);
       return {
-        id: optionalText(s.id),
+        id: text(s.id),
+        code: text(s.code),
         title_ru: text(s.title_ru),
         t_sec: numeric(s.t_sec),
         description_ru: text(s.description_ru),
@@ -123,9 +155,10 @@ export function decodeJob(value: unknown, expectedId: string) {
     stages: array(v.stages ?? []).map((value) => {
       const s = record(value);
       return {
-        code: text(s.code),
-        status: text(s.status),
-        progress: optionalNumber(s.progress),
+        code: oneOf(s.code, ["queued", "probe", "perception", "rules", "evidence", "vlm", "done"]),
+        status: oneOf(s.status, ["pending", "running", "done", "skipped", "failed"]),
+        progress: numeric(s.progress),
+        elapsed_sec: optionalNumber(s.elapsed_sec),
         note_ru: optionalText(s.note_ru),
       };
     }),
@@ -152,7 +185,3 @@ export function decodeCatalog(value: unknown) {
     }),
   };
 }
-export type JobView = ReturnType<typeof decodeJob>;
-export type EventView = JobView["violations"][number];
-export type EvidenceView = ReturnType<typeof decodeEvidence>;
-export type LegalView = ReturnType<typeof decodeLegal>;

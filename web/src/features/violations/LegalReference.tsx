@@ -25,6 +25,7 @@ export function LegalReference({ items }: { items: LegalView[] }) {
             </span>
           )}
           {item.quote_ru && <blockquote>{item.quote_ru}</blockquote>}
+          {item.note_ru && <p className="muted">{item.note_ru}</p>}
           {item.url && (
             <>
               <a href={item.url} target="_blank" rel="noopener noreferrer">

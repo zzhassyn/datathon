@@ -127,6 +127,11 @@ export function JobPage({ id }: { id: string }) {
           ) : (
             job && (
               <>
+                {job.pipeline_mode !== "full" && (
+                  <div className="mode-notice" role="status">
+                    {job.pipeline_mode === "stub" ? ru.stubMode : ru.replayMode}
+                  </div>
+                )}
                 {job.status === "failed" ? (
                   <div className="error" role="alert">
                     <h2>{ru.failed}</h2>

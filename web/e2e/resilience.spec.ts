@@ -5,6 +5,7 @@ const endpoint = `**/api/ui/jobs/${id}`;
 const base = {
   job_id: id,
   status: "running",
+  pipeline_mode: "full",
   created_at: "2026-10-17T00:00:00Z",
   elapsed_sec: 1,
   queue_position: 0,
@@ -29,7 +30,7 @@ test("provisional does not become final until server completes", async ({ page }
       json: {
         ...base,
         status: final ? "done" : "running",
-        verdict: "no_violation",
+        verdict: final ? "no_violation" : null,
         provisional: !final,
         result_level: final ? "rules" : null,
       },

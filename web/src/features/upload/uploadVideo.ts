@@ -61,7 +61,15 @@ export function uploadVideo(
     xhr.onabort = () => finish(new HttpError(499));
     xhr.onload = () => {
       if (xhr.status !== 200) {
-        finish(new HttpError(xhr.status, retryDeadline(xhr.getResponseHeader("Retry-After"))));
+        let body: unknown;
+        try {
+          body = JSON.parse(xhr.responseText);
+        } catch {
+          /* Non-JSON failures use safe local text. */
+        }
+        finish(
+          new HttpError(xhr.status, retryDeadline(xhr.getResponseHeader("Retry-After")), body),
+        );
         return;
       }
       try {

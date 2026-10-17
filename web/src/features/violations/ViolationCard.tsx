@@ -54,6 +54,7 @@ export function ViolationCard({
         <div className="event-proof">
           <h4 className="eyebrow">{ru.evidence}</h4>
           <EvidenceStrip items={event.evidence} title={event.title_ru} onSeek={onSeek} />
+          {event.legal_note_ru && <p className="muted legal-note">{event.legal_note_ru}</p>}
           <LegalReference items={event.legal} />
           {(event.code || event.confidence !== null) && (
             <details className="technical">

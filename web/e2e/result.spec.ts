@@ -54,6 +54,7 @@ test("documented fixture: multiple events, four-second context, sources and stop
   const original = record((view.violations as unknown[])[0]);
   const legal = [
     {
+      act_code: "TEST",
       act_title_ru: "Тестовый источник для проверки интерфейса",
       clause: "Тестовый пункт",
       quote_ru: "Синтетическая цитата. Не является нормативным основанием.",
@@ -70,6 +71,7 @@ test("documented fixture: multiple events, four-second context, sources and stop
     signals: [
       {
         id: "s0",
+        code: "SIG_TEST",
         title_ru: "Синтетическое наблюдение",
         t_sec: 10,
         description_ru: "Только тест UI",
@@ -119,7 +121,7 @@ test("documented fixture: multiple events, four-second context, sources and stop
   await expect(page.locator(".event-card")).toHaveCount(1);
   expect(polls).toBe(2);
 });
-test("mobile layout, navigation and empty catalog", async ({ page }, testInfo) => {
+test("mobile layout, navigation and server catalog", async ({ page }, testInfo) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Проверка видео" })).toBeVisible();
   await expect(
@@ -133,7 +135,9 @@ test("mobile layout, navigation and empty catalog", async ({ page }, testInfo) =
   await page.screenshot({ path: testInfo.outputPath("upload.png"), fullPage: true });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.getByRole("link", { name: "Типы и нормы", exact: true }).click();
-  await expect(page.getByText("Каталог пока не предоставлен сервером.")).toBeVisible();
+  await expect(page.locator(".catalog article")).toHaveCount(26);
+  await page.getByRole("searchbox").fill("SAFE_KEY_LEFT");
+  await expect(page.locator(".catalog article")).toHaveCount(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.goBack();
   await expect(page.getByRole("heading", { name: "Проверка видео" })).toBeVisible();

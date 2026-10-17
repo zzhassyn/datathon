@@ -5,7 +5,15 @@ export function ReadyDot() {
   return (
     <span className="ready-state">
       <i className={`status-dot ${q.data?.ready ? "ready" : ""}`} />
-      {q.isError ? ru.network : q.data?.ready ? ru.ready : ru.notReady}
+      {q.isError
+        ? ru.network
+        : q.data?.ready
+          ? q.data.mode === "stub"
+            ? ru.stubReady
+            : q.data.mode === "replay"
+              ? ru.replayReady
+              : ru.ready
+          : ru.notReady}
     </span>
   );
 }
