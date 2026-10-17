@@ -31,3 +31,17 @@ label-studio-data/
 # Системные
 .DS_Store
 Thumbs.db
+
+# Состояние сервиса, секреты и сборки (продукт CashGuard)
+var/
+*.sqlite3*
+.env
+!.env.example
+.claude/worktrees/
+web/dist/
+
+# Модели целиком: веса, пакеты Core ML и манифесты живут только на Mac (версии и sha256 — в configs/models.yaml)
+models/
+
+# Полные ответы jury API с base64-кадрами (smoke_jury.sh пишет в var/smoke/)
+result_*.json
