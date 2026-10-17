@@ -175,3 +175,94 @@ def test_signals_do_not_create_jury_violations(claimed):
     rendered = render_analysis(result, directory)
     assert rendered.jury.verdict == "no_violation" and rendered.jury.violations == []
     assert len(rendered.ui["signals"]) == 1
+
+
+def with_diagnostics(result):
+    fixture = json.loads(
+        (Path(__file__).parents[1] / "fixtures/ui/08_diagnostics_demo.json").read_text()
+    )
+    data = result.model_dump(mode="json")
+    data["violations"][0]["explanation"] = fixture["violations"][0]["explanation"]
+    data["visibility"] = fixture["visibility"]
+    return AnalysisResult.model_validate(data)
+
+
+@pytest.mark.parametrize("provisional", [False, True])
+def test_diagnostics_survive_link_restart_and_missing_preview(
+    client, app, settings, synthetic, claimed, monkeypatch, provisional
+):
+    from fastapi.testclient import TestClient
+
+    from cashguard.api.main import create_app
+
+    worker, job, directory, result = claimed
+    with synthetic.open("rb") as source:
+        linked = client.post("/api/ui/jobs", files={"file": ("source.mov", source)}).json()[
+            "job_id"
+        ]
+    assert app.state.repo.get_job(linked).linked_to == job.id
+    expected = with_diagnostics(result)
+    if provisional:
+
+        def keep_provisional(job_id, **kwargs):
+            kwargs.pop("result_level")
+            return worker.repo.set_provisional(job_id, **kwargs)
+
+        monkeypatch.setattr(worker.repo, "finalize", keep_provisional)
+    assert worker.publish_analysis(job, expected, directory)
+    (settings.paths.job_dir(linked) / "preview.mp4").unlink(missing_ok=True)
+    with TestClient(create_app(settings)) as restored:
+        view = restored.get(f"/api/ui/jobs/{linked}").json()
+        assert view["video"] is None and view["provisional"] is provisional
+        assert view["visibility"] == expected.visibility.model_dump(mode="json")
+        event = view["violations"][0]
+        assert event["explanation"] == expected.violations[0].explanation.model_dump(mode="json")
+        frame = event["evidence"][event["explanation"]["conditions"][0]["evidence_indices"][0]]
+        assert f"/jobs/{linked}/" in frame["url"]
+        assert restored.get(frame["url"]).status_code == 200
+
+
+def test_visibility_preserved_for_clean_result_without_affecting_jury(client, auth, claimed):
+    worker, job, directory, original = claimed
+    result = with_diagnostics(original).model_copy(
+        update={"verdict": "no_violation", "violations": []}
+    )
+    assert worker.publish_analysis(job, result, directory)
+    view = client.get(f"/api/ui/jobs/{job.id}").json()
+    assert view["verdict"] == "no_violation" and view["visibility"] is not None
+    jury = client.get(f"/api/v1/jobs/{job.id}", headers=auth).json()
+    assert jury == {"job_id": job.id, "status": "done", "verdict": "no_violation", "violations": []}
+
+
+@pytest.mark.parametrize(
+    "corruption", ["evidence_index", "visibility_end", "visibility_status", "evidence_time"]
+)
+def test_corrupt_diagnostics_fail_safely(client, app, claimed, corruption):
+    worker, job, directory, original = claimed
+    assert worker.publish_analysis(job, with_diagnostics(original), directory)
+    path = Path(app.state.repo.get_job(job.id).ui_result_path)
+    data = json.loads(path.read_text())
+    if corruption == "evidence_index":
+        data["violations"][0]["explanation"]["conditions"][0]["evidence_indices"] = [99]
+    elif corruption == "visibility_end":
+        data["visibility"]["checks"][0]["end_sec"] = job.duration_sec + 1
+    elif corruption == "visibility_status":
+        data["visibility"]["checks"][0]["status"] = "guaranteed"
+    else:
+        data["violations"][0]["evidence"][0]["timestamp_sec"] = float("inf")
+    path.write_text(json.dumps(data))
+    response = client.get(f"/api/ui/jobs/{job.id}")
+    assert response.status_code == 200
+    view = response.json()
+    assert view["status"] == "failed" and view["visibility"] is None and view["violations"] == []
+
+
+def test_stub_does_not_fabricate_diagnostics(client, synthetic, settings):
+    with synthetic.open("rb") as source:
+        job_id = client.post("/api/ui/jobs", files={"file": ("source.mov", source)}).json()[
+            "job_id"
+        ]
+    assert PerceptionWorker(settings).run_once()
+    view = client.get(f"/api/ui/jobs/{job_id}").json()
+    assert view["visibility"] is None
+    assert all(event["explanation"] is None for event in view["violations"])

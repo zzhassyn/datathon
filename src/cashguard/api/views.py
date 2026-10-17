@@ -2,6 +2,7 @@
 
 import json
 import logging
+import math
 import re
 import time
 from datetime import UTC, datetime
@@ -13,6 +14,7 @@ from pydantic import ValidationError
 from starlette.concurrency import run_in_threadpool
 from starlette.responses import FileResponse, JSONResponse
 
+from cashguard.contracts.diagnostics import VisibilityAssessment
 from cashguard.contracts.ui import UiJobView, UiSignal, UiViolation
 from cashguard.core.atomic import atomic_write_json
 from cashguard.pipeline.ingest.probe import probe
@@ -78,7 +80,7 @@ def validate_file(path: str, mtime_ns: int, size: int, job_id: str, duration: fl
         raise ValueError("incorrect saved result identity/status")
 
 
-def validate_ui_fragment(fragment):
+def validate_ui_fragment(fragment, *, duration_sec: float | None = None):
     if not isinstance(fragment, dict) or not isinstance(fragment.get("violations"), list):
         raise TypeError("invalid ui fragment")
     if fragment.get("verdict") not in {"violation", "no_violation"}:
@@ -92,6 +94,17 @@ def validate_ui_fragment(fragment):
         UiSignal.model_validate(item).model_dump(mode="json")
         for item in fragment.get("signals", [])
     ]
+    for event in [*fragment["violations"], *fragment["signals"]]:
+        for frame in event["evidence"]:
+            at = frame["timestamp_sec"]
+            if not math.isfinite(at) or (duration_sec is not None and at > duration_sec):
+                raise ValueError("evidence time outside source video")
+    visibility = fragment.get("visibility")
+    if visibility is not None:
+        assessment = VisibilityAssessment.model_validate(visibility)
+        if duration_sec is not None:
+            assessment.validate_duration(duration_sec)
+        fragment["visibility"] = assessment.model_dump(mode="json")
 
 
 async def jury_response(request: Request, job_id: str):
@@ -181,7 +194,7 @@ def ui_view(request: Request, job_id: str) -> dict:
     if job.ui_result_path and (job.status == "done" or job.provisional_at):
         try:
             saved = json.loads(result_path(request, job, "ui").read_bytes())
-            validate_ui_fragment(saved)
+            validate_ui_fragment(saved, duration_sec=job.duration_sec)
             fragment.update(saved)
         except (OSError, ValueError, TypeError):
             corrupt = True
@@ -243,6 +256,7 @@ def ui_view(request: Request, job_id: str) -> dict:
         "verdict": fragment.get("verdict"),
         "violations": fragment.get("violations", []),
         "signals": fragment.get("signals", []),
+        "visibility": fragment.get("visibility"),
         "timings": timings or fragment.get("timings"),
         "error": failure_ru(job, corrupt=corrupt) if status == "failed" else None,
     }
@@ -251,7 +265,7 @@ def ui_view(request: Request, job_id: str) -> dict:
     for event in view["violations"]:
         event["provisional"] = status != "done"
     if status == "failed":
-        view.update(violations=[], signals=[], provisional=False)
+        view.update(violations=[], signals=[], visibility=None, provisional=False)
     try:
         return UiJobView.model_validate(view).model_dump(mode="json")
     except ValidationError:
@@ -262,6 +276,7 @@ def ui_view(request: Request, job_id: str) -> dict:
             verdict=None,
             violations=[],
             signals=[],
+            visibility=None,
             stages=[],
             timings=None,
             video=None,

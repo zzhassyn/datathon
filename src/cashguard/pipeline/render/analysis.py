@@ -29,6 +29,7 @@ def render_analysis(result: AnalysisResult, evidence_dir: Path) -> RenderedAnaly
     UI retains all findings. Jury receives the first five events in chronological order.
     Signal evidence is validated too, but signals never alter the jury verdict.
     """
+    result = AnalysisResult.model_validate(result.model_dump(mode="python"))
     if not _JOB_ID.fullmatch(result.job_id):
         raise RenderError("Неверный job_id анализа")
     if (result.verdict == "violation") != bool(result.violations):
@@ -120,6 +121,7 @@ def render_analysis(result: AnalysisResult, evidence_dir: Path) -> RenderedAnaly
             "signals": signals,
             "perception_level": result.perception_level,
             "timings": result.timings,
+            "visibility": result.visibility.model_dump(mode="json") if result.visibility else None,
         },
         evidence=images,
     )
