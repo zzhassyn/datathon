@@ -1,0 +1,879 @@
+{
+  "version": 1,
+  "release": "20261017_185507_085251",
+  "datasets": {
+    "bank_detector": {
+      "task": "detect",
+      "classes": [
+        "person",
+        "cash",
+        "document",
+        "bag",
+        "cash_counter",
+        "banknote_detector",
+        "safe",
+        "laptop",
+        "stamp",
+        "cup",
+        "key",
+        "room_door",
+        "drawer",
+        "mobile_phone"
+      ],
+      "scope": "bank",
+      "status": "needs_annotation",
+      "launchable": false,
+      "provisional": false,
+      "counts": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+      },
+      "class_instances": {
+        "train": {},
+        "val": {},
+        "test": {}
+      },
+      "paths": {
+        "yolo": "bank_detector/yolo",
+        "coco": "bank_detector/coco"
+      },
+      "note": "Only complete reviewed bank boxes; unknown frames are excluded.",
+      "quality_measured": false
+    },
+    "bank_body17": {
+      "task": "pose",
+      "classes": [
+        "person"
+      ],
+      "scope": "bank",
+      "status": "needs_annotation",
+      "launchable": false,
+      "provisional": false,
+      "counts": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+      },
+      "class_instances": {
+        "train": {},
+        "val": {},
+        "test": {}
+      },
+      "paths": {
+        "yolo": "bank_body17"
+      },
+      "note": "Body and fingers are separate tasks; explicit per-instance boxes and reviewed xyv points required; hands use fliplr=0.",
+      "quality_measured": false
+    },
+    "bank_hands21": {
+      "task": "pose",
+      "classes": [
+        "hand"
+      ],
+      "scope": "bank",
+      "status": "needs_annotation",
+      "launchable": false,
+      "provisional": false,
+      "counts": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+      },
+      "class_instances": {
+        "train": {},
+        "val": {},
+        "test": {}
+      },
+      "paths": {
+        "yolo": "bank_hands21"
+      },
+      "note": "Body and fingers are separate tasks; explicit per-instance boxes and reviewed xyv points required; hands use fliplr=0.",
+      "quality_measured": false
+    },
+    "cls_safe_state": {
+      "task": "classify",
+      "classes": [
+        "open",
+        "closed"
+      ],
+      "scope": "bank",
+      "status": "provisional_seed",
+      "launchable": true,
+      "provisional": true,
+      "counts": {
+        "train": 64,
+        "val": 17,
+        "test": 15
+      },
+      "class_instances": {
+        "train": {
+          "closed": 62,
+          "open": 2
+        },
+        "val": {
+          "closed": 12,
+          "open": 5
+        },
+        "test": {
+          "closed": 13,
+          "open": 2
+        }
+      },
+      "paths": {
+        "yolo": "cls_safe_state"
+      },
+      "note": "State only, not violation. Uncertain crops excluded. Preserve the complete ROI in classifier transforms.",
+      "quality_measured": false
+    },
+    "cls_room_door_state": {
+      "task": "classify",
+      "classes": [
+        "open",
+        "closed"
+      ],
+      "scope": "bank",
+      "status": "needs_annotation",
+      "launchable": false,
+      "provisional": false,
+      "counts": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+      },
+      "class_instances": {
+        "train": {},
+        "val": {},
+        "test": {}
+      },
+      "paths": {
+        "yolo": "cls_room_door_state"
+      },
+      "note": "State only, not violation. Uncertain crops excluded. Preserve the complete ROI in classifier transforms.",
+      "quality_measured": false
+    },
+    "cls_screen_display": {
+      "task": "classify",
+      "classes": [
+        "content_visible",
+        "dark"
+      ],
+      "scope": "bank",
+      "status": "provisional_seed",
+      "launchable": true,
+      "provisional": true,
+      "counts": {
+        "train": 36,
+        "val": 5,
+        "test": 15
+      },
+      "class_instances": {
+        "train": {
+          "content_visible": 18,
+          "dark": 18
+        },
+        "val": {
+          "dark": 3,
+          "content_visible": 2
+        },
+        "test": {
+          "content_visible": 9,
+          "dark": 6
+        }
+      },
+      "paths": {
+        "yolo": "cls_screen_display"
+      },
+      "note": "State only, not violation. Uncertain crops excluded. Preserve the complete ROI in classifier transforms.",
+      "quality_measured": false
+    },
+    "cls_key_visibility": {
+      "task": "classify",
+      "classes": [
+        "visible",
+        "not_visible"
+      ],
+      "scope": "bank",
+      "status": "needs_annotation",
+      "launchable": false,
+      "provisional": false,
+      "counts": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+      },
+      "class_instances": {
+        "train": {},
+        "val": {},
+        "test": {}
+      },
+      "paths": {
+        "yolo": "cls_key_visibility"
+      },
+      "note": "State only, not violation. Uncertain crops excluded. Preserve the complete ROI in classifier transforms.",
+      "quality_measured": false
+    },
+    "cls_desk_cash": {
+      "task": "classify",
+      "classes": [
+        "visible",
+        "not_visible"
+      ],
+      "scope": "bank",
+      "status": "needs_annotation",
+      "launchable": false,
+      "provisional": false,
+      "counts": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+      },
+      "class_instances": {
+        "train": {},
+        "val": {},
+        "test": {}
+      },
+      "paths": {
+        "yolo": "cls_desk_cash"
+      },
+      "note": "State only, not violation. Uncertain crops excluded. Preserve the complete ROI in classifier transforms.",
+      "quality_measured": false
+    },
+    "aux_coco80": {
+      "task": "detect",
+      "classes": [
+        "person",
+        "bicycle",
+        "car",
+        "motorcycle",
+        "airplane",
+        "bus",
+        "train",
+        "truck",
+        "boat",
+        "traffic light",
+        "fire hydrant",
+        "stop sign",
+        "parking meter",
+        "bench",
+        "bird",
+        "cat",
+        "dog",
+        "horse",
+        "sheep",
+        "cow",
+        "elephant",
+        "bear",
+        "zebra",
+        "giraffe",
+        "backpack",
+        "umbrella",
+        "handbag",
+        "tie",
+        "suitcase",
+        "frisbee",
+        "skis",
+        "snowboard",
+        "sports ball",
+        "kite",
+        "baseball bat",
+        "baseball glove",
+        "skateboard",
+        "surfboard",
+        "tennis racket",
+        "bottle",
+        "wine glass",
+        "cup",
+        "fork",
+        "knife",
+        "spoon",
+        "bowl",
+        "banana",
+        "apple",
+        "sandwich",
+        "orange",
+        "broccoli",
+        "carrot",
+        "hot dog",
+        "pizza",
+        "donut",
+        "cake",
+        "chair",
+        "couch",
+        "potted plant",
+        "bed",
+        "dining table",
+        "toilet",
+        "tv",
+        "laptop",
+        "mouse",
+        "remote",
+        "keyboard",
+        "cell phone",
+        "microwave",
+        "oven",
+        "toaster",
+        "sink",
+        "refrigerator",
+        "book",
+        "clock",
+        "vase",
+        "scissors",
+        "teddy bear",
+        "hair drier",
+        "toothbrush"
+      ],
+      "scope": "auxiliary_only",
+      "status": "source_labels_ready",
+      "launchable": true,
+      "provisional": false,
+      "counts": {
+        "train": 255,
+        "val": 41,
+        "test": 35
+      },
+      "class_instances": {
+        "train": {
+          "person": 699,
+          "skis": 15,
+          "tennis racket": 12,
+          "handbag": 66,
+          "backpack": 59,
+          "bird": 3,
+          "boat": 8,
+          "cell phone": 51,
+          "baseball bat": 11,
+          "dining table": 52,
+          "cup": 121,
+          "knife": 22,
+          "tie": 14,
+          "bottle": 65,
+          "banana": 7,
+          "tv": 36,
+          "mouse": 24,
+          "keyboard": 38,
+          "couch": 18,
+          "remote": 27,
+          "laptop": 71,
+          "bicycle": 24,
+          "motorcycle": 16,
+          "bench": 21,
+          "suitcase": 51,
+          "frisbee": 14,
+          "baseball glove": 9,
+          "pizza": 18,
+          "teddy bear": 13,
+          "umbrella": 21,
+          "chair": 138,
+          "vase": 4,
+          "wine glass": 12,
+          "elephant": 4,
+          "skateboard": 9,
+          "book": 51,
+          "potted plant": 6,
+          "sports ball": 7,
+          "bowl": 29,
+          "apple": 3,
+          "sink": 9,
+          "bed": 13,
+          "donut": 12,
+          "cake": 15,
+          "horse": 6,
+          "surfboard": 16,
+          "fork": 19,
+          "car": 50,
+          "orange": 5,
+          "refrigerator": 4,
+          "bus": 6,
+          "train": 5,
+          "traffic light": 18,
+          "dog": 12,
+          "snowboard": 4,
+          "truck": 8,
+          "airplane": 2,
+          "spoon": 17,
+          "hot dog": 2,
+          "sandwich": 18,
+          "carrot": 12,
+          "cat": 11,
+          "clock": 7,
+          "kite": 13,
+          "oven": 7,
+          "microwave": 1,
+          "toaster": 3,
+          "scissors": 2,
+          "fire hydrant": 1,
+          "toothbrush": 8,
+          "broccoli": 7,
+          "stop sign": 1,
+          "parking meter": 1,
+          "toilet": 1
+        },
+        "val": {
+          "sports ball": 1,
+          "person": 128,
+          "baseball glove": 1,
+          "skateboard": 1,
+          "sheep": 5,
+          "truck": 4,
+          "car": 12,
+          "bottle": 11,
+          "refrigerator": 3,
+          "wine glass": 7,
+          "bowl": 17,
+          "train": 1,
+          "bench": 11,
+          "backpack": 9,
+          "pizza": 1,
+          "dining table": 10,
+          "horse": 3,
+          "cup": 33,
+          "handbag": 13,
+          "knife": 1,
+          "book": 4,
+          "oven": 2,
+          "cell phone": 6,
+          "bird": 1,
+          "chair": 36,
+          "umbrella": 5,
+          "surfboard": 3,
+          "frisbee": 3,
+          "hot dog": 3,
+          "sandwich": 1,
+          "tie": 2,
+          "boat": 1,
+          "tennis racket": 2,
+          "cat": 1,
+          "laptop": 4,
+          "keyboard": 2,
+          "spoon": 1,
+          "carrot": 10,
+          "bus": 5,
+          "traffic light": 2,
+          "suitcase": 2,
+          "dog": 3,
+          "bed": 1,
+          "fork": 1,
+          "orange": 1,
+          "cake": 1,
+          "tv": 1,
+          "bicycle": 1,
+          "microwave": 1,
+          "sink": 1,
+          "clock": 1,
+          "fire hydrant": 1
+        },
+        "test": {
+          "cell phone": 8,
+          "clock": 2,
+          "person": 104,
+          "horse": 4,
+          "chair": 33,
+          "dining table": 14,
+          "laptop": 6,
+          "cup": 16,
+          "tv": 3,
+          "keyboard": 6,
+          "mouse": 2,
+          "bottle": 15,
+          "skis": 1,
+          "backpack": 5,
+          "potted plant": 2,
+          "cat": 1,
+          "sandwich": 2,
+          "fork": 5,
+          "knife": 7,
+          "donut": 1,
+          "bowl": 9,
+          "snowboard": 1,
+          "umbrella": 6,
+          "tie": 2,
+          "baseball bat": 1,
+          "book": 13,
+          "fire hydrant": 1,
+          "truck": 1,
+          "wine glass": 3,
+          "pizza": 5,
+          "car": 11,
+          "banana": 2,
+          "motorcycle": 2,
+          "handbag": 8,
+          "cake": 3,
+          "skateboard": 2,
+          "bus": 3,
+          "traffic light": 6,
+          "bench": 9,
+          "suitcase": 5,
+          "bicycle": 1,
+          "refrigerator": 1,
+          "bed": 3,
+          "spoon": 4,
+          "train": 1,
+          "couch": 2
+        }
+      },
+      "paths": {
+        "yolo": "aux_coco80/yolo",
+        "coco": "aux_coco80/coco"
+      },
+      "note": "Native source labels; images with crowd excluded. COCO val2017 may be seen by public pretrained weights; this is an experiment, not independent bank evaluation.",
+      "quality_measured": false
+    },
+    "aux_common_objects5": {
+      "task": "detect",
+      "classes": [
+        "person",
+        "bag",
+        "laptop",
+        "cup",
+        "mobile_phone"
+      ],
+      "scope": "auxiliary_only",
+      "status": "source_labels_ready",
+      "launchable": true,
+      "provisional": false,
+      "counts": {
+        "train": 255,
+        "val": 41,
+        "test": 35
+      },
+      "class_instances": {
+        "train": {
+          "person": 699,
+          "bag": 176,
+          "mobile_phone": 51,
+          "cup": 121,
+          "laptop": 71
+        },
+        "val": {
+          "person": 128,
+          "bag": 24,
+          "cup": 33,
+          "mobile_phone": 6,
+          "laptop": 4
+        },
+        "test": {
+          "mobile_phone": 8,
+          "person": 104,
+          "laptop": 6,
+          "cup": 16,
+          "bag": 18
+        }
+      },
+      "paths": {
+        "yolo": "aux_common_objects5/yolo",
+        "coco": "aux_common_objects5/coco"
+      },
+      "note": "Complete COCO targets only: person, bag (backpack/handbag/suitcase), laptop, cup, mobile phone. Other bank objects are unknown. This auxiliary head must not be merged as empty 14-class bank labels. COCO val2017 may be known to public pretrained weights.",
+      "quality_measured": false
+    },
+    "aux_coco_body17": {
+      "task": "pose",
+      "classes": [
+        "person"
+      ],
+      "scope": "auxiliary_only",
+      "status": "source_labels_ready",
+      "launchable": true,
+      "provisional": false,
+      "counts": {
+        "train": 139,
+        "val": 19,
+        "test": 16
+      },
+      "class_instances": {
+        "train": {
+          "person": 289
+        },
+        "val": {
+          "person": 46
+        },
+        "test": {
+          "person": 31
+        }
+      },
+      "paths": {
+        "yolo": "aux_coco_body17"
+      },
+      "note": "Only images with source keypoints for every annotated person. Source person boxes retained. Generic body pose, not fingers or bank validation.",
+      "quality_measured": false
+    },
+    "aux_hand_locator": {
+      "task": "detect",
+      "classes": [
+        "hand"
+      ],
+      "scope": "auxiliary_only",
+      "status": "source_labels_ready",
+      "launchable": true,
+      "provisional": false,
+      "counts": {
+        "train": 325,
+        "val": 42,
+        "test": 48
+      },
+      "class_instances": {
+        "train": {
+          "hand": 332
+        },
+        "val": {
+          "hand": 43
+        },
+        "test": {
+          "hand": 49
+        }
+      },
+      "paths": {
+        "yolo": "aux_hand_locator"
+      },
+      "note": "Salford gesture boxes plus HaGRID natural-hand boxes, all collapsed to hand ROI. Salford groups use unverified filename prefixes; HaGRID uses hashed anonymous source subject groups. Source automatic landmarks are not gold 21-point poses. Not a bank benchmark.",
+      "quality_measured": false
+    },
+    "aux_hands21": {
+      "task": "pose",
+      "classes": [
+        "hand"
+      ],
+      "scope": "auxiliary_only",
+      "status": "needs_annotation",
+      "launchable": false,
+      "provisional": false,
+      "counts": {
+        "train": 0,
+        "val": 0,
+        "test": 0
+      },
+      "class_instances": {
+        "train": {},
+        "val": {},
+        "test": {}
+      },
+      "paths": {
+        "yolo": "aux_hands21"
+      },
+      "note": "Only explicitly reviewed xyv finger annotations. Apple Vision confidence proposals are excluded. Disable horizontal flips.",
+      "quality_measured": false
+    },
+    "aux_key_locator": {
+      "task": "detect",
+      "classes": [
+        "key"
+      ],
+      "scope": "auxiliary_only",
+      "status": "source_labels_ready",
+      "launchable": true,
+      "provisional": false,
+      "counts": {
+        "train": 135,
+        "val": 13,
+        "test": 21
+      },
+      "class_instances": {
+        "train": {
+          "key": 80
+        },
+        "val": {
+          "key": 13
+        },
+        "test": {
+          "key": 7
+        }
+      },
+      "paths": {
+        "yolo": "aux_key_locator"
+      },
+      "note": "Federated labels respected: exhaustive key positives and source-verified key absences only. Other categories are not bank negatives.",
+      "quality_measured": false
+    },
+    "aux_drawer_locator": {
+      "task": "detect",
+      "classes": [
+        "drawer"
+      ],
+      "scope": "auxiliary_only",
+      "status": "source_labels_ready",
+      "launchable": true,
+      "provisional": false,
+      "counts": {
+        "train": 147,
+        "val": 17,
+        "test": 22
+      },
+      "class_instances": {
+        "train": {
+          "drawer": 554
+        },
+        "val": {
+          "drawer": 79
+        },
+        "test": {
+          "drawer": 105
+        }
+      },
+      "paths": {
+        "yolo": "aux_drawer_locator"
+      },
+      "note": "Native generic drawer boxes with federated exhaustive/absence guards. Includes furniture drawers; does not identify a cash drawer or its state. Not bank operations truth.",
+      "quality_measured": false
+    },
+    "aux_cash_creator": {
+      "task": "detect",
+      "classes": [
+        "cash"
+      ],
+      "scope": "auxiliary_only",
+      "status": "source_labels_ready",
+      "launchable": true,
+      "provisional": false,
+      "counts": {
+        "train": 312,
+        "val": 24,
+        "test": 48
+      },
+      "class_instances": {
+        "train": {
+          "cash": 312
+        },
+        "val": {
+          "cash": 24
+        },
+        "test": {
+          "cash": 48
+        }
+      },
+      "paths": {
+        "yolo": "aux_cash_creator"
+      },
+      "note": "Creator whole-banknote labels, sampled overlays visually audited. Native boxes retained separately. Groups by series/denomination; true note/camera IDs unknown. Original leaking source YAML is excluded. BDT photos are not a KZT/bank operations benchmark.",
+      "quality_measured": false
+    },
+    "aux_cash_seed": {
+      "task": "detect",
+      "classes": [
+        "cash"
+      ],
+      "scope": "auxiliary_only",
+      "status": "provisional_seed",
+      "launchable": true,
+      "provisional": true,
+      "counts": {
+        "train": 73,
+        "val": 4,
+        "test": 4
+      },
+      "class_instances": {
+        "train": {
+          "cash": 67
+        },
+        "val": {
+          "cash": 2
+        },
+        "test": {
+          "cash": 3
+        }
+      },
+      "paths": {
+        "yolo": "aux_cash_seed"
+      },
+      "note": "Small assistant-reviewed whole-note seed: INR/THB plus KZT and explicitly reviewed visible-cash backgrounds. Native COCO classes retained separately. Complete related KZT collections stay in one group. No independent KZT/new-room performance claim.",
+      "quality_measured": false
+    },
+    "aux_stamp_seed": {
+      "task": "detect",
+      "classes": [
+        "stamp"
+      ],
+      "scope": "auxiliary_only",
+      "status": "needs_annotation",
+      "launchable": false,
+      "provisional": true,
+      "counts": {
+        "train": 6,
+        "val": 0,
+        "test": 2
+      },
+      "class_instances": {
+        "train": {
+          "stamp": 7
+        },
+        "val": {},
+        "test": {
+          "stamp": 2
+        }
+      },
+      "paths": {
+        "yolo": "aux_stamp_seed"
+      },
+      "note": "Tiny target-only provisional format seed. No complete bank labels, no device operating-state or violation truth. Related product/photograph views grouped; missing train/val blocks launch. More independent real scenes and reviewed annotations are required.",
+      "quality_measured": false
+    },
+    "aux_cash_counter_seed": {
+      "task": "detect",
+      "classes": [
+        "cash_counter"
+      ],
+      "scope": "auxiliary_only",
+      "status": "needs_annotation",
+      "launchable": false,
+      "provisional": true,
+      "counts": {
+        "train": 2,
+        "val": 0,
+        "test": 1
+      },
+      "class_instances": {
+        "train": {
+          "cash_counter": 2
+        },
+        "val": {},
+        "test": {
+          "cash_counter": 2
+        }
+      },
+      "paths": {
+        "yolo": "aux_cash_counter_seed"
+      },
+      "note": "Tiny target-only provisional format seed. No complete bank labels, no device operating-state or violation truth. Related product/photograph views grouped; missing train/val blocks launch. More independent real scenes and reviewed annotations are required.",
+      "quality_measured": false
+    },
+    "aux_banknote_detector_seed": {
+      "task": "detect",
+      "classes": [
+        "banknote_detector"
+      ],
+      "scope": "auxiliary_only",
+      "status": "needs_annotation",
+      "launchable": false,
+      "provisional": true,
+      "counts": {
+        "train": 1,
+        "val": 0,
+        "test": 0
+      },
+      "class_instances": {
+        "train": {
+          "banknote_detector": 1
+        },
+        "val": {},
+        "test": {}
+      },
+      "paths": {
+        "yolo": "aux_banknote_detector_seed"
+      },
+      "note": "Tiny target-only provisional format seed. No complete bank labels, no device operating-state or violation truth. Related product/photograph views grouped; missing train/val blocks launch. More independent real scenes and reviewed annotations are required.",
+      "quality_measured": false
+    }
+  },
+  "model_training_performed": false,
+  "source_bank_frames": 752,
+  "source_bank_videos": 40,
+  "source_external_images": 5881,
+  "source_external_clips": 37,
+  "source_schemas": "source_schema.json",
+  "bank_split_policy": "bank_split_policy.json",
+  "warnings": [
+    "Do not merge native auxiliary classes into the 14 bank classes without complete review.",
+    "Split groups are conservative where known; camera/object identities are not supplied for most public photos.",
+    "No new-room, KZT or full event accuracy has been measured."
+  ]
+}

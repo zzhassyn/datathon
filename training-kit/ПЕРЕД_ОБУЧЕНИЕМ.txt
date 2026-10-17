@@ -1,0 +1,82 @@
+FORTE: ПЕРЕД ПЕРВЫМ ОБУЧЕНИЕМ
+Сборка: 20261017_185507_085251
+
+1. Распакуйте ВЕСЬ ZIP в отдельную папку. Не запускайте обучение внутри ZIP.
+2. Из этой папки:
+
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r tools/training/requirements-data.txt
+python tools/datasets/validate_training.py
+python tools/training/run.py --list
+
+Эти команды проверяют данные, но не обучают модель.
+
+ДЛЯ ЭКСПЕРИМЕНТА С ДЕТЕКТОРОМ
+python -m pip install -r tools/training/requirements-yolo.txt
+python tools/training/run.py --profile aux_common_objects_s
+python tools/training/run.py --profile aux_common_objects_s --run --weights /путь/к/yolo26s.pt
+
+Веса нужны локальные. Автозагрузка весов в launcher выключена.
+Mac: профиль mps, batch 2. На Linux с NVIDIA добавьте --device cuda.
+Большую модель на Mac с 16 ГБ сначала проверяйте с batch 1.
+Работу ML-библиотек и расход памяти здесь не проверяли.
+
+ЧТО ДОПУЩЕНО И ЧТО ЕЩЁ ЖДЁТ РАЗМЕТКИ
+bank_detector: {'train': 0, 'val': 0, 'test': 0}; needs_annotation; запуск=False
+bank_body17: {'train': 0, 'val': 0, 'test': 0}; needs_annotation; запуск=False
+bank_hands21: {'train': 0, 'val': 0, 'test': 0}; needs_annotation; запуск=False
+cls_safe_state: {'train': 64, 'val': 17, 'test': 15}; provisional_seed; запуск=True
+cls_room_door_state: {'train': 0, 'val': 0, 'test': 0}; needs_annotation; запуск=False
+cls_screen_display: {'train': 36, 'val': 5, 'test': 15}; provisional_seed; запуск=True
+cls_key_visibility: {'train': 0, 'val': 0, 'test': 0}; needs_annotation; запуск=False
+cls_desk_cash: {'train': 0, 'val': 0, 'test': 0}; needs_annotation; запуск=False
+aux_coco80: {'train': 255, 'val': 41, 'test': 35}; source_labels_ready; запуск=True
+aux_common_objects5: {'train': 255, 'val': 41, 'test': 35}; source_labels_ready; запуск=True
+aux_coco_body17: {'train': 139, 'val': 19, 'test': 16}; source_labels_ready; запуск=True
+aux_hand_locator: {'train': 325, 'val': 42, 'test': 48}; source_labels_ready; запуск=True
+aux_hands21: {'train': 0, 'val': 0, 'test': 0}; needs_annotation; запуск=False
+aux_key_locator: {'train': 135, 'val': 13, 'test': 21}; source_labels_ready; запуск=True
+aux_drawer_locator: {'train': 147, 'val': 17, 'test': 22}; source_labels_ready; запуск=True
+aux_cash_creator: {'train': 312, 'val': 24, 'test': 48}; source_labels_ready; запуск=True
+aux_cash_seed: {'train': 73, 'val': 4, 'test': 4}; provisional_seed; запуск=True
+aux_stamp_seed: {'train': 6, 'val': 0, 'test': 2}; needs_annotation; запуск=False
+aux_cash_counter_seed: {'train': 2, 'val': 0, 'test': 1}; needs_annotation; запуск=False
+aux_banknote_detector_seed: {'train': 1, 'val': 0, 'test': 0}; needs_annotation; запуск=False
+
+Вспомогательные наборы НЕ являются полной разметкой банковских 14 классов.
+CommonObjects5 и COCO80 используют одни фотографии с разными схемами: их
+нельзя считать независимыми выборками или просто смешивать в один датасет.
+Для каждого эксперимента используйте его data.yaml и его карточку.
+Аналогично: cash/hand/key/drawer обучаются отдельными головами.
+
+Для предварительных состояний сейфа/экрана и cash_seed нужен
+--allow-provisional. Это маленькие наборы для первых экспериментов,
+а не доказательство качества на новых ракурсах. Профили без проверенных
+train/val запускаются с блокировкой, чтобы не обучаться на пустых метках.
+
+ОСНОВНОЙ БАНКОВСКИЙ ДЕТЕКТОР 14 КЛАССОВ ПОКА НЕ ГОТОВ К ОБУЧЕНИЮ:
+752 кадра есть, но полная разметка предметов пока не подтверждена.
+21 точка кисти не размечена; Apple Vision/MediaPipe — лишь предложения.
+Типы/интервалы событий и объяснения Qwen не объявлены эталонной разметкой.
+BoT-SORT в базовом варианте не требует отдельного обучения.
+Qwen остаётся локальной готовой моделью для последующей проверки кандидатов;
+здесь нет SFT-набора с проверенными объяснениями и нет её весов.
+
+Схема классов для обучения: datasets/forte_v1/schema.json, object_classes.
+Файл analysis_reference/detection_design.md содержит более раннее предложение
+с другими именами/группировкой классов. Не используйте его номера классов
+в текущих YOLO-метках. Нужна явная миграция схемы, если команда решит её сменить.
+analysis_reference/labels_typed.csv — интерпретации из репозитория команды,
+а не выданные организатором типы событий или проверенные интервалы.
+Светящийся экран сам по себе не доказывает отсутствие блокировки.
+
+Технические проверки: SHA изображений, геометрия рамок, исходные координаты,
+группы и переносимость путей. Последняя проверка похожих фотографий не нашла
+необработанных межвыборочных пар среди экспортируемых компонентов при
+заданном пороге pHash; это не гарантия отсутствия всех похожих съёмок.
+Подтверждённая пара LVIS с одной сценой объединена до обучения.
+
+Все источники, авторы и лицензии сохранены. Веса моделей не включены.
+Банковские исходники предназначены для разрешённого использования командой.
+Модели не обучались, качество кассовых нарушений и новых кабинетов не измерено.

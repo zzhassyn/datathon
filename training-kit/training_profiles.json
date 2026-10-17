@@ -1,0 +1,177 @@
+{
+  "bank_detector_l": {
+    "dataset": "bank_detector",
+    "engine": "ultralytics",
+    "model": "yolo26l.pt",
+    "epochs": 60,
+    "imgsz": 864,
+    "batch": 1,
+    "device": "mps",
+    "mosaic": 0.0
+  },
+  "bank_detector_s": {
+    "dataset": "bank_detector",
+    "engine": "ultralytics",
+    "model": "yolo26s.pt",
+    "epochs": 50,
+    "imgsz": 864,
+    "batch": 2,
+    "device": "mps",
+    "mosaic": 0.0
+  },
+  "bank_body_l": {
+    "dataset": "bank_body17",
+    "engine": "ultralytics",
+    "model": "yolo26l-pose.pt",
+    "epochs": 50,
+    "imgsz": 864,
+    "batch": 1,
+    "device": "mps",
+    "mosaic": 0.0
+  },
+  "safe_state": {
+    "dataset": "cls_safe_state",
+    "engine": "ultralytics",
+    "model": "yolo26s-cls.pt",
+    "epochs": 30,
+    "imgsz": 224,
+    "batch": 8,
+    "device": "mps"
+  },
+  "room_door_state": {
+    "dataset": "cls_room_door_state",
+    "engine": "ultralytics",
+    "model": "yolo26s-cls.pt",
+    "epochs": 30,
+    "imgsz": 224,
+    "batch": 8,
+    "device": "mps"
+  },
+  "screen_display": {
+    "dataset": "cls_screen_display",
+    "engine": "ultralytics",
+    "model": "yolo26s-cls.pt",
+    "epochs": 30,
+    "imgsz": 224,
+    "batch": 8,
+    "device": "mps"
+  },
+  "key_visibility": {
+    "dataset": "cls_key_visibility",
+    "engine": "ultralytics",
+    "model": "yolo26s-cls.pt",
+    "epochs": 30,
+    "imgsz": 224,
+    "batch": 8,
+    "device": "mps"
+  },
+  "desk_cash": {
+    "dataset": "cls_desk_cash",
+    "engine": "ultralytics",
+    "model": "yolo26s-cls.pt",
+    "epochs": 30,
+    "imgsz": 224,
+    "batch": 8,
+    "device": "mps"
+  },
+  "aux_coco_detector_s": {
+    "dataset": "aux_coco80",
+    "engine": "ultralytics",
+    "model": "yolo26s.pt",
+    "epochs": 10,
+    "imgsz": 640,
+    "batch": 2,
+    "device": "mps",
+    "mosaic": 0.0
+  },
+  "aux_coco_body_s": {
+    "dataset": "aux_coco_body17",
+    "engine": "ultralytics",
+    "model": "yolo26s-pose.pt",
+    "epochs": 10,
+    "imgsz": 640,
+    "batch": 2,
+    "device": "mps",
+    "mosaic": 0.0
+  },
+  "bank_rfdetr_m": {
+    "dataset": "bank_detector",
+    "engine": "rfdetr",
+    "model": "RFDETRMedium",
+    "epochs": 50,
+    "imgsz": 560,
+    "batch": 1,
+    "device": "cuda",
+    "grad_accum_steps": 16
+  },
+  "aux_hand_locator_s": {
+    "dataset": "aux_hand_locator",
+    "engine": "ultralytics",
+    "model": "yolo26s.pt",
+    "epochs": 30,
+    "imgsz": 640,
+    "batch": 2,
+    "device": "mps",
+    "mosaic": 0.0
+  },
+  "aux_key_locator_s": {
+    "dataset": "aux_key_locator",
+    "engine": "ultralytics",
+    "model": "yolo26s.pt",
+    "epochs": 30,
+    "imgsz": 640,
+    "batch": 2,
+    "device": "mps",
+    "mosaic": 0.0
+  },
+  "aux_cash_seed_s": {
+    "dataset": "aux_cash_seed",
+    "engine": "ultralytics",
+    "model": "yolo26s.pt",
+    "epochs": 30,
+    "imgsz": 864,
+    "batch": 1,
+    "device": "mps",
+    "mosaic": 0.0
+  },
+  "aux_hands21_l": {
+    "dataset": "aux_hands21",
+    "engine": "ultralytics",
+    "model": "yolo26l-pose.pt",
+    "epochs": 50,
+    "imgsz": 640,
+    "batch": 1,
+    "device": "mps",
+    "mosaic": 0.0
+  },
+  "aux_cash_creator_s": {
+    "dataset": "aux_cash_creator",
+    "engine": "ultralytics",
+    "model": "yolo26s.pt",
+    "epochs": 30,
+    "imgsz": 864,
+    "batch": 1,
+    "device": "mps",
+    "mosaic": 0.0
+  },
+  "aux_drawer_locator_s": {
+    "dataset": "aux_drawer_locator",
+    "engine": "ultralytics",
+    "model": "yolo26s.pt",
+    "epochs": 30,
+    "imgsz": 640,
+    "batch": 2,
+    "device": "mps",
+    "mosaic": 0.0
+  },
+  "aux_common_objects_s": {
+    "dataset": "aux_common_objects5",
+    "engine": "ultralytics",
+    "model": "yolo26s.pt",
+    "epochs": 20,
+    "imgsz": 640,
+    "batch": 2,
+    "device": "mps",
+    "mosaic": 0.0
+  }
+}

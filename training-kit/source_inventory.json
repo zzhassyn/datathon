@@ -1,0 +1,21 @@
+{
+  "external_images": 5881,
+  "images_by_source": {
+    "OpenImages": 656,
+    "COCO": 364,
+    "Objectron": 128,
+    "Banknotes": 3000,
+    "CommonsDomain": 61,
+    "KZTScenes": 323,
+    "KZTBanknotes": 45,
+    "SalfordHands": 403,
+    "LVIS": 389,
+    "BDBanknotes": 384,
+    "HaGRID": 128
+  },
+  "external_clips": 37,
+  "meva_source_recordings": 9,
+  "meva_action_clips": 21,
+  "training_release": "20261017_185507_085251",
+  "model_training_performed": false
+}

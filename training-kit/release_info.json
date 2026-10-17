@@ -1,0 +1,17 @@
+{
+  "directory": "output/Forte_Training_Kit_20261017_185808",
+  "archive": "output/Forte_Training_Kit_20261017_185808.zip",
+  "bytes": 1916670859,
+  "sha256": "309cfec261bf3335d6d22cde1e6f0fb552190abcdfdeedb67d41f4ef9cffae9d",
+  "files_after_restoration": 17731,
+  "stored_files": 14572,
+  "media_aliases": 3159,
+  "restore_command": "python3 restore_media.py",
+  "all_unique_media_included": true,
+  "zip_crc_passed": true,
+  "models_trained": false,
+  "tag": "training-kit-20261017-185808",
+  "release_url": "https://github.com/zzhassyn/datathon/releases/tag/training-kit-20261017-185808",
+  "download_url": "https://github.com/zzhassyn/datathon/releases/download/training-kit-20261017-185808/Forte_Training_Kit_20261017_185808.zip",
+  "repo_analysis_reference_commit": "74c6716322fc918f999eb03230d23c4cd289dd42"
+}
