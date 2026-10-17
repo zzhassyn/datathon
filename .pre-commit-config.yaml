@@ -1,0 +1,31 @@
+# Хуки для prek (совместимы с pre-commit). Установка: uv run prek install
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types: [python]
+      - id: lint-imports
+        name: границы импортов (import-linter)
+        entry: uv run lint-imports
+        language: system
+        pass_filenames: false
+        files: ^(src/|pyproject\.toml$)
+      - id: schemas-drift
+        name: дрейф JSON Schema и OpenAPI
+        entry: uv run python -m cashguard.contracts.export --check
+        language: system
+        pass_filenames: false
+        files: ^src/cashguard/contracts/
+      - id: no-media
+        name: запрет медиа и данных хакатона в коммите
+        entry: данные хакатона и медиа не коммитятся (FAQ 6)
+        language: fail
+        files: (\.(mov|mp4|zip|pt|safetensors|sqlite3)$|^(data|var|models|runs)/)

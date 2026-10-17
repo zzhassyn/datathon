@@ -1,0 +1,190 @@
+[project]
+name = "cashguard"
+version = "0.1.0"
+description = "CashGuard: локальный AI-сервис выявления нарушений кассовой дисциплины по видео (ForteBank Datathon 26)"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE"]
+# Базовые зависимости нужны процессу API: в нём нет ML-библиотек (см. [tool.importlinter]).
+dependencies = [
+  "fastapi==0.143.3",
+  "starlette==1.8.0",
+  "pydantic==2.14.1",
+  "pydantic-settings==2.16.0",
+  "pyyaml==6.0.3",
+  "uvicorn[standard]==0.54.0",
+  "streaming-form-data==2.1.0",
+  "structlog==26.1.0",
+  "psutil==7.2.2",
+  "av==19.0.1",
+  "numpy==2.3.5",
+]
+
+[project.optional-dependencies]
+# Распознавание: perception-воркер, экспорт Core ML, torch-бэкенд на Windows/Linux.
+ml = [
+  "ultralytics==8.4.179",
+  "torch==2.14.1",
+  "torchvision==0.29.1",
+  "lap==0.5.13",
+  "opencv-python==5.0.0.93",
+  "huggingface-hub==2.2.0",
+]
+# Только Mac (Apple Silicon): Core ML на Neural Engine и Qwen через MLX.
+mac = [
+  "coremltools==9.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "mlx==0.32.4; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "mlx-vlm==0.7.8; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "llguidance==1.9.1; sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
+# Linux + NVIDIA (перенос в контур банка): VLM-бэкенд на transformers.
+cuda = [
+  "transformers==5.20.1; sys_platform == 'linux'",
+]
+
+[project.scripts]
+cashguard = "cashguard.cli:main"
+
+[dependency-groups]
+dev = [
+  "pytest==9.1.1",
+  "pytest-timeout==2.4.0",
+  "anyio==4.15.1",
+  "httpx==0.28.1",
+  "jsonschema==4.26.0",
+  "schemathesis==4.31.1",
+  "syrupy==6.1.1",
+  "ruff==0.17.1",
+  "basedpyright==1.40.2",
+  "import-linter==2.15",
+  "prek==0.5.5",
+  "rust-just==1.59.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.0,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+required-version = ">=0.12"
+default-groups = ["dev"]
+# Один универсальный lock на три платформы: Mac (сервис и обучение), Windows (разработка), Linux (перенос).
+environments = [
+  "sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "sys_platform == 'win32' and platform_machine == 'AMD64'",
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+# training/ — зона сессии обучения со своим окружением; analysis/ — только чтение; web/ — Biome;
+# *.md — примеры кода в документации не форматируем.
+extend-exclude = ["training", "analysis", "web", "*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "PL", "RUF", "S"]
+ignore = [
+  "PLR0913", # много аргументов: сигнатуры стадий заданы контрактом
+  "RUF001",  # кириллица в строках — норма для текстов пользователю
+  "RUF002",
+  "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004", "S603", "S607"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["cashguard"]
+
+# ---------------------------------------------------------------- basedpyright
+[tool.basedpyright]
+include = ["src", "tests"]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+strict = ["src/cashguard/contracts"]
+reportMissingModuleSource = false
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers"]
+timeout = 120
+markers = [
+  "mac: требует Mac (Core ML, MLX, Neural Engine); на Windows пропускается",
+  "slow: долгий тест, не входит в just check",
+]
+
+# ---------------------------------------------------------------- import-linter
+# Границы из docs/architecture.md (раздел «Контракты») и ADR-0012.
+[tool.importlinter]
+root_package = "cashguard"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Слои: api|workers -> jobs -> core -> contracts"
+type = "layers"
+layers = [
+  "cashguard.api | cashguard.workers",
+  "cashguard.jobs",
+  "cashguard.core",
+  "cashguard.contracts",
+]
+
+[[tool.importlinter.contracts]]
+name = "Контракты не импортируют внутренние модули"
+type = "forbidden"
+source_modules = ["cashguard.contracts"]
+forbidden_modules = [
+  "cashguard.api",
+  "cashguard.workers",
+  "cashguard.jobs",
+  "cashguard.core",
+  "cashguard.pipeline",
+  "cashguard.eval",
+]
+
+[[tool.importlinter.contracts]]
+name = "Процесс API без ML-библиотек"
+type = "forbidden"
+source_modules = ["cashguard.api", "cashguard.jobs", "cashguard.core", "cashguard.contracts"]
+forbidden_modules = ["torch", "torchvision", "ultralytics", "coremltools", "mlx", "mlx_vlm", "cv2", "transformers"]
+
+[[tool.importlinter.contracts]]
+name = "Сцена, правила, вердикт, нормы и рендер — чистый Python (работают в replay на Windows)"
+type = "forbidden"
+source_modules = [
+  "cashguard.pipeline.scene",
+  "cashguard.pipeline.rules",
+  "cashguard.pipeline.verdict",
+  "cashguard.pipeline.legal",
+  "cashguard.pipeline.render",
+]
+forbidden_modules = ["torch", "torchvision", "ultralytics", "coremltools", "mlx", "mlx_vlm", "cv2", "transformers"]
+
+[[tool.importlinter.contracts]]
+name = "Пайплайн не зависит от API, очереди и воркеров"
+type = "forbidden"
+source_modules = ["cashguard.pipeline"]
+forbidden_modules = ["cashguard.api", "cashguard.jobs", "cashguard.workers"]
+
+[[tool.importlinter.contracts]]
+name = "Группы правил независимы друг от друга"
+type = "independence"
+modules = [
+  "cashguard.pipeline.rules.leave",
+  "cashguard.pipeline.rules.access",
+  "cashguard.pipeline.rules.cashops",
+  "cashguard.pipeline.rules.collection",
+  "cashguard.pipeline.rules.discipline",
+  "cashguard.pipeline.rules.signals",
+]
+
+[[tool.importlinter.contracts]]
+name = "Сервис не импортирует пайплайн обучения"
+type = "forbidden"
+source_modules = ["cashguard"]
+forbidden_modules = ["kassa_train"]

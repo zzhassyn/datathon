@@ -1,0 +1,113 @@
+{
+  "$defs": {
+    "JuryEvidenceFrame": {
+      "additionalProperties": false,
+      "description": "Кадр-доказательство: сырой JPEG в base64 без префикса ``data:``.",
+      "properties": {
+        "image_base64": {
+          "minLength": 1,
+          "pattern": "^/9j/",
+          "title": "Image Base64",
+          "type": "string"
+        },
+        "timestamp_sec": {
+          "minimum": 0,
+          "title": "Timestamp Sec",
+          "type": "number"
+        }
+      },
+      "required": [
+        "timestamp_sec",
+        "image_base64"
+      ],
+      "title": "JuryEvidenceFrame",
+      "type": "object"
+    },
+    "JuryViolation": {
+      "additionalProperties": false,
+      "description": "Одно нарушение в ответе жюри. ``type`` — ``CatalogEntry.title_ru``.",
+      "properties": {
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "evidence_frames": {
+          "items": {
+            "$ref": "#/$defs/JuryEvidenceFrame"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Evidence Frames",
+          "type": "array"
+        },
+        "timecode_sec": {
+          "minimum": 0,
+          "title": "Timecode Sec",
+          "type": "number"
+        },
+        "type": {
+          "minLength": 1,
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "timecode_sec",
+        "description",
+        "evidence_frames"
+      ],
+      "title": "JuryViolation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Ответ ``GET /api/v1/jobs/{job_id}``. Ровно четыре ключа верхнего уровня.",
+  "properties": {
+    "job_id": {
+      "minLength": 1,
+      "title": "Job Id",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "processing",
+        "done",
+        "failed"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "verdict": {
+      "anyOf": [
+        {
+          "enum": [
+            "violation",
+            "no_violation"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Verdict"
+    },
+    "violations": {
+      "items": {
+        "$ref": "#/$defs/JuryViolation"
+      },
+      "title": "Violations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "job_id",
+    "status",
+    "verdict",
+    "violations"
+  ],
+  "title": "JuryJobResponse",
+  "type": "object"
+}

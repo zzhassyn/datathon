@@ -1,0 +1,71 @@
+# Сигналы B2 — каталог v0 (P0-S0-05), контракт SignalCatalog (src/cashguard/contracts/catalog.py).
+# Источник: docs/violation_catalog.md, раздел 4. Дальше файл ведёт S6 через PR к S0.
+# Сигналы видит только проверяющий в интерфейсе («Наблюдения (не влияют на вердикт)»); в ответ жюри не попадают.
+# Норм у сигналов в v1 нет (UiSignal без поля legal; docs/legal_sources.md, раздел 4), поэтому поля legal здесь нет.
+# Шаблон: «С {start} по {end} с … не наблюдается …»; секунды форматирует pipeline/legal/describe.py («14,0»).
+signals:
+  - code: SIG_SEAL_NOT_INSPECTED
+    title_ru: "Не наблюдается осмотр сумки и пломбы при приёме"
+    template_ru: "С {start} по {end} с инкассаторская сумка принята и вскрыта; осмотр сумки и пломбы до вскрытия в кадре не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [17]
+  - code: SIG_BAG_OPENED_WITHOUT_COLLECTOR
+    title_ru: "Сумку вскрывают в отсутствие инкассатора"
+    template_ru: "С {start} по {end} с кассир вскрывает инкассаторскую сумку; инкассатор в помещении в это время не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [18]
+  - code: SIG_RECOUNT_WITHOUT_SECOND_EMPLOYEE
+    title_ru: "Пересчёт без второго сотрудника в кадре"
+    template_ru: "С {start} по {end} с кассир пересчитывает наличные на счётной машинке; второй сотрудник в кадре не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [19]
+  - code: SIG_STAFF_CASH_TRANSFER
+    title_ru: "Передача наличных между сотрудниками: оформление по видео не проверяется"
+    template_ru: "С {start} по {end} с кассир передаёт наличные другому сотруднику; оформление передачи в кадре не наблюдается и по видео не проверяется."
+    required_facts: [start, end]
+    pdf_items: [22]
+  - code: SIG_DOC_NOT_HANDED
+    title_ru: "Не наблюдается передача клиенту документа об операции"
+    template_ru: "С {start} по {end} с идёт обслуживание клиента; передача клиенту документа об операции в кадре не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [23]
+  - code: SIG_REJECT_TRAY_TO_CLIENT
+    title_ru: "Купюра из лотка отбраковки передаётся клиенту"
+    template_ru: "С {start} по {end} с купюра из лотка отбраковки счётной машинки передаётся клиенту; повторная проверка этой купюры в кадре не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [25]
+  - code: SIG_NO_SIGNATURE_SEEN
+    title_ru: "Не наблюдается подпись клиента на документе"
+    template_ru: "С {start} по {end} с идёт обслуживание клиента; подпись клиента на документе в кадре не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [27]
+  - code: SIG_NO_STAMP_SEEN
+    title_ru: "Не наблюдается проставление штампа кассиром"
+    template_ru: "С {start} по {end} с идёт обслуживание клиента; проставление штампа кассиром в кадре не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [28]
+  - code: SIG_MULTI_DOC_SINGLE_RECOUNT
+    title_ru: "Несколько стопок денег приняты одним пересчётом"
+    template_ru: "С {start} по {end} с несколько стопок наличных от клиента уходят в счётную машинку одним заходом; раздельный пересчёт каждой стопки не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [29]
+  - code: SIG_SAFE_CLOSED_WITHOUT_COUNT
+    title_ru: "Сейф закрыт без видимого пересчёта остатка"
+    template_ru: "С {start} по {end} с кассир закрывает сейф перед уходом; пересчёт остатка из сейфа в кадре не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [36]
+  - code: SIG_SAFE_WITHOUT_PC
+    title_ru: "Ценности помещены в сейф без видимой работы за компьютером"
+    template_ru: "С {start} по {end} с кассир убирает ценности в сейф; работа за компьютером перед этим в кадре не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [40]
+  - code: SIG_CASH_TO_STAFF
+    title_ru: "Передача денег сотруднику вне видимой операции"
+    template_ru: "С {start} по {end} с наличные от клиента переходят к кассиру и уходят в его личную зону; пересчёт на машинке в кадре не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [44]
+  - code: SIG_CAMERA_OBSTRUCTED
+    title_ru: "Потеря видимости: камера перекрыта или изображение недоступно"
+    template_ru: "С {start} по {end} с изображение недоступно или камера перекрыта; происходящее в кассе в этот период не наблюдается."
+    required_facts: [start, end]
+    pdf_items: [45]

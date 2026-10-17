@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./data/**)",
+      "Read(./var/**)",
+      "Read(./models/**)",
+      "Read(./runs/**/*.jpg)",
+      "Read(**/*.mov)",
+      "Read(**/*.mp4)"
+    ]
+  }
+}

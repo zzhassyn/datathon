@@ -1,0 +1,82 @@
+{
+  "$defs": {
+    "ReadyChecks": {
+      "additionalProperties": false,
+      "properties": {
+        "disk_ok": {
+          "title": "Disk Ok",
+          "type": "boolean"
+        },
+        "free_mem_ok": {
+          "title": "Free Mem Ok",
+          "type": "boolean"
+        },
+        "models_loaded": {
+          "title": "Models Loaded",
+          "type": "boolean"
+        },
+        "queue_ok": {
+          "title": "Queue Ok",
+          "type": "boolean"
+        },
+        "warmup_done": {
+          "title": "Warmup Done",
+          "type": "boolean"
+        },
+        "worker_perception": {
+          "title": "Worker Perception",
+          "type": "boolean"
+        },
+        "worker_vlm": {
+          "title": "Worker Vlm",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "worker_perception",
+        "worker_vlm",
+        "models_loaded",
+        "warmup_done",
+        "free_mem_ok",
+        "disk_ok",
+        "queue_ok"
+      ],
+      "title": "ReadyChecks",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``GET /ready``: воркеры, модели, память, диск и очередь в порядке.",
+  "properties": {
+    "checks": {
+      "$ref": "#/$defs/ReadyChecks"
+    },
+    "ready": {
+      "title": "Ready",
+      "type": "boolean"
+    },
+    "version": {
+      "title": "Version",
+      "type": "string"
+    },
+    "vlm_quant": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Vlm Quant"
+    }
+  },
+  "required": [
+    "ready",
+    "checks",
+    "version"
+  ],
+  "title": "ReadyReport",
+  "type": "object"
+}

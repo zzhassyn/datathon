@@ -784,7 +784,7 @@ from jsonschema import Draft202012Validator
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = ROOT / "src/cashguard/contracts/schemas/jury_job.schema.json"
 FIXTURE = ROOT / "tests/fixtures/jury_example.json"
-FROZEN_SHA256 = "25a1085c79b6529ba8d242122a6e0513368488bdb98905ab399a233adeb7498c"
+FROZEN_SHA256 = "908120fee6d4d4654a69f1109d052dc94ee7b3d0c6f1ac5797f4d8f86a1ff79f"  # с minLength у description, 17.10.2026
 
 
 def _load(p: Path):

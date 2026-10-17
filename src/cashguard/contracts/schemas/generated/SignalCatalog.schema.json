@@ -1,0 +1,79 @@
+{
+  "$defs": {
+    "SignalCode": {
+      "description": "Сигналы (B2): видны проверяющему в интерфейсе, на вердикт не влияют.",
+      "enum": [
+        "SIG_SEAL_NOT_INSPECTED",
+        "SIG_BAG_OPENED_WITHOUT_COLLECTOR",
+        "SIG_RECOUNT_WITHOUT_SECOND_EMPLOYEE",
+        "SIG_STAFF_CASH_TRANSFER",
+        "SIG_DOC_NOT_HANDED",
+        "SIG_REJECT_TRAY_TO_CLIENT",
+        "SIG_NO_SIGNATURE_SEEN",
+        "SIG_NO_STAMP_SEEN",
+        "SIG_MULTI_DOC_SINGLE_RECOUNT",
+        "SIG_SAFE_CLOSED_WITHOUT_COUNT",
+        "SIG_SAFE_WITHOUT_PC",
+        "SIG_CASH_TO_STAFF",
+        "SIG_CAMERA_OBSTRUCTED"
+      ],
+      "title": "SignalCode",
+      "type": "string"
+    },
+    "SignalEntry": {
+      "additionalProperties": false,
+      "description": "Запись ``configs/catalog/signals.yaml``. Формулировка — «не наблюдается…», без норм.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/SignalCode"
+        },
+        "pdf_items": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Pdf Items",
+          "type": "array"
+        },
+        "required_facts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Facts",
+          "type": "array"
+        },
+        "template_ru": {
+          "minLength": 1,
+          "title": "Template Ru",
+          "type": "string"
+        },
+        "title_ru": {
+          "minLength": 1,
+          "title": "Title Ru",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "title_ru",
+        "template_ru"
+      ],
+      "title": "SignalEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "signals": {
+      "items": {
+        "$ref": "#/$defs/SignalEntry"
+      },
+      "title": "Signals",
+      "type": "array"
+    }
+  },
+  "required": [
+    "signals"
+  ],
+  "title": "SignalCatalog",
+  "type": "object"
+}

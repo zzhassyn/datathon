@@ -1,0 +1,113 @@
+# Реестр моделей сервиса — каркас v0 (P0-S0-05), контракт ModelsRegistry (src/cashguard/contracts/model_registry.py).
+# Владелец — S0, правит S3 через PR s3/promote-<role>-vNNN (docs/training.md, разделы 15–16).
+# Модели ещё не выпущены, поэтому sha256: null везде. При выпуске экспортёр сервиса
+# (pipeline/perception/export.py) пишет models/<role>/vNNN/{best.pt, *.mlpackage, manifest.json},
+# а сюда переносятся версия, пути и sha256. Воркеры при старте сверяют sha256: расхождение — воркер не стартует.
+# Пути — относительно CG_MODELS_DIR (по умолчанию models/). Папка версии после выпуска не меняется.
+# Откат — вернуть прошлую vNNN и перезапустить воркеры.
+# imgsz — «высота x ширина», как в именах пакетов Core ML (det_864x480 = imgsz [864, 480]).
+models:
+  # Детектор: YOLO26l detect, 14 классов (training/configs/classes.yaml), обучен при imgsz 864 (этап C, профиль full).
+  # v001 — черновой детектор этапа A6 (YOLO26s на pseudo), выпускается по желанию (P1-S3-04);
+  # в прод идёт v002. COCO-детектор YOLO26l в реестр не идёт: у него другие классы.
+  - role: detector
+    version: v002
+    imgsz: "864x480"
+    revision: "v8.4.0"  # базовые веса yolo26l.pt из релиза ultralytics/assets
+    artifacts:
+      - backend: coreml  # Mac, Neural Engine; портретный вход
+        path: detector/v002/det_864x480.mlpackage
+        sha256: null
+        imgsz: "864x480"
+      - backend: coreml  # альбомный вход 480x864, грузится лениво
+        path: detector/v002/det_480x864.mlpackage
+        sha256: null
+        imgsz: "480x864"
+      - backend: torch  # Windows и Linux
+        path: detector/v002/best.pt
+        sha256: null
+    note_ru: "YOLO26l detect, 14 классов; Core ML: nms=False, FP16, batch=1; паритет с .pt — не хуже 1 mAP50 на сцене L4."
+  # Поза: YOLO26l-pose, готовые веса без дообучения (models/pretrained/yolo26l-pose.pt).
+  - role: pose
+    version: v001
+    imgsz: "864x480"
+    revision: "v8.4.0"  # yolo26l-pose.pt из релиза ultralytics/assets
+    artifacts:
+      - backend: coreml
+        path: pose/v001/pose_864x480.mlpackage
+        sha256: null
+        imgsz: "864x480"
+      - backend: coreml  # альбомный вход, грузится лениво
+        path: pose/v001/pose_480x864.mlpackage
+        sha256: null
+        imgsz: "480x864"
+      - backend: torch
+        path: pose/v001/best.pt
+        sha256: null
+    note_ru: "YOLO26l-pose, готовые веса; 17 ключевых точек COCO; вызывается только для треков в зонах стола, передачи и сейфа."
+  # Классификаторы фрагментов: YOLO26s-cls, imgsz 224; геометрия фрагмента — crop_spec в manifest.json.
+  - role: cls_screen
+    version: v001
+    imgsz: "224"
+    revision: "v8.4.0"  # базовые веса yolo26s-cls.pt
+    artifacts:
+      - backend: coreml
+        path: cls_screen/v001/cls_screen.mlpackage
+        sha256: null
+      - backend: torch
+        path: cls_screen/v001/best.pt
+        sha256: null
+    note_ru: "YOLO26s-cls, классы active / locked / off."
+  - role: cls_safe_lock
+    version: v001
+    imgsz: "224"
+    revision: "v8.4.0"
+    artifacts:
+      - backend: coreml
+        path: cls_safe_lock/v001/cls_safe_lock.mlpackage
+        sha256: null
+      - backend: torch
+        path: cls_safe_lock/v001/best.pt
+        sha256: null
+    note_ru: "YOLO26s-cls, классы key / no_key (фрагмент замка ×4)."
+  - role: cls_door
+    version: v001
+    imgsz: "224"
+    revision: "v8.4.0"
+    artifacts:
+      - backend: coreml
+        path: cls_door/v001/cls_door.mlpackage
+        sha256: null
+      - backend: torch
+        path: cls_door/v001/best.pt
+        sha256: null
+    note_ru: "YOLO26s-cls, классы closed / open."
+  # VLM: Qwen3.5-4B из mlx-community, не обучается и не выпускается версиями.
+  # Квантизация выбирается автоматически (CG_VLM_QUANT=auto): 8 бит, при нехватке памяти — 6, затем 4.
+  # Ревизии закреплены (AGENTS.md, «Закреплённые версии»): 8bit 1704583a, 6bit fbb1092a, 4bit 0e7ffd5c.
+  # В контракте одна ревизия на роль: в revision — основной 8 бит, ревизии 6 и 4 бит — в комментариях и note_ru.
+  # Имена репозиториев 6 и 4 бит — по шаблону 8 бит (проверить). sha256 — из манифеста download_models.sh.
+  - role: vlm
+    version: "qwen3.5-4b"
+    imgsz: null
+    revision: "1704583a"
+    artifacts:
+      - backend: mlx  # mlx-community/Qwen3.5-4B-8bit, ревизия 1704583a (основной)
+        path: hf/Qwen3.5-4B-8bit
+        sha256: null
+        repo: "mlx-community/Qwen3.5-4B-8bit"
+        revision: "1704583a"
+        quant: "8bit"
+      - backend: mlx  # mlx-community/Qwen3.5-4B-6bit, ревизия fbb1092a
+        path: hf/Qwen3.5-4B-6bit
+        sha256: null
+        repo: "mlx-community/Qwen3.5-4B-6bit"
+        revision: "fbb1092a"
+        quant: "6bit"
+      - backend: mlx  # mlx-community/Qwen3.5-4B-4bit, ревизия 0e7ffd5c
+        path: hf/Qwen3.5-4B-4bit
+        sha256: null
+        repo: "mlx-community/Qwen3.5-4B-4bit"
+        revision: "0e7ffd5c"
+        quant: "4bit"
+    note_ru: "mlx-community/Qwen3.5-4B; ревизии: 8bit 1704583a, 6bit fbb1092a, 4bit 0e7ffd5c. Квант auto: 8 → 6 → 4 бит по свободной памяти."

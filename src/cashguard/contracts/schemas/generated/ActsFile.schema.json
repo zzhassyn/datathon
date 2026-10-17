@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "ActCode": {
+      "enum": [
+        "PKO",
+        "POP",
+        "POO",
+        "TIB"
+      ],
+      "title": "ActCode",
+      "type": "string"
+    },
+    "ActEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "act_code": {
+          "$ref": "#/$defs/ActCode"
+        },
+        "adilet_id": {
+          "title": "Adilet Id",
+          "type": "string"
+        },
+        "cite_ru": {
+          "minLength": 1,
+          "title": "Cite Ru",
+          "type": "string"
+        },
+        "date": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "title": "Date",
+          "type": "string"
+        },
+        "issuer": {
+          "title": "Issuer",
+          "type": "string"
+        },
+        "number": {
+          "title": "Number",
+          "type": "string"
+        },
+        "registration_no": {
+          "title": "Registration No",
+          "type": "string"
+        },
+        "scope_note_ru": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scope Note Ru"
+        },
+        "status": {
+          "$ref": "#/$defs/ActStatus"
+        },
+        "title_ru": {
+          "minLength": 1,
+          "title": "Title Ru",
+          "type": "string"
+        },
+        "url": {
+          "pattern": "^https://adilet\\.zan\\.kz/",
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "act_code",
+        "title_ru",
+        "cite_ru",
+        "issuer",
+        "number",
+        "date",
+        "registration_no",
+        "adilet_id",
+        "url",
+        "status"
+      ],
+      "title": "ActEntry",
+      "type": "object"
+    },
+    "ActStatus": {
+      "enum": [
+        "in_force",
+        "repealed"
+      ],
+      "title": "ActStatus",
+      "type": "string"
+    },
+    "DoNotCite": {
+      "additionalProperties": false,
+      "properties": {
+        "reason_ru": {
+          "title": "Reason Ru",
+          "type": "string"
+        },
+        "title_ru": {
+          "title": "Title Ru",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title_ru",
+        "reason_ru"
+      ],
+      "title": "DoNotCite",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "``configs/legal/acts.yaml``.",
+  "properties": {
+    "acts": {
+      "items": {
+        "$ref": "#/$defs/ActEntry"
+      },
+      "title": "Acts",
+      "type": "array"
+    },
+    "do_not_cite": {
+      "items": {
+        "$ref": "#/$defs/DoNotCite"
+      },
+      "title": "Do Not Cite",
+      "type": "array"
+    }
+  },
+  "required": [
+    "acts",
+    "do_not_cite"
+  ],
+  "title": "ActsFile",
+  "type": "object"
+}
