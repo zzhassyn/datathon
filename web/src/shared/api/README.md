@@ -1,22 +1,12 @@
-# `web/src/shared/api/` — клиент API
+# UI API
 
-> **Назначение:** Типизированный доступ к `/api/ui` по OpenAPI бэкенда.
-> **Владелец:** S2; `openapi.json` и `schema.d.ts` генерируются · **Статус:** черновик v1, 17.10.2026 (каркас: кода ещё нет)
+Владелец: S2. Только `/api/ui/*` и `/ready`, тот же origin.
 
-## Планируемые файлы
+- `openapi.json` — снимок реально работающего S1 a46acdb (`pnpm sync:api`).
+- `schema.d.ts` — generated openapi-typescript (`pnpm gen:api`), руками не править.
+- `client.ts` — openapi-fetch, таймаут GET 15 секунд.
+- `queries.ts` — TanStack Query, опрос 1 с до terminal, без опроса после 401/404.
+- `decode.ts` — временная проверка unknown-ответов и вывод типов представления: в S1 ещё нет формальных UI response models. Это не согласованный контракт S0.
+- `errors.ts` — безопасные русские сообщения и Retry-After.
 
-| Файл | Что делает |
-|---|---|
-| `openapi.json` | [GEN] вывод `uv run just schemas`; коммитится, руками не править |
-| `schema.d.ts` | [GEN] openapi-typescript из `openapi.json`; руками не править |
-| `client.ts` | openapi-fetch; загрузка файла — через XHR ради событий прогресса |
-| `queries.ts` | запросы TanStack Query: `refetchInterval` 1000 мс пока `queued` или `running` |
-
-## Правила
-
-- Расхождение `openapi.json` с бэкендом ломает `tsc -b` и проверку дрейфа в `just check`.
-
-## Документы
-
-- [docs/ui.md — интерфейс](../../../../docs/ui.md)
-- [docs/api.md — API жюри и интерфейса](../../../../docs/api.md)
+После выпуска S0 `contracts/ui.py`/exporter: обновить снимок, перегенерировать типы, заменить адаптер generated components и пройти contract drift. Backend и frozen jury schema этой веткой не меняются. Полный handoff — `web/README.md`.

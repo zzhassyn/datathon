@@ -63,7 +63,7 @@ export function EvidenceStrip({
             onSeek={onSeek}
             onClose={() => {
               setSelected(null);
-              requestAnimationFrame(() => trigger.current?.focus());
+              requestAnimationFrame(() => trigger.current?.focus({ preventScroll: true }));
             }}
           />
         </Suspense>

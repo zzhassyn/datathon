@@ -3,7 +3,11 @@ import { ru } from "../i18n/ru";
 import { decodeCatalog, decodeJob, record } from "./decode";
 import { HttpError, retryDeadline } from "./errors";
 import type { paths } from "./schema";
-export const api = createClient<paths>({ baseUrl: "" });
+export const api = createClient<paths>({
+  baseUrl: "",
+  fetch: (request) =>
+    fetch(request, { signal: AbortSignal.any([request.signal, AbortSignal.timeout(15_000)]) }),
+});
 function check(response: Response) {
   if (!response.ok)
     throw new HttpError(response.status, retryDeadline(response.headers.get("Retry-After")));

@@ -50,8 +50,7 @@ export function VideoPlayer({
   }, [serverUrl, src, failed]);
   function apply(request: SeekRequest) {
     const v = video.current;
-    if (!v) return;
-    if (v.readyState < 1) {
+    if (!v || v.readyState < 1) {
       pending.current = request;
       return;
     }

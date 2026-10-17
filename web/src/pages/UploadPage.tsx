@@ -45,6 +45,7 @@ export function UploadPage() {
     if (controller.current || Date.now() < retryAt) return;
     const invalid = validateFiles(files);
     if (invalid) {
+      selected.current = null;
       setError(new Error(invalid));
       return;
     }

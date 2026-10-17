@@ -15,6 +15,11 @@ export function StageStepper({ job }: { job: JobView }) {
           {ru.queue}: {job.queue_position}
         </p>
       )}
+      {job.eta_sec !== null && (
+        <p className="muted">
+          {ru.remaining} {timecode(job.eta_sec)}
+        </p>
+      )}
       <ol className="stages">
         {job.stages.map((s) => (
           <li key={s.code}>

@@ -977,3 +977,9 @@ fieldset {
   min-width: 0;
   padding: 0;
 }
+
+.marker-position:last-child .marker-menu {
+  left: auto;
+  right: 0;
+  transform: none;
+}

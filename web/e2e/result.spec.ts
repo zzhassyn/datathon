@@ -101,6 +101,7 @@ test("documented fixture: multiple events, four-second context, sources and stop
     "noopener noreferrer",
   );
   expect(polls).toBe(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("result.png"), fullPage: true });
   await page.reload();
   await expect(page.locator(".event-card")).toHaveCount(2);

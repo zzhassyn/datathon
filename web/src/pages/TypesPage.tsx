@@ -10,7 +10,12 @@ export function TypesPage() {
   useEffect(() => {
     document.querySelector<HTMLElement>("h1")?.focus();
     if (q.data && location.hash) {
-      const id = decodeURIComponent(location.hash.slice(1));
+      let id = location.hash.slice(1);
+      try {
+        id = decodeURIComponent(id);
+      } catch {
+        /* A malformed anchor must not break the catalog. */
+      }
       document.getElementById(id)?.scrollIntoView({ block: "center" });
     }
   }, [q.data]);
