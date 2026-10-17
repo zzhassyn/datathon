@@ -2,6 +2,7 @@
 
 import json
 
+import pytest
 from fastapi.testclient import TestClient
 
 from cashguard.api.main import create_app
@@ -45,7 +46,6 @@ def test_session_guard_and_private_assets(tmp_path):
     (root / "worker.log").write_text("private diagnostic log")
     (root / "report.json").write_text(json.dumps({"frames": [{"name": "frame-0000.jpg"}]}))
     (root / "annotated.mp4").write_bytes(b"synthetic test bytes")
-    (root / "frame-0000.jpg").symlink_to(root / "worker.log")
     with TestClient(app, client=("127.0.0.1", 123)) as client:
         base = "/api/local-model/" + "a" * 32
         assert client.get(base + "/worker.log").status_code == 404
@@ -53,6 +53,21 @@ def test_session_guard_and_private_assets(tmp_path):
         report = client.get(base).json()
         assert report["video_url"] == base + "/annotated.mp4"
         assert report["frames"][0]["image_url"] == base + "/frame-0000.jpg"
+
+
+def test_symlink_cannot_expose_private_asset(tmp_path):
+    app = local_app(tmp_path)
+    root = tmp_path / "model-checks" / ("a" * 32)
+    root.mkdir(parents=True)
+    (root / "worker.log").write_text("private diagnostic log")
+    try:
+        (root / "frame-0000.jpg").symlink_to(root / "worker.log")
+    except OSError as error:
+        if getattr(error, "winerror", None) == 1314:
+            pytest.skip("Windows не разрешает создание symlink (WinError 1314)")
+        raise
+    with TestClient(app, client=("127.0.0.1", 123)) as client:
+        assert client.get("/api/local-model/" + "a" * 32 + "/frame-0000.jpg").status_code == 404
 
 
 def test_invalid_video_never_starts_ml_and_removes_input(tmp_path, monkeypatch):

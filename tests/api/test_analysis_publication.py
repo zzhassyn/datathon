@@ -154,7 +154,12 @@ def test_invalid_analysis_never_becomes_clean_or_done(app, claimed, fault, tmp_p
         path = directory / "01_event.jpg"
         target.write_bytes(path.read_bytes())
         path.unlink()
-        path.symlink_to(target)
+        try:
+            path.symlink_to(target)
+        except OSError as error:
+            if getattr(error, "winerror", None) == 1314:
+                pytest.skip("Windows не разрешает создание symlink (WinError 1314)")
+            raise
     elif fault == "dimensions":
         data["violations"][0]["evidence"][0]["width"] = 123
     elif fault == "timestamp":
