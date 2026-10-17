@@ -1,0 +1,6 @@
+# ADR-0005: estimates pending the real model benchmark; offsets from request t0.
+vision_target: 150
+vlm_start_cutoff: 180
+vlm_stop: 210
+finalize_at: 225
+perception_hard_stop: 235
