@@ -1,8 +1,9 @@
 """THIRD_PERSON_DURING_SERVICE: два посетителя (не кассир) одновременно у рабочего места.
 
-Числовой вариант по кадрам sidecar: люди с устойчивым track_id, не в зоне кассира и
-не в зоне двери, одновременно ≥ min_duration_sec. Дубли рамок одного человека
-(IoU > 0.5) считаются одним. Роли по зонам, без распознавания лиц.
+Числовой вариант по кадрам sidecar: люди с устойчивым track_id, кроме кассира и его
+места (IoU > 0.5 с медианной рамкой кассира), одновременно ≥ min_duration_sec.
+Дубли рамок одного человека (IoU > 0.5) считаются одним; мелкие рамки за стеклом
+двери (нет пересечения со столом, площадь < min_area) не считаются. Без лиц.
 """
 
 import math
@@ -24,13 +25,19 @@ def _inside(box, roi):
     return roi[0] <= x <= roi[2] and roi[1] <= y <= roi[3]
 
 
-def evaluate_frames(frames, scene_cfg, *, min_duration_sec=2.0, max_gap_sec=0.75):
+def _overlaps(a, b):
+    return a[0] < b[2] and a[2] > b[0] and a[1] < b[3] and a[3] > b[1]
+
+
+def evaluate_frames(
+    frames, scene_cfg, *, min_duration_sec=2.0, max_gap_sec=0.75, min_area=0.02, desk=None
+):
     if not math.isfinite(min_duration_sec) or min_duration_sec <= 0:
         raise ValueError("Длительность должна быть положительной")
-    cashier_roi = scene_cfg.get("cashier_roi")
-    entry_roi = scene_cfg.get("entry_roi")
+    seat = scene_cfg.get("cashier_seat") or scene_cfg.get("cashier_roi")
+    entry = scene_cfg.get("entry_roi")
     cashier_id = scene_cfg.get("cashier_track_id")
-    if cashier_roi is None:
+    if seat is None or cashier_id is None:
         return []
     found = []
     run_start = None
@@ -44,9 +51,17 @@ def evaluate_frames(frames, scene_cfg, *, min_duration_sec=2.0, max_gap_sec=0.75
         for d in frame["detections"]:
             if d["class_name"] != "person" or d["conf"] < 0.5 or d.get("track_id") is None:
                 continue
-            if d["track_id"] == cashier_id or _inside(d["box"], cashier_roi):
+            # The cashier's own seat (median box) also absorbs re-identified cashier tracks.
+            if d["track_id"] == cashier_id or _iou(d["box"], seat) > 0.5:
                 continue
-            if entry_roi is not None and _inside(d["box"], entry_roi):
+            box = d["box"]
+            if (box[2] - box[0]) * (box[3] - box[1]) < min_area:
+                continue
+            if desk is not None and not _overlaps(box, desk):
+                continue
+            # A box clipped at the frame edge inside the door zone is a figure behind the
+            # glass door, not a person at the desk.
+            if entry is not None and box[0] < 0.01 and _inside(box, entry):
                 continue
             if any(_iou(d["box"], p["box"]) > 0.5 for p in people):
                 continue

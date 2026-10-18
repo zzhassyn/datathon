@@ -94,6 +94,7 @@ def auto_calibration(report, *, min_conf=0.5):
     client_roi = _expand(client_box, 0.12, 0.12) if _valid(client_box) else None
     scene = {
         "cashier_roi": cashier_roi,
+        "cashier_seat": cashier_box,
         "cashier_track_id": cashier,
         "entry_roi": entry,
         "safe_roi": _expand(safe, 0.05, 0.05) if _valid(safe) else None,

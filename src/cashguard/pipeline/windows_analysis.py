@@ -65,6 +65,7 @@ def temporal_candidates(report, calibration, options):
                     report["frames"],
                     calibration.get("scene", {}),
                     min_duration_sec=float(options.get("min_duration_sec", 2)),
+                    desk=_desk_normalized(calibration, report["video"]),
                 )
             )
         else:
@@ -72,6 +73,12 @@ def temporal_candidates(report, calibration, options):
                 evaluators[code](scene, min_duration_sec=float(options.get("min_duration_sec", 2)))
             )
     return scene, sorted(candidates, key=lambda c: c.t_sec), codes
+
+
+def _desk_normalized(calibration, video):
+    roi = calibration["desk_roi"]
+    width, height = video["width"], video["height"]
+    return [roi[0] / width, roi[1] / height, roi[2] / width, roi[3] / height]
 
 
 def catalog_hash():
