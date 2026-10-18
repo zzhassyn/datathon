@@ -132,3 +132,37 @@ def test_saved_calibration_from_other_camera_is_not_shown_as_current(
     reopened = client.get("/api/local-calibration/meta").json()
     assert reopened["calibration_status"] == "mismatch"
     assert reopened["saved_calibration"] is None
+
+
+def test_scene_zones_require_explicit_confirmation_and_matching_coordinates(
+    client, settings, synthetic, tmp_path
+):
+    saved = enable(settings, tmp_path, synthetic)
+    meta = client.get("/api/local-calibration/meta").json()
+    payload = {
+        **meta,
+        "desk_roi": [1, 1, 20, 20],
+        "confirmed": True,
+        "cash_area_confirmed": True,
+        "staff_only_surface": True,
+        "scene": {"cashier_roi": [0, 0, 0.5, 1], "entry_roi": [0.8, 0, 1, 1]},
+    }
+    headers = {"Origin": "http://127.0.0.1"}
+    assert (
+        client.post("/api/local-calibration/confirm", json=payload, headers=headers).status_code
+        == 422
+    )
+    assert not saved.exists()
+    payload["scene_zones_confirmed"] = True
+    assert (
+        client.post("/api/local-calibration/confirm", json=payload, headers=headers).status_code
+        == 200
+    )
+    state = client.get("/api/local-calibration/meta").json()["saved_calibration"]
+    assert state["scene"] == payload["scene"] and state["scene_zones_confirmed"] is True
+    for invalid in ([0, 0, 2, 1], [0, 0, 0, 1], [True, 0, 1, 1]):
+        payload["scene"]["entry_roi"] = invalid
+        assert (
+            client.post("/api/local-calibration/confirm", json=payload, headers=headers).status_code
+            == 422
+        )

@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import math
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -101,6 +102,25 @@ def validate_confirmation(payload, meta):
         or not 0 <= roi[1] < roi[3] <= meta["height"]
     ):
         raise HTTPException(422, "Прямоугольник должен находиться внутри кадра.")
+    scene = payload.get("scene", {})
+    if not isinstance(scene, dict) or set(scene) - {
+        "cashier_roi",
+        "client_roi",
+        "entry_roi",
+        "safe_roi",
+    }:
+        raise HTTPException(422, "Некорректные зоны сцены.")
+    for zone in scene.values():
+        if (
+            not isinstance(zone, list)
+            or len(zone) != 4
+            or any(type(v) not in (int, float) or not math.isfinite(v) for v in zone)
+            or not 0 <= zone[0] < zone[2] <= 1
+            or not 0 <= zone[1] < zone[3] <= 1
+        ):
+            raise HTTPException(422, "Зоны сцены должны находиться внутри кадра.")
+    if scene and payload.get("scene_zones_confirmed") is not True:
+        raise HTTPException(422, "Подтвердите назначение выделенных зон сцены.")
     return {
         **meta,
         "desk_roi": roi,
@@ -108,6 +128,8 @@ def validate_confirmation(payload, meta):
         "cash_area_confirmed": True,
         "staff_only_surface": True,
         "staff_ownership_confirmed": payload.get("staff_ownership_confirmed") is True,
+        "scene": scene,
+        "scene_zones_confirmed": bool(scene) and payload.get("scene_zones_confirmed") is True,
         "confirmed_at": datetime.now(UTC).isoformat(),
         "scope": "this_video_only",
     }
@@ -149,6 +171,8 @@ def calibration_state(config, meta):
             "cash_area_confirmed": True,
             "staff_only_surface": True,
             "staff_ownership_confirmed": saved.get("staff_ownership_confirmed") is True,
+            "scene": saved.get("scene", {}),
+            "scene_zones_confirmed": saved.get("scene_zones_confirmed") is True,
             "confirmed_at": saved.get("confirmed_at"),
         },
     }

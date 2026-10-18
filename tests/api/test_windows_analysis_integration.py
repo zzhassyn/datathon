@@ -1,6 +1,8 @@
 import json
 import os
 
+import pytest
+
 from cashguard.api.main import create_app
 from cashguard.pipeline.local_config import AnalysisBlocked, confirmed_calibration
 from cashguard.workers.perception_worker import PerceptionWorker
@@ -75,8 +77,9 @@ def test_wrong_camera_and_unknown_ownership_block_results(tmp_path):
         confirmed_calibration(config, video)
 
 
+@pytest.mark.parametrize("temporal", [False, True])
 def test_positive_numeric_rule_publishes_existing_jury_ui_and_evidence(
-    client, app, settings, synthetic, tmp_path, monkeypatch
+    client, app, settings, synthetic, tmp_path, monkeypatch, temporal
 ):
     """Explicit synthetic numeric fixture: tests publication, never claims ML accuracy."""
     from pathlib import Path
@@ -87,7 +90,7 @@ def test_positive_numeric_rule_publishes_existing_jury_ui_and_evidence(
 
     from cashguard.pipeline.windows_analysis import analyze
 
-    make_synthetic_mov(synthetic, verdict="violation", duration=3)
+    make_synthetic_mov(synthetic, verdict="violation", duration=7)
 
     with synthetic.open("rb") as source:
         job_id = client.post("/api/ui/jobs", files={"file": ("source.mov", source)}).json()[
@@ -95,7 +98,7 @@ def test_positive_numeric_rule_publishes_existing_jury_ui_and_evidence(
         ]
     worker = PerceptionWorker(settings)
     job = app.state.repo.claim_next(worker.name, pid=os.getpid())
-    calibration = dict(
+    calibration: dict = dict(
         confirmed=True,
         cash_area_confirmed=True,
         staff_only_surface=True,
@@ -106,10 +109,17 @@ def test_positive_numeric_rule_publishes_existing_jury_ui_and_evidence(
         rotation_deg=0,
         desk_roi=[1, 1, job.width - 1, job.height - 1],
     )
+    if temporal:
+        from tests.unit.scene.test_temporal import PARAMS
+
+        calibration.update(scene_zones_confirmed=True, scene=PARAMS)
     calibration_path = tmp_path / "calibration.json"
     calibration_path.write_text(json.dumps(calibration))
     config_path = tmp_path / "config.json"
-    config_path.write_text(json.dumps({"calibration_file": str(calibration_path)}))
+    config: dict = {"calibration_file": str(calibration_path)}
+    if temporal:
+        config["temporal_rules"] = {"enabled": True, "codes": ["VALUABLES_LEFT"]}
+    config_path.write_text(json.dumps(config))
 
     def numeric_inference(request, **kwargs):
         directory = Path(request["out_dir"])
@@ -137,6 +147,14 @@ def test_positive_numeric_rule_publishes_existing_jury_ui_and_evidence(
             )
             for i in range(6)
         ]
+        if temporal:
+            from tests.unit.scene.test_temporal import records as temporal_records
+
+            records = temporal_records()
+            for i, record in enumerate(records):
+                record.update(
+                    idx=i, pts=i * 45000, image_name="frame.jpg", width=job.width, height=job.height
+                )
         report = dict(
             video=dict(
                 duration_sec=job.duration_sec,
@@ -168,7 +186,8 @@ def test_positive_numeric_rule_publishes_existing_jury_ui_and_evidence(
     view = client.get(f"/api/ui/jobs/{job_id}").json()
     assert view["status"] == "done" and view["verdict"] == "violation"
     (event,) = view["violations"]
-    assert event["code"] == "PERSONAL_ITEMS" and event["end_sec"] == 2.5
-    assert event["legal"][0]["clause"] == "п. 12 ч. 1"
+    assert event["code"] == ("VALUABLES_LEFT" if temporal else "PERSONAL_ITEMS")
+    assert event["end_sec"] == (4.5 if temporal else 2.5)
+    assert event["legal"][0]["clause"] == ("п. 20 ч. 2" if temporal else "п. 12 ч. 1")
     for frame in event["evidence"]:
         assert client.get(frame["url"]).status_code == 200

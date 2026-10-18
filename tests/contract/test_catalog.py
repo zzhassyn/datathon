@@ -37,12 +37,9 @@ PENDING_RULE_CODES: frozenset[ViolationCode] = frozenset(
     {
         ViolationCode.CASH_WITHHELD,
         ViolationCode.NO_CLIENT_ID,
-        ViolationCode.PREV_CASH_ON_DESK,
         ViolationCode.MIXED_CLIENT_CASH,
         ViolationCode.RECOUNT_WITHOUT_CLIENT,
         ViolationCode.NO_AUTH_CHECK,
-        ViolationCode.VALUABLES_LEFT,
-        ViolationCode.SAFE_OPEN,
         ViolationCode.SAFE_KEY_LEFT,
         ViolationCode.PC_UNLOCKED,
         ViolationCode.DOOR_NOT_CLOSED,

@@ -189,7 +189,24 @@ def load_models(request, device):
     return models, metadata
 
 
-def boxes(model, image, device):
+def make_tracker(sample_fps):
+    """A fresh, explicit BoT-SORT instance per video; no appearance/face embeddings."""
+    from types import SimpleNamespace
+
+    import yaml
+    from ultralytics.trackers.bot_sort import BOTSORT
+
+    path = Path(__file__).resolve().parents[4] / "configs/trackers/botsort_static.yaml"
+    params = yaml.safe_load(path.read_text(encoding="utf-8"))
+    params["track_buffer"] = max(1, math.ceil(2 * sample_fps))
+    if params.get("with_reid") is not False or params.get("gmc_method") != "none":
+        raise ValueError("Only static-camera tracking without ReID is supported")
+    return SimpleNamespace(
+        backend=BOTSORT(SimpleNamespace(**params)), classes={}, invalid_ids=set()
+    )
+
+
+def boxes(model, image, device, *, tracker=None):
     result = model.predict(
         image,
         imgsz=640,
@@ -204,8 +221,17 @@ def boxes(model, image, device):
         quantize=None,
         end2end=False,
     )[0]
+    identities = {}
+    if tracker is not None:
+        tracks = tracker.backend.update(result.boxes.cpu().numpy(), image)
+        for track in tracks:
+            identity, class_id = int(track[4]), int(track[6])
+            if tracker.classes.setdefault(identity, class_id) != class_id:
+                tracker.invalid_ids.add(identity)
+            if identity not in tracker.invalid_ids:
+                identities[int(track[-1])] = identity
     output = []
-    for box in result.boxes:
+    for index, box in enumerate(result.boxes):
         coordinates = [float(v) for v in box.xyxyn[0].tolist()]
         confidence = float(box.conf[0])
         if not all(math.isfinite(v) for v in [confidence, *coordinates]):
@@ -219,6 +245,8 @@ def boxes(model, image, device):
                 box=[max(0.0, min(1.0, v)) for v in coordinates],
             )
         )
+        if tracker is not None:
+            output[-1]["track_id"] = identities.get(index)
     return output
 
 
@@ -266,6 +294,7 @@ def run(request, *, cached=None, progress_fn=None):
         sample_fps = float(request.get("sample_fps", 2))
         if not 0 < sample_fps <= 10:
             raise ValueError("Invalid sampling frequency")
+        tracker = make_tracker(sample_fps) if request.get("tracking_enabled") is True else None
         frames, decoded, previous, next_sample = [], 0, -1.0, 0.0
         is_vfr = False
         (output / "frames").mkdir(exist_ok=True)
@@ -325,7 +354,7 @@ def run(request, *, cached=None, progress_fn=None):
                 ):
                     raise ValueError("Frame geometry changed during inference")
                 door_roi = camera_door_roi(request.get("door_calibration", {}), meta)
-                detections = boxes(models["main"], image, device)
+                detections = boxes(models["main"], image, device, tracker=tracker)
                 hands = boxes(models["hands"], image, device)
                 door = None
                 if door_roi is not None:

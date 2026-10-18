@@ -1,0 +1,153 @@
+{
+  "synthetic": true,
+  "code": "VALUABLES_LEFT",
+  "expected_candidates": 0,
+  "scene": {
+    "layout": {
+      "zones": [
+        {
+          "kind": "desk",
+          "polygon": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.7,
+              0.0
+            ],
+            [
+              0.7,
+              0.8
+            ],
+            [
+              0.0,
+              0.8
+            ]
+          ],
+          "conf": 1.0
+        },
+        {
+          "kind": "cashier_side",
+          "polygon": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.4,
+              0.0
+            ],
+            [
+              0.4,
+              1.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ],
+          "conf": 1.0
+        },
+        {
+          "kind": "safe",
+          "polygon": [
+            [
+              0.75,
+              0.2
+            ],
+            [
+              1.0,
+              0.2
+            ],
+            [
+              1.0,
+              0.8
+            ],
+            [
+              0.75,
+              0.8
+            ]
+          ],
+          "conf": 1.0
+        },
+        {
+          "kind": "door",
+          "polygon": [
+            [
+              0.75,
+              0.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0
+            ],
+            [
+              0.75,
+              1.0
+            ]
+          ],
+          "conf": 1.0
+        }
+      ],
+      "orientation": "operator-calibrated",
+      "calibrated_from_sec": 0.0,
+      "conf": 1.0
+    },
+    "roles": [
+      {
+        "track_id": 1,
+        "role": "cashier",
+        "conf": 0.7,
+        "first_t": 0.0,
+        "last_t": 2.0,
+        "entered_via_door": false,
+        "exited_via_door": false
+      }
+    ],
+    "sessions": [],
+    "states": [
+      {
+        "subject": "cash_on_desk",
+        "value": "cash",
+        "start_t": 0.0,
+        "end_t": 6.5,
+        "conf": 0.9,
+        "zone": "desk",
+        "track_id": 3
+      },
+      {
+        "subject": "cashier_present",
+        "value": "present",
+        "start_t": 0.0,
+        "end_t": 2.0,
+        "conf": 0.7,
+        "zone": null,
+        "track_id": 1
+      },
+      {
+        "subject": "cashier_present",
+        "value": "away_from_safe",
+        "start_t": 0.0,
+        "end_t": 2.0,
+        "conf": 0.7,
+        "zone": "safe",
+        "track_id": 1
+      },
+      {
+        "subject": "cashier_present",
+        "value": "unknown",
+        "start_t": 2.5,
+        "end_t": 6.5,
+        "conf": 0.0,
+        "zone": null,
+        "track_id": 1
+      }
+    ],
+    "events": []
+  }
+}

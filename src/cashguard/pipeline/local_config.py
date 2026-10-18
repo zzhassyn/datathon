@@ -30,7 +30,7 @@ def model_fingerprint(path):
     return hashlib.sha256(json.dumps(config["weights"], sort_keys=True).encode()).hexdigest()
 
 
-def confirmed_calibration(config, video):
+def confirmed_calibration(config, video, *, require_ownership=True):
     path = Path(config["calibration_file"])
     if not path.is_file():
         raise AnalysisBlocked(
@@ -52,7 +52,7 @@ def confirmed_calibration(config, video):
             "Калибровка относится к другому видео или геометрии кадра. "
             "Требуется подтверждение камеры."
         )
-    if calibration.get("staff_ownership_confirmed") is not True:
+    if require_ownership and calibration.get("staff_ownership_confirmed") is not True:
         raise AnalysisBlocked(
             "Принадлежность личных вещей сотруднику не подтверждена. Итог по правилу заблокирован."
         )
