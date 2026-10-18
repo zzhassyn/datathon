@@ -104,16 +104,36 @@ class Supervisor:
         structlog.get_logger().info("child_started", name=child.name, pid=child.process.pid)
 
     @staticmethod
+    def _command_matches(child: Child, command: list[str]) -> bool:
+        return (
+            "-m" in command
+            and child.command[2] in command
+            and (child.name == "api" or child.name in command)
+        )
+
+    @staticmethod
     def _matches(child: Child) -> bool:
         if child.process is None or child.process.poll() is not None:
             return False
         try:
             command = psutil.Process(child.process.pid).cmdline()
-            expected_module = child.command[2]
-            return (
-                "-m" in command
-                and expected_module in command
-                and (child.name == "api" or child.name in command)
+            return Supervisor._command_matches(child, command)
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            return False
+
+    @staticmethod
+    def _worker_pid_matches(child: Child, worker_pid: int | None) -> bool:
+        if child.process is None:
+            return False
+        if worker_pid == child.process.pid:
+            return Supervisor._matches(child)
+        # Windows venv python.exe may redirect to a child interpreter. Trust its
+        # heartbeat only after checking ancestry AND the expected module/name.
+        try:
+            descendants = psutil.Process(child.process.pid).children(recursive=True)
+            return any(
+                process.pid == worker_pid and Supervisor._command_matches(child, process.cmdline())
+                for process in descendants
             )
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             return False
@@ -122,7 +142,7 @@ class Supervisor:
         if child.name == "api" or child.process is None:
             return
         worker = workers.get(child.name)
-        if worker is None or worker.get("pid") != child.process.pid:
+        if worker is None or not self._worker_pid_matches(child, worker.get("pid")):
             stalled = now - child.started_at > 300
         else:
             state = worker.get("state")
@@ -136,7 +156,7 @@ class Supervisor:
             structlog.get_logger().warning(
                 "worker_unresponsive", name=child.name, pid=child.process.pid
             )
-            child.process.kill()
+            self._terminate_tree(child.process, force=True)
 
     def tick(self) -> None:
         now, mono = time.time(), time.monotonic()

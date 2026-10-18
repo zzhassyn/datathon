@@ -54,3 +54,22 @@ ruff/basedpyright/import-linter/Biome/TypeScript/schema drift и production buil
 Critical/Important замечаний нет. Качество на неизвестных видео, другие нарушения,
 VLM и Mac не проверены. Readiness в конце прогона: 503 из-за 2.16ГБ свободной RAM
 при минимуме 3ГБ; остальные readiness checks прошли. Порог памяти сохранён.
+
+## Повторная проверка по отчёту, 18.10.2026
+
+- [x] Сверены ветка/чистый исходный HEAD, три SHA и калибровка; принадлежность false.
+- [x] Исправлены видимость сохранённого ROI, переход из failed к оператору и подпись
+  context-кадра. Автоматического подтверждения или записи при GET нет.
+- [x] По журналу воспроизведён ложный watchdog каждые пять минут: Windows venv redirector
+  и реальный interpreter имеют разные PID. Проверка происхождения/module/name
+  и завершение всего проверенного дерева покрыты пятью регрессионными тестами.
+- [x] Новый полный gate: 808 backend passed / 5 skipped, 36 frontend passed,
+  схемы/типы/import boundaries/Biome/Ruff проходят; production build готов.
+- [x] Два real-model operator E2E прошли; повторное открытие/seek/play проверены
+  отдельно без кадров/trace/video recording. X-2: 510/35, PTS0..17с, inference6.509с,
+  backend6.91с, UI8.752с. Failed/null по неизвестной принадлежности, не чистый итог.
+- [x] После прогона /ready200, available RAM3.154ГБ; порог3ГБ не менялся.
+- [x] Подготовлены инструкция Mac и пустой CPU PT-шаблон; Mac/Core ML не проверены.
+
+Перенос — текстовый Git patch от базы d1343a9 с зеркалом изменённых файлов и хешами;
+без банковских медиа, trained weights, калибровки, секретов и окружений.

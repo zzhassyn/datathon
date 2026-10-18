@@ -113,10 +113,52 @@ def validate_confirmation(payload, meta):
     }
 
 
+def calibration_state(config, meta):
+    """Read a matching human decision for display; never create or confirm one."""
+    try:
+        saved = json.loads(Path(config["calibration_file"]).read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {"calibration_status": "missing", "saved_calibration": None}
+    except (OSError, ValueError, TypeError, KeyError):
+        return {"calibration_status": "invalid", "saved_calibration": None}
+    if not isinstance(saved, dict):
+        return {"calibration_status": "invalid", "saved_calibration": None}
+    if any(
+        saved.get(key) != meta[key]
+        for key in ("video_sha256", "width", "height", "rotation_deg", "frame_pts")
+    ):
+        return {"calibration_status": "mismatch", "saved_calibration": None}
+    roi = saved.get("desk_roi")
+    if (
+        not isinstance(roi, list)
+        or len(roi) != 4
+        or any(type(value) is not int for value in roi)
+        or not 0 <= roi[0] < roi[2] <= meta["width"]
+        or not 0 <= roi[1] < roi[3] <= meta["height"]
+        or not all(
+            saved.get(key) is True
+            for key in ("confirmed", "cash_area_confirmed", "staff_only_surface")
+        )
+    ):
+        return {"calibration_status": "invalid", "saved_calibration": None}
+    return {
+        "calibration_status": "valid",
+        "saved_calibration": {
+            "desk_roi": roi,
+            "confirmed": True,
+            "cash_area_confirmed": True,
+            "staff_only_surface": True,
+            "staff_ownership_confirmed": saved.get("staff_ownership_confirmed") is True,
+            "confirmed_at": saved.get("confirmed_at"),
+        },
+    }
+
+
 @router.get("/api/local-calibration/meta")
 async def metadata(request: Request):
-    meta, _, _ = await run_in_threadpool(snapshot, request.app.state.settings)
-    return JSONResponse(meta, headers={"Cache-Control": "private, no-store"})
+    meta, _, config = await run_in_threadpool(snapshot, request.app.state.settings)
+    state = await run_in_threadpool(calibration_state, config, meta)
+    return JSONResponse({**meta, **state}, headers={"Cache-Control": "private, no-store"})
 
 
 @router.get("/api/local-calibration/frame.jpg")

@@ -136,6 +136,14 @@ export function JobPage({ id }: { id: string }) {
                   <div className="error" role="alert">
                     <h2>{ru.failed}</h2>
                     <p>{job.error?.message_ru || ru.invalidResponse}</p>
+                    {job.pipeline_mode === "full" && (
+                      <>
+                        <p>{ru.operatorReviewHint}</p>
+                        <a className="button-link" href="/local-calibration">
+                          {ru.openCalibration}
+                        </a>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <VerdictBanner job={job} />

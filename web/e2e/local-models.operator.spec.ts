@@ -16,6 +16,16 @@ test("local calibration: displayed image and pointer coordinates share the same 
     () => (document.getElementById("frame") as HTMLImageElement).naturalWidth > 0,
   );
   const metadata = await (await page.request.get("/api/local-calibration/meta")).json();
+  if (metadata.saved_calibration) {
+    await expect(page.locator("#coords")).toHaveText(
+      JSON.stringify(metadata.saved_calibration.desk_roi),
+    );
+    await expect(page.locator("#saved-state")).toContainText("Сохранённая поверхность");
+    await expect(page.locator("#ownership")).not.toBeChecked();
+    await expect(page.locator("#cash")).not.toBeChecked();
+    await expect(page.locator("#surface")).not.toBeChecked();
+    await expect(page.locator("#save")).toBeDisabled();
+  }
   const image = await page.locator("#frame").boundingBox();
   const overlay = await page.locator("#overlay").boundingBox();
   if (!image || !overlay) throw new Error("Calibration geometry missing");
@@ -39,6 +49,18 @@ test("local trained models: real upload, progress and calibration gate", async (
   test.skip(process.env.CG_E2E_REAL_MODELS !== "1" || !process.env.CG_LOCAL_TEST_VIDEO);
   test.setTimeout(250000);
   const samples: unknown[] = [];
+  const pageErrors: string[] = [];
+  const externalOrigins = new Set<string>();
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (
+      ["http:", "https:"].includes(url.protocol) &&
+      !["127.0.0.1", "localhost"].includes(url.hostname)
+    ) {
+      externalOrigins.add(url.origin);
+    }
+  });
   const state: {
     final: {
       status: string;
@@ -78,6 +100,11 @@ test("local trained models: real upload, progress and calibration gate", async (
       .first(),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Этапы обработки", exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Проверить калибровку и подтверждения оператора", exact: true }),
+  ).toHaveAttribute("href", "/local-calibration");
+  expect(pageErrors).toEqual([]);
+  expect([...externalOrigins]).toEqual([]);
   const report = {
     url: page.url(),
     elapsed_wall_sec: (Date.now() - started) / 1000,
@@ -86,6 +113,8 @@ test("local trained models: real upload, progress and calibration gate", async (
     bank_images_exported: false,
     screenshots: false,
     accuracy_evaluation: false,
+    page_errors: pageErrors,
+    external_origins: [...externalOrigins],
   };
   if (process.env.CG_E2E_NUMERIC_REPORT) {
     await writeFile(process.env.CG_E2E_NUMERIC_REPORT, JSON.stringify(report, null, 2));

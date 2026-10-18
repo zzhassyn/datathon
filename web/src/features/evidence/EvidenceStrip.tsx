@@ -41,7 +41,7 @@ export function EvidenceStrip({
             ) : (
               <img
                 src={frame.url}
-                alt={`${frame.kind === "zoom" ? ru.zoom : frame.kind === "context" ? ru.before : ru.frame}, ${timecode(frame.timestamp_sec)}: ${title}`}
+                alt={`${frame.kind === "zoom" ? ru.zoom : frame.kind === "context" ? ru.contextFrame : ru.frame}, ${timecode(frame.timestamp_sec)}: ${title}`}
                 width={frame.width || 160}
                 height={frame.height || 120}
                 loading="lazy"

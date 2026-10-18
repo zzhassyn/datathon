@@ -1,0 +1,27 @@
+{
+  "weights": {
+    "main": {
+      "path": "/ABSOLUTE/models/main-best22.pt",
+      "sha256": "b687a1e38127ae637ed1e9d9163da192dff82c2123bc63064ac5950a19cf12fb",
+      "name": "CashGuard main14 / YOLO26s / best22"
+    },
+    "hands": {
+      "path": "/ABSOLUTE/models/hands-best27.pt",
+      "sha256": "544f49d455934b703e6516cc9139bed0fee1b7a4aaf2a3c495451004769c4dfc",
+      "name": "CashGuard hands / YOLO26s / best27"
+    },
+    "door": {
+      "path": "/ABSOLUTE/models/door-best6.pt",
+      "sha256": "73c93111f5606cb218550e9f3b1da88e95cda84095c1af4a21768820896c406d",
+      "name": "CashGuard door / YOLO26s-cls / best6"
+    }
+  },
+  "calibration_source": "/ABSOLUTE/local-video.mov",
+  "calibration_file": "/ABSOLUTE/runtime/confirmed_calibration.json",
+  "gpu_lock_path": "/ABSOLUTE/runtime/cuda.lock",
+  "sample_fps": 2,
+  "device": "cpu",
+  "rule": {
+    "min_duration_sec": 2
+  }
+}

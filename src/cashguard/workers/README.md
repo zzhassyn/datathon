@@ -55,6 +55,10 @@ Supervisor поднимает API с reload и один `--role all` в свеж
 - Дочерние процессы — свежие интерпретаторы `subprocess.Popen([sys.executable, '-m', ...])`. Никакого fork: Metal и ObjC не fork-safe. Каждая точка входа вызывает `multiprocessing.set_start_method('spawn')`.
 - Два heartbeat: `alive_at` из отдельного потока каждые 2 с, `progress_at` из главного цикла на каждом кадре или шаге.
 - Супервизор убивает воркер при `alive_at` старше 20 с или `progress_at` старше 60 с (занят) / 300 с (прогрев), предварительно проверив cmdline pid.
+- Windows venv может запускать реальный interpreter дочерним процессом. Supervisor
+  принимает его heartbeat только после проверки происхождения и module/name;
+  несовпадение PID обёртки само не делает живой worker зависшим. При настоящем
+  зависании завершается проверенное дерево процесса, включая interpreter.
 - Супервизор не импортирует web- и ML-библиотеки. `OBJC_DISABLE_INITIALIZE_FORK_SAFETY` не использовать.
 
 ## Документы

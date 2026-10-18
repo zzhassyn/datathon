@@ -93,3 +93,42 @@ def test_calibration_rejects_untrusted_host_even_from_loopback(
     enable(settings, tmp_path, synthetic)
     response = client.get("/api/local-calibration/meta", headers={"Host": "untrusted.invalid"})
     assert response.status_code == 403
+
+
+def test_saved_calibration_is_visible_without_reconfirmation_or_writes(
+    client, settings, synthetic, tmp_path
+):
+    saved = enable(settings, tmp_path, synthetic)
+    meta = client.get("/api/local-calibration/meta").json()
+    assert meta["saved_calibration"] is None
+    assert meta["calibration_status"] == "missing"
+    payload = {
+        **meta,
+        "desk_roi": [1, 1, 20, 20],
+        "confirmed": True,
+        "cash_area_confirmed": True,
+        "staff_only_surface": True,
+        "staff_ownership_confirmed": False,
+    }
+    response = client.post(
+        "/api/local-calibration/confirm", json=payload, headers={"Origin": "http://127.0.0.1"}
+    )
+    assert response.status_code == 200
+    original = saved.read_bytes()
+    reopened = client.get("/api/local-calibration/meta").json()
+    assert reopened["calibration_status"] == "valid"
+    assert reopened["saved_calibration"]["desk_roi"] == [1, 1, 20, 20]
+    assert reopened["saved_calibration"]["staff_ownership_confirmed"] is False
+    assert reopened["saved_calibration"]["confirmed_at"] == response.json()["confirmed_at"]
+    assert saved.read_bytes() == original
+
+
+def test_saved_calibration_from_other_camera_is_not_shown_as_current(
+    client, settings, synthetic, tmp_path
+):
+    saved = enable(settings, tmp_path, synthetic)
+    meta = client.get("/api/local-calibration/meta").json()
+    saved.write_text(json.dumps({**meta, "video_sha256": "f" * 64, "desk_roi": [1, 1, 20, 20]}))
+    reopened = client.get("/api/local-calibration/meta").json()
+    assert reopened["calibration_status"] == "mismatch"
+    assert reopened["saved_calibration"] is None
