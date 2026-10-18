@@ -44,7 +44,6 @@ PENDING_RULE_CODES: frozenset[ViolationCode] = frozenset(
         ViolationCode.PC_UNLOCKED,
         ViolationCode.DOOR_NOT_CLOSED,
         ViolationCode.OUTSIDER_IN_CASH_ROOM,
-        ViolationCode.THIRD_PERSON_DURING_SERVICE,
         ViolationCode.COLLECTOR_NOT_VERIFIED,
         ViolationCode.BAG_CASH_NO_RECOUNT,
         ViolationCode.FOOD_DRINK,

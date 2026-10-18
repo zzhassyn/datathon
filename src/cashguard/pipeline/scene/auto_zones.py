@@ -79,7 +79,7 @@ def auto_calibration(report, *, min_conf=0.5):
         scores[key] = sum(_overlap_area(b, desk) + 0.01 for _, b in items)
     if not scores:
         raise ValueError("Нет устойчивого трека человека у стола; роль кассира не определена")
-    cashier = max(scores, key=scores.get)
+    cashier = max(scores.items(), key=lambda item: item[1])[0]
     cashier_box = _median_box([b for _, b in tracks[cashier]])
     cashier_roi = _expand(cashier_box, 0.12, 0.12)
     entry = _expand(door, 0.03, 0.03) if _valid(door) else None
