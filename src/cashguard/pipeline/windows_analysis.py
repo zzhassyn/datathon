@@ -34,6 +34,9 @@ from cashguard.pipeline.scene.temporal import build_numeric
 
 
 def temporal_candidates(report, calibration, options):
+    from cashguard.pipeline.rules.access.third_person_during_service import (
+        evaluate_frames as third_person,
+    )
     from cashguard.pipeline.rules.cashops.prev_cash_on_desk import evaluate_scene as previous_cash
     from cashguard.pipeline.rules.leave.safe_open import evaluate_scene as safe_open
     from cashguard.pipeline.rules.leave.valuables_left import evaluate_scene as valuables_left
@@ -43,6 +46,7 @@ def temporal_candidates(report, calibration, options):
         "VALUABLES_LEFT": valuables_left,
         "SAFE_OPEN": safe_open,
         "PREV_CASH_ON_DESK": previous_cash,
+        "THIRD_PERSON_DURING_SERVICE": third_person,
     }
     if not codes or len(codes) != len(set(codes)) or any(c not in evaluators for c in codes):
         raise AnalysisBlocked("Некорректный список правил сцены.")
@@ -55,6 +59,14 @@ def temporal_candidates(report, calibration, options):
     for code in codes:
         if code == "PREV_CASH_ON_DESK":
             candidates.extend(previous_cash(scene))
+        elif code == "THIRD_PERSON_DURING_SERVICE":
+            candidates.extend(
+                third_person(
+                    report["frames"],
+                    calibration.get("scene", {}),
+                    min_duration_sec=float(options.get("min_duration_sec", 2)),
+                )
+            )
         else:
             candidates.extend(
                 evaluators[code](scene, min_duration_sec=float(options.get("min_duration_sec", 2)))
