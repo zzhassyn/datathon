@@ -21,7 +21,7 @@ def evaluate_scene(scene, *, min_duration_sec=2.0):
         # Tolerance of one sampling step: a clip may end just before ``end``.
         if float(event.data.get("room_empty_until", event.t)) + 0.6 < end:
             continue
-        end = min(end, float(event.data.get("room_empty_until", end)) + 0.6)
+        end = min(end, float(event.data.get("room_empty_until", end)))
         items = [
             s
             for s in scene.states
