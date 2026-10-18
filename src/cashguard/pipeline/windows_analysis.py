@@ -29,6 +29,7 @@ from cashguard.pipeline.local_config import (
     read_config,
 )
 from cashguard.pipeline.rules.discipline.personal_items import evaluate_frames
+from cashguard.pipeline.scene.auto_zones import auto_calibration
 from cashguard.pipeline.scene.temporal import build_numeric
 
 
@@ -61,6 +62,10 @@ def temporal_candidates(report, calibration, options):
     return scene, sorted(candidates, key=lambda c: c.t_sec), codes
 
 
+def catalog_hash():
+    return load_catalog().config_hash
+
+
 def analyze(input_path, output, job_id, deadline_at, config_path, progress, *, cached=None):
     from cashguard.pipeline.perception.windows_inference import run
 
@@ -86,7 +91,15 @@ def analyze(input_path, output, job_id, deadline_at, config_path, progress, *, c
     if config_fingerprint(config_path) != initial_config_hash:
         raise AnalysisBlocked("Калибровка изменилась во время обработки. Загрузите видео повторно.")
     progress("rules", 0, "Проверка подтверждённых зон и правил")
-    calibration = confirmed_calibration(config, report["video"], require_ownership=not temporal)
+    auto_zones = temporal and config["temporal_rules"].get("auto_zones") is True
+    if auto_zones:
+        try:
+            calibration = auto_calibration(report)
+        except ValueError as error:
+            raise AnalysisBlocked(f"Автоматические зоны не определены: {error}") from None
+        atomic_write_json(output / "auto_calibration.json", calibration)
+    else:
+        calibration = confirmed_calibration(config, report["video"], require_ownership=not temporal)
     scene = None
     if temporal:
         scene, candidates, evaluated = temporal_candidates(
@@ -111,8 +124,29 @@ def analyze(input_path, output, job_id, deadline_at, config_path, progress, *, c
             accuracy_validated=False,
             door="EVALUATED" if report.get("door_evaluated") else "NOT_EVALUATED_ROI_MISSING",
             detection_counts="per_frame_not_unique_objects",
+            zones="auto_objects_not_human_confirmed" if auto_zones else "human_confirmed",
+            clean_verdict_basis=(
+                "no_candidates_from_evaluated_rules_only" if auto_zones else "blocked"
+            ),
         ),
     )
+    model_hash = hashlib.sha256(json.dumps(report["models"], sort_keys=True).encode()).hexdigest()
+    if not candidates and auto_zones:
+        progress("rules", 1, "Кандидатов по оцениваемым правилам нет; чистый вердикт по их охвату")
+        return AnalysisResult(
+            job_id=job_id,
+            verdict="no_violation",
+            result_level=ResultLevel.RULES,
+            perception_level=PerceptionLevel.FAST,
+            violations=[],
+            signals=[],
+            video=video,
+            timings={**report["timings"], "total": time.monotonic() - started},
+            degradations=[Degradation(stage=JobStage.VLM, reason=DegradationReason.VLM_DISABLED)],
+            versions=AnalysisVersions(
+                git_sha="local-mac-auto-zones", models_hash=model_hash, config_hash=catalog_hash()
+            ),
+        )
     if not candidates:
         raise AnalysisBlocked(
             "Выбранные правила не подтверждены. "
@@ -188,7 +222,6 @@ def analyze(input_path, output, job_id, deadline_at, config_path, progress, *, c
             )
         )
     progress("evidence", 1, "Кадры-доказательства сохранены локально")
-    model_hash = hashlib.sha256(json.dumps(report["models"], sort_keys=True).encode()).hexdigest()
     result = AnalysisResult(
         job_id=job_id,
         verdict="violation",
@@ -200,7 +233,9 @@ def analyze(input_path, output, job_id, deadline_at, config_path, progress, *, c
         timings={**report["timings"], "total": time.monotonic() - started},
         degradations=[Degradation(stage=JobStage.VLM, reason=DegradationReason.VLM_DISABLED)],
         versions=AnalysisVersions(
-            git_sha="local-windows", models_hash=model_hash, config_hash=catalog.config_hash
+            git_sha="local-mac-auto-zones" if auto_zones else "local-windows",
+            models_hash=model_hash,
+            config_hash=catalog.config_hash,
         ),
     )
     return result

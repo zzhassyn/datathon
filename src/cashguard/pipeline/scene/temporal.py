@@ -139,26 +139,48 @@ def build_numeric(frames, video, calibration, params=None):
             and observations[minimum - 1][1] - first_t <= max_gap * minimum
         )
         exited = False
+        relaxed = cfg.get("exit_mode") == "relaxed"
         for n, (idx, t, detection) in enumerate(observations):
             next_idx = observations[n + 1][0] if n + 1 < len(observations) else len(frames)
             missing = frames[idx + 1 : next_idx]
-            if gate is None or not missing or missing[-1]["t_sec"] - t < grace or n < 1:
+            if gate is None or not missing or n < 1:
                 continue
+            absence = missing[-1]["t_sec"] - t
             before = observations[n - 1][2]["box"]
             closer = distance(detection["box"], gate) + 0.005 < distance(before, gate)
             continuous = all(
                 b["t_sec"] - a["t_sec"] <= max_gap
                 for a, b in zip(frames[idx : next_idx - 1], frames[idx + 1 : next_idx], strict=True)
             )
-            if (
-                not inside(detection["box"], gate)
-                or not closer
-                or not continuous
-                or t - observations[n - 1][1] > max_gap
-            ):
+            strict_ok = (
+                absence >= grace
+                and inside(detection["box"], gate)
+                and closer
+                and continuous
+                and t - observations[n - 1][1] <= max_gap
+            )
+            # Relaxed (auto-zone) mode: the track ends while touching the door zone or the
+            # frame border and nobody is observed afterwards until the video ends.
+            box = detection["box"]
+            at_border = box[0] < 0.02 or box[1] < 0.02 or box[2] > 0.98
+            nobody_after = all(
+                not any(d["class_name"] == "person" and d["conf"] >= 0.25 for d in f["detections"])
+                for f in missing
+            )
+            relaxed_ok = (
+                relaxed
+                and n == len(observations) - 1
+                and (overlaps(box, gate) or at_border)
+                and nobody_after
+                and absence >= min(grace, 1.0)
+                and continuous
+            )
+            if not strict_ok and not relaxed_ok:
                 continue
             stamp = missing[0]["t_sec"]
-            confirmed = next(f["t_sec"] for f in missing if f["t_sec"] - t >= grace)
+            confirmed = next(
+                (f["t_sec"] for f in missing if f["t_sec"] - t >= grace), missing[-1]["t_sec"]
+            )
             empty_until = stamp
             for f in missing:
                 if any(d["class_name"] == "person" and d["conf"] >= 0.25 for d in f["detections"]):
@@ -169,7 +191,7 @@ def build_numeric(frames, video, calibration, params=None):
                     kind=SceneEventKind.EXIT,
                     t=stamp,
                     track_ids=[key],
-                    conf=0.7,
+                    conf=0.7 if strict_ok else 0.55,
                     box=BBox(
                         x1=detection["box"][0],
                         y1=detection["box"][1],
@@ -180,7 +202,9 @@ def build_numeric(frames, video, calibration, params=None):
                         "role": str(role),
                         "confirmed_at": confirmed,
                         "room_empty_until": empty_until,
-                        "reason": "gate_motion_then_absence",
+                        "reason": "gate_motion_then_absence"
+                        if strict_ok
+                        else "track_end_at_gate_or_border_then_empty_room",
                     },
                 )
             )
