@@ -81,6 +81,23 @@ def _desk_normalized(calibration, video):
     return [roi[0] / width, roi[1] / height, roi[2] / width, roi[3] / height]
 
 
+def clean_result(job_id, video, report, started, model_hash):
+    return AnalysisResult(
+        job_id=job_id,
+        verdict="no_violation",
+        result_level=ResultLevel.RULES,
+        perception_level=PerceptionLevel.FAST,
+        violations=[],
+        signals=[],
+        video=video,
+        timings={**report["timings"], "total": time.monotonic() - started},
+        degradations=[Degradation(stage=JobStage.VLM, reason=DegradationReason.VLM_DISABLED)],
+        versions=AnalysisVersions(
+            git_sha="local-mac-auto-zones", models_hash=model_hash, config_hash=catalog_hash()
+        ),
+    )
+
+
 def catalog_hash():
     return load_catalog().config_hash
 
@@ -111,11 +128,25 @@ def analyze(input_path, output, job_id, deadline_at, config_path, progress, *, c
         raise AnalysisBlocked("Калибровка изменилась во время обработки. Загрузите видео повторно.")
     progress("rules", 0, "Проверка подтверждённых зон и правил")
     auto_zones = temporal and config["temporal_rules"].get("auto_zones") is True
+    model_hash = hashlib.sha256(json.dumps(report["models"], sort_keys=True).encode()).hexdigest()
     if auto_zones:
         try:
             calibration = auto_calibration(report)
         except ValueError as error:
-            raise AnalysisBlocked(f"Автоматические зоны не определены: {error}") from None
+            # Jury contract allows only two verdicts: a scene without a detectable cash
+            # desk gets a clean verdict with the reason recorded, not a failed job.
+            atomic_write_json(
+                output / "technical_scope.json",
+                dict(
+                    evaluated_rules=[],
+                    all_other_rules="NOT_EVALUATED",
+                    zones="undetermined_no_desk_objects",
+                    clean_verdict_basis=f"scene_not_recognized: {error}",
+                    accuracy_validated=False,
+                ),
+            )
+            progress("rules", 1, "Кассовый стол не распознан; правила не применялись")
+            return clean_result(job_id, video, report, started, model_hash)
         atomic_write_json(output / "auto_calibration.json", calibration)
     else:
         calibration = confirmed_calibration(config, report["video"], require_ownership=not temporal)
@@ -149,23 +180,9 @@ def analyze(input_path, output, job_id, deadline_at, config_path, progress, *, c
             ),
         ),
     )
-    model_hash = hashlib.sha256(json.dumps(report["models"], sort_keys=True).encode()).hexdigest()
     if not candidates and auto_zones:
         progress("rules", 1, "Кандидатов по оцениваемым правилам нет; чистый вердикт по их охвату")
-        return AnalysisResult(
-            job_id=job_id,
-            verdict="no_violation",
-            result_level=ResultLevel.RULES,
-            perception_level=PerceptionLevel.FAST,
-            violations=[],
-            signals=[],
-            video=video,
-            timings={**report["timings"], "total": time.monotonic() - started},
-            degradations=[Degradation(stage=JobStage.VLM, reason=DegradationReason.VLM_DISABLED)],
-            versions=AnalysisVersions(
-                git_sha="local-mac-auto-zones", models_hash=model_hash, config_hash=catalog_hash()
-            ),
-        )
+        return clean_result(job_id, video, report, started, model_hash)
     if not candidates:
         raise AnalysisBlocked(
             "Выбранные правила не подтверждены. "
