@@ -1,14 +1,22 @@
 # `src/cashguard/pipeline/` — пайплайн обработки видео
 
+Windows-срез `windows_analysis.py` подключает настоящие trained main/hands/door
+к очереди через existing AnalysisResult/publication. Только PERSONAL_ITEMS и
+подтверждённая оператором камера; неизвестные условия/неподтверждённые отрицания
+дают failed. Наблюдения640/hand сохраняются sidecar без изменения frozen trace.
+Ни общий Mac runner, ни все правила, ни VLM этим не объявляются готовыми.
+Подробности: `docs/local_analysis_windows.md`.
+
 > **Назначение:** Этапы от проверки файла до готовых `jury.json` и `ui_result.json`. Оборудование спрятано за портами из `contracts/ports.py`.
-> **Владелец:** S0 (`runner.py`), S1 (`stub.py`), подпапки — по таблице · **Статус:** 18.10.2026, первый backend-срез K4; реальные адаптеры ещё не подключены.
+> **Владелец:** S0 (`runner.py`), S1 (`stub.py`), подпапки — по таблице · **Статус:** 18.10.2026, Windows PT-срез подключён; общий K4 runner не завершён.
 
 `runner.run_perception_stage` исполняет замороженные порты и возвращает `AnalysisResult`.
 `runtime.bind_stages` добавляет к `StageSet` фабрику ресурсов задачи: backend, FrameStore,
 план, конфиги, каталог, версии и progress. `stage_factory(mode, factory)` регистрирует
 набор на срок жизни **конкретного spawned worker**; режим не подменяется stub.
 `load_stages` без зарегистрированной фабрики завершается ошибкой. Глобальные API/supervisor
-guards `full`/`replay` сохраняются: наличие оркестратора не означает готовность моделей.
+guards сохраняются для `replay` и `full` вне явного Windows PT-профиля выше:
+наличие оркестратора не означает готовность остальных adapters.
 
 ## Планируемые файлы
 

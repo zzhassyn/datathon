@@ -14,7 +14,9 @@ from cashguard.core.settings import get_settings
 def main() -> None:
     multiprocessing.set_start_method("spawn", force=True)
     apply_offline_env()
-    parser = argparse.ArgumentParser(description="CashGuard: локальный synthetic stub backend")
+    parser = argparse.ArgumentParser(
+        description="CashGuard: локальный анализ видео и явный stub-режим"
+    )
     commands = parser.add_subparsers(dest="command", required=True)
     up = commands.add_parser("up", help="API и worker под supervisor")
     up.add_argument("--profile", choices=["dev", "prod"], default="dev")

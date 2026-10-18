@@ -1,6 +1,5 @@
 import { CheckCircle2, Clock3, Image } from "lucide-react";
 import type { JobView } from "../../shared/api/decode";
-import { active } from "../../shared/api/queries";
 import { ru } from "../../shared/i18n/ru";
 import { timecode } from "../../shared/lib/format";
 import { StageStepper } from "../progress/StageStepper";
@@ -14,15 +13,19 @@ export function EventQueue({
   selected: number;
   onSelect: (index: number) => void;
 }) {
-  const pending = active(job.status);
   return (
     <aside className="review-sidebar" aria-label={ru.review}>
       <div className="review-heading">
         <h2>{ru.events}</h2>
         <span className="badge">{job.violations.length}</span>
       </div>
-      {pending && <StageStepper job={job} />}
-      {job.violations.length > 0 ? (
+      <StageStepper job={job} />
+      {job.status === "failed" ? (
+        <div className="review-empty">
+          <h3>{ru.resultMissing}</h3>
+          <p>{ru.failedNoCleanHint}</p>
+        </div>
+      ) : job.violations.length > 0 ? (
         <div className="event-queue">
           {job.violations.map((event, index) => (
             <button

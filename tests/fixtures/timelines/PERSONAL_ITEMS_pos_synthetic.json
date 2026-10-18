@@ -1,0 +1,10 @@
+{
+  "kind": "synthetic_numeric_sidecar_not_model_accuracy",
+  "times_sec": [0, 0.5, 1, 1.5, 2, 2.5],
+  "object_class": "personal_bag",
+  "work_context": true,
+  "min_duration_sec": 2,
+  "expected_events": 1,
+  "expected_start_sec": 0,
+  "expected_end_sec": 2.5
+}

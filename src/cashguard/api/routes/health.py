@@ -1,3 +1,4 @@
+import json
 import shutil
 import time
 
@@ -28,12 +29,31 @@ def readiness(request):
             for w in workers
         )
 
+    model_ready = False
+    if settings.pipeline_mode == "full":
+        try:
+            from cashguard.pipeline.local_config import model_fingerprint
+
+            saved = json.loads(
+                (settings.var_dir / "local-model-ready.json").read_text(encoding="utf-8")
+            )
+            model_ready = saved.get("models_hash") == model_fingerprint(
+                settings.local_analysis_config
+            ) and any(
+                w["pid"] == saved.get("worker_pid")
+                and w["state"] in {"idle", "busy"}
+                and now - w["alive_at"] < 10
+                and psutil.pid_exists(w["pid"])
+                for w in workers
+            )
+        except (OSError, ValueError, KeyError):
+            pass
     checks = {
         "worker_perception": alive("perception"),
         "worker_vlm": not settings.vlm_enabled or alive("vlm"),
         # В stub моделей нет — так и сообщаем; готовность stub от моделей не зависит.
-        "models_loaded": False,
-        "warmup_done": settings.pipeline_mode == "stub",
+        "models_loaded": model_ready,
+        "warmup_done": settings.pipeline_mode == "stub" or model_ready,
         "free_mem_ok": psutil.virtual_memory().available / 1_000_000_000
         >= settings.min_free_mem_gb,
         "disk_ok": shutil.disk_usage(settings.var_dir).free / 1_000_000_000 >= 5,

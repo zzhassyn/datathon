@@ -1,7 +1,14 @@
 # `src/cashguard/workers/` — супервизор и воркеры
 
+Windows: `full + torch + CG_LOCAL_ANALYSIS_CONFIG` теперь запускает отдельный
+ML-интерпретатор из `CG_LOCAL_MODEL_PYTHON`. Он сохраняет загруженные main/hands/door,
+проверяет hashes/class order, обрабатывает очередь через настоящий handler и CAS.
+Неизвестная калибровка/принадлежность и неуверенный отрицательный результат дают
+failed. Существующие фабрики K4 и режим stub остаются отдельными. Подробности:
+`docs/local_analysis_windows.md`. Общий Mac/full и replay этим не подключены.
+
 > **Назначение:** Процессы `perception` и `vlm`, общий цикл воркера и кроссплатформенный супервизор `cashguard up` (ADR-0002).
-> **Владелец:** S1; `vlm_worker.py` — S6 · **Статус:** synthetic stub работает; real/replay runner ожидается от S0.
+> **Владелец:** S1; `vlm_worker.py` — S6 · **Статус:** synthetic stub и ограниченный Windows PT-профиль работают; общий real/replay runner не завершён.
 
 ## Рабочий запуск
 
@@ -13,8 +20,9 @@ Supervisor поднимает API с reload и один `--role all` в свеж
 `CG_PIPELINE_MODE=stub` принимает только синтетические видео с метатегом
 `comment=cg-stub:clean|violation`, созданные `scripts/make_synthetic_mov.py`.
 Имя файла не влияет на исход. Видео без метатега завершается ошибкой
-`UNSUPPORTED_VIDEO`; это не реальное обнаружение нарушений. `full` и `replay`
-пока завершаются явной ошибкой: ports опубликованы, реализации runner/стадий ещё нет.
+`UNSUPPORTED_VIDEO`; это не реальное обнаружение нарушений. `full` разрешён только
+для явно настроенного Windows PT-профиля выше. Остальные full и replay завершаются
+явной ошибкой: общие adapters ещё не подключены.
 
 Воркеры используют отдельные liveness/progress heartbeat, сохраняют результат
 в `jobs/<id>/attempt-<uuid>/`, затем публикуют путь атомарным CAS в SQLite.
@@ -60,12 +68,13 @@ Supervisor поднимает API с reload и один `--role all` в свеж
 
 18.10.2026: `process_pipeline` привязывает progress зарегистрированных стадий к
 `report_progress` с текущим lease-token; `runner` исполняет набор из явной фабрики.
-Реальные full/replay startup guards остаются: concrete ML/scene/rules/VLM adapters
-ещё не поставлены. Обработка ошибок не подменяется чистым вердиктом.
+Startup guards остаются для replay и full вне Windows PT-профиля: общие concrete
+ML/scene/rules/VLM adapters ещё не поставлены. Ошибка не становится чистым вердиктом.
 
 `process_pipeline` вызывает frozen `load_stages/run_perception_stage`, затем
 `publish_analysis`. Публикация типизированного `AnalysisResult` проверена на синтетике:
 идентичность задания/sha256, безопасные JPEG, несколько событий, сигналы, нормы,
-неизменяемая attempt-папка и lease/CAS. Guards full/replay сохранены.
-Остались реальные стадии, передача прогресса, очередь VLM и прогрев; подробнее
-`scripts/README_BACKEND_HANDOFF.md`, раздел 8. Это не готовый AI-пайплайн.
+неизменяемая attempt-папка и lease/CAS. Отдельный Windows handler использует ту же
+публикацию, настоящие модели, progress и прогрев; см. начало документа. Для общего
+пайплайна остаются adapters и очередь VLM; подробнее
+`scripts/README_BACKEND_HANDOFF.md`, раздел 8. Полный AI-пайплайн не завершён.

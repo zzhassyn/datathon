@@ -5,7 +5,13 @@ export function StageStepper({ job }: { job: JobView }) {
   return (
     <section className="progress-panel panel">
       <div className="section-heading">
-        <h2>{job.status === "queued" ? ru.queued : ru.running}</h2>
+        <h2>
+          {job.status === "done" || job.status === "failed"
+            ? ru.stagesHeading
+            : job.status === "queued"
+              ? ru.queued
+              : ru.running}
+        </h2>
         <span className="mono muted">
           {ru.elapsed} {timecode(job.elapsed_sec)}
         </span>

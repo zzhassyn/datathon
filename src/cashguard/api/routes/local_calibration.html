@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>CashGuard — подтверждение зоны кассира</title>
+<style>
+body{background:#101820;color:#eef3f7;font:16px system-ui;margin:24px auto;max-width:1100px;padding:0 20px}h1{font-size:25px}p{max-width:850px;line-height:1.5}.viewer{position:relative;width:fit-content;max-width:100%;touch-action:none}img{display:block;max-width:100%;max-height:65vh;user-select:none}svg{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}rect{fill:#39d6bd33;stroke:#39d6bd;stroke-width:2}label{display:block;margin:12px 0}button{padding:12px 20px;background:#39d6bd;border:0;border-radius:8px;font-weight:700;cursor:pointer}button:disabled{opacity:.4}pre,output{font-size:17px}#status{white-space:pre-wrap;color:#ffd69c}
+</style>
+<h1>Поверхность стола кассира</h1>
+<p>Кадр обрабатывается и показывается только на этом компьютере. Выделите мышью поверхность стола кассира. Исключите клиентский стол, стулья и проход. Координаты относятся к кадру после применения поворота. Само выделение ничего не сохраняет.</p>
+<p id="metadata">Загрузка локального стоп-кадра…</p>
+<div class="viewer" id="viewer"><img id="frame" alt="Локальный стоп-кадр для ручной калибровки" draggable="false"><svg id="overlay" role="img" aria-label="Выделение поверхности стола"><rect id="selection" width="0" height="0"/></svg></div>
+<p>Координаты [x1, y1, x2, y2]: <output id="coords">не выбраны</output></p>
+<label><input type="checkbox" id="cash">Подтверждаю: это кассовый узел.</label>
+<label><input type="checkbox" id="surface">Подтверждаю: выделена поверхность кассира, исключены клиентская сторона, стулья и проход.</label>
+<label><input type="checkbox" id="ownership">Принадлежность оцениваемых личных вещей сотруднику подтверждена отдельно по видео. Если неизвестна — оставить выключенным; итог правила останется заблокирован.</label>
+<button id="save" disabled>Подтвердить и сохранить калибровку</button>
+<p id="status" role="status"></p><p><a href="/" style="color:#39d6bd">Вернуться к загрузке видео</a></p>
+<script>
+let meta, roi=null, start=null;
+const $=id=>document.getElementById(id), svg=$('overlay'), rect=$('selection');
+function enabled(){$('save').disabled=!(roi && roi[2]>roi[0] && roi[3]>roi[1] && $('cash').checked && $('surface').checked)}
+function point(e){const b=svg.getBoundingClientRect();return [Math.max(0,Math.min(meta.width,Math.round((e.clientX-b.left)/b.width*meta.width))),Math.max(0,Math.min(meta.height,Math.round((e.clientY-b.top)/b.height*meta.height)))]}
+function draw(p){roi=[Math.min(start[0],p[0]),Math.min(start[1],p[1]),Math.max(start[0],p[0]),Math.max(start[1],p[1])];rect.setAttribute('x',roi[0]);rect.setAttribute('y',roi[1]);rect.setAttribute('width',roi[2]-roi[0]);rect.setAttribute('height',roi[3]-roi[1]);$('coords').textContent=JSON.stringify(roi);enabled()}
+svg.onpointerdown=e=>{if(!meta)return;start=point(e);svg.setPointerCapture(e.pointerId);draw(start)};
+svg.onpointermove=e=>{if(start)draw(point(e))};svg.onpointerup=e=>{if(start){draw(point(e));start=null}};
+$('cash').onchange=enabled;$('surface').onchange=enabled;
+fetch('/api/local-calibration/meta',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error((await r.json()).detail||'Не удалось открыть кадр');return r.json()}).then(m=>{meta=m;svg.setAttribute('viewBox',`0 0 ${m.width} ${m.height}`);$('frame').src=m.frame_url;$('metadata').textContent=`${m.video_id} · ${m.width} × ${m.height} пикселей · поворот ${m.rotation_deg}° · PTS ${m.frame_pts} (${m.time_base}) · SHA-256 ${m.video_sha256}`}).catch(e=>$('status').textContent=e.message);
+$('save').onclick=async()=>{if(!roi)return;$('save').disabled=true;try{const r=await fetch('/api/local-calibration/confirm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...meta,desk_roi:roi,confirmed:true,cash_area_confirmed:$('cash').checked,staff_only_surface:$('surface').checked,staff_ownership_confirmed:$('ownership').checked})});const v=await r.json();if(!r.ok)throw Error(v.detail||'Не удалось сохранить');$('status').textContent=`Калибровка подтверждена и сохранена: ${JSON.stringify(v.desk_roi)}. ${v.width} × ${v.height}, поворот ${v.rotation_deg}°. `+(v.staff_ownership_confirmed?'Принадлежность вещей отмечена подтверждённой.':'Принадлежность вещей не подтверждена: итог правила заблокирован.');}catch(e){$('status').textContent=e.message;enabled()}};
+</script></html>

@@ -15,7 +15,7 @@ from starlette.staticfiles import StaticFiles
 from cashguard.api.deps import key_digests
 from cashguard.api.errors import ui_error
 from cashguard.api.ratelimit import UiLimiter
-from cashguard.api.routes import admin, health, jury, model_check, ui
+from cashguard.api.routes import admin, health, jury, local_calibration, model_check, ui
 from cashguard.api.sweeper import sweep
 from cashguard.core.settings import Settings, get_settings
 from cashguard.jobs.repo import JobRepository
@@ -45,7 +45,11 @@ class CachePolicy:
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     # Fail explicitly instead of silently using synthetic inference for real mode.
-    if settings.pipeline_mode != "stub":
+    if settings.pipeline_mode != "stub" and not (
+        settings.pipeline_mode == "full"
+        and settings.vision_backend == "torch"
+        and settings.local_analysis_config is not None
+    ):
         raise RuntimeError("S0 runner integration required for replay/full mode")
     settings.paths.ensure()
     repo = JobRepository(settings.db_path, deadlines_path=Path("configs/deadlines.yaml"))
@@ -127,6 +131,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ui.router,
         health.router,
         model_check.router,
+        local_calibration.router,
     ):
         application.include_router(router)
     web = Path(settings.web_dist).resolve()

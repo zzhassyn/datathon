@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     models_dir: Path = Path("models")
     local_model_python: Path | None = None
     local_model_weights: Path | None = None
+    local_analysis_config: Path | None = None
     web_dist: Path = Path("web/dist")
     api_keys: SecretStr = SecretStr("")
     ui_access_code: SecretStr = SecretStr("")

@@ -31,6 +31,13 @@ async def ingest_upload(
         except UnsupportedVideo:
             raise HTTPException(415, "unsupported media type") from None
         metadata = meta.to_dict()
+        metadata["pipeline_mode"] = settings.pipeline_mode
+        config_hash = settings.config_hash
+        if settings.pipeline_mode == "full" and settings.vision_backend == "torch":
+            from cashguard.pipeline.local_config import config_fingerprint
+
+            metadata["local_analysis_hash"] = config_fingerprint(settings.local_analysis_config)
+            config_hash += ":" + metadata["local_analysis_hash"]
         if settings.pipeline_mode != "stub":
             metadata.pop("stub_verdict", None)
         await run_io(atomic_write_json, directory / "meta.json", metadata)
@@ -57,7 +64,7 @@ async def ingest_upload(
                 metadata=metadata,
                 client_ip=client_ip,
                 pipeline_version=settings.pipeline_version,
-                config_hash=settings.config_hash,
+                config_hash=config_hash,
             )
             committed = True
             return job

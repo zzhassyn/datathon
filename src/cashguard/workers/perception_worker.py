@@ -14,6 +14,7 @@ from cashguard.jobs.repo import JobRecord
 from cashguard.pipeline import runner
 from cashguard.pipeline.ingest.preview import make_preview
 from cashguard.pipeline.ingest.probe import probe
+from cashguard.pipeline.local_config import AnalysisBlocked, config_fingerprint
 from cashguard.pipeline.render.analysis import render_analysis
 from cashguard.pipeline.render.ui import build_ui_result_fragment
 from cashguard.pipeline.runtime import with_progress
@@ -128,6 +129,14 @@ class PerceptionWorker(Worker):
                 verdict=result.jury["verdict"],
                 violations=len(result.jury["violations"]),
             )
+        except AnalysisBlocked as error:
+            self.repo.fail(
+                job.id,
+                "PIPELINE_CRASH",
+                str(error),
+                lease_owner=self.name,
+                lease_token=job.lease_token,
+            )
         except StubInputError as error:
             self.repo.fail(
                 job.id,
@@ -155,7 +164,31 @@ class PerceptionWorker(Worker):
             )
 
     def process_pipeline(self, job: JobRecord) -> None:
-        """Frozen runner boundary. Startup remains disabled until model stages are delivered."""
+        """Windows PT handler or the explicitly registered frozen stage set; no stub fallback."""
+        if self.settings.pipeline_mode == "full" and self.settings.vision_backend == "torch":
+            from cashguard.pipeline.windows_analysis import analyze
+
+            expected = job.metadata.get("local_analysis_hash")
+            if expected and expected != config_fingerprint(self.settings.local_analysis_config):
+                raise AnalysisBlocked(
+                    "Настройки или калибровка изменились после загрузки видео. "
+                    "Загрузите видео повторно."
+                )
+            directory = self.settings.paths.job_dir(job.id) / f"attempt-{uuid.uuid4().hex}"
+            directory.mkdir(parents=True, exist_ok=False)
+            result = analyze(
+                Path(job.input_path),
+                directory,
+                job.id,
+                job.tiers.finalize_at - 5,
+                self.settings.local_analysis_config,
+                lambda code, fraction, note: self.repo.report_progress(
+                    job.id, self.name, code, fraction, note, lease_token=job.lease_token
+                ),
+                cached=self.model_bundle,
+            )
+            self.publish_analysis(job, result, directory / "evidence")
+            return
         mode = runner.PipelineMode(self.settings.pipeline_mode)
         stages = runner.load_stages(mode)
 

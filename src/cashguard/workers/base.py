@@ -25,6 +25,7 @@ class Worker:
         self.heartbeat_stop = threading.Event()
         self.completed = 0
         self.current_job: JobRecord | None = None
+        self.model_bundle = None
 
     def stop(self) -> None:
         # Finish the current job; supervisor imposes the hard shutdown bound.
@@ -75,7 +76,7 @@ class Worker:
             signal.signal(signal.SIGTERM, lambda *_: self.stop())
             signal.signal(signal.SIGINT, lambda *_: self.stop())
         try:
-            warmup(self.settings.pipeline_mode)
+            self.model_bundle = warmup(self.settings.pipeline_mode, self.settings)
             self.repo.worker_heartbeat(self.name, state="idle")
             self.repo.requeue_dead()
             while not self.stop_event.is_set():

@@ -219,7 +219,13 @@ def ui_view(request: Request, job_id: str) -> dict:
                 "note_ru": None,
             }
         ]
-    mode = request.app.state.settings.pipeline_mode
+    mode = job.metadata.get("pipeline_mode")
+    if mode not in {"stub", "replay", "full"}:
+        mode = (
+            "stub"
+            if job.pipeline_version.startswith("stub")
+            else request.app.state.settings.pipeline_mode
+        )
     status = "failed" if corrupt else job.status
     view = {
         "job_id": job_id,

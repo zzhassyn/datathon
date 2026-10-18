@@ -145,9 +145,7 @@ export function JobPage({ id }: { id: string }) {
                     {ru.unknown}: {job.status}
                   </p>
                 )}
-                <div
-                  className={`review-workspace ${job.status === "failed" ? "without-sidebar" : ""}`}
-                >
+                <div className="review-workspace">
                   <VideoPlayer
                     ref={player}
                     serverUrl={job.video?.url || null}
@@ -157,13 +155,11 @@ export function JobPage({ id }: { id: string }) {
                     finished={job.status === "done" || job.status === "failed"}
                     onSelect={(m) => seek(m.time, false, m.signal ? undefined : m.index)}
                   />
-                  {job.status !== "failed" && (
-                    <EventQueue
-                      job={job}
-                      selected={currentIndex}
-                      onSelect={(index) => seek(job.violations[index].timecode_sec, false, index)}
-                    />
-                  )}
+                  <EventQueue
+                    job={job}
+                    selected={currentIndex}
+                    onSelect={(index) => seek(job.violations[index].timecode_sec, false, index)}
+                  />
                 </div>
                 {job.status !== "failed" && (
                   <>

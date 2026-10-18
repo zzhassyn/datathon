@@ -8,6 +8,7 @@ import time
 from collections import Counter
 from fractions import Fraction
 from pathlib import Path
+from typing import Any
 
 
 def sha256(path: Path) -> str:
@@ -16,16 +17,19 @@ def sha256(path: Path) -> str:
 
 
 def run(source: Path, output: Path, weights: Path) -> dict:
+    from cashguard.pipeline.perception.windows_inference import deny_network, disable_integrations
+
+    deny_network()
     import av
     import numpy as np
     import torch  # pyright: ignore[reportMissingImports]  # Separate ML interpreter.
     from PIL import ImageDraw  # pyright: ignore[reportMissingImports]
-    from ultralytics import YOLO, settings  # pyright: ignore[reportMissingImports]
+    from ultralytics import YOLO  # pyright: ignore[reportMissingImports]
 
-    settings.update({"sync": False})
+    disable_integrations()
     torch.set_num_threads(1)
     started = time.perf_counter()
-    model = YOLO(str(weights))
+    model: Any = YOLO(str(weights))
     frames = []
     counts: Counter[str] = Counter()
     next_sample = 0.0
@@ -109,7 +113,8 @@ def run(source: Path, output: Path, weights: Path) -> dict:
             annotated.mux(packet)
     (output / "annotated.part").replace(output / "annotated.mp4")
     report = {
-        "model_name": "aux_common_objects_s / YOLO26s",
+        "model_name": f"Локальный детектор {weights.name}: {len(model.names)} классов",
+        "classes": model.names,
         "weights_sha256": sha256(weights),
         "input_sha256": sha256(source),
         "device": "cpu",

@@ -50,7 +50,6 @@ PENDING_RULE_CODES: frozenset[ViolationCode] = frozenset(
         ViolationCode.THIRD_PERSON_DURING_SERVICE,
         ViolationCode.COLLECTOR_NOT_VERIFIED,
         ViolationCode.BAG_CASH_NO_RECOUNT,
-        ViolationCode.PERSONAL_ITEMS,
         ViolationCode.FOOD_DRINK,
         ViolationCode.PHONE_CASHIER,
         ViolationCode.LEFT_DURING_SERVICE,

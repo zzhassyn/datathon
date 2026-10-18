@@ -47,7 +47,12 @@ class Supervisor:
         self.children: list[Child] = []
         self._next_health = time.monotonic() + 5
         self._health_failures = 0
-        if settings.pipeline_mode != "stub":
+        if settings.pipeline_mode != "stub" and not (
+            settings.pipeline_mode == "full"
+            and settings.vision_backend == "torch"
+            and settings.local_analysis_config
+            and settings.local_model_python
+        ):
             raise RuntimeError(
                 "Supervisor: real/replay runner ожидается от S0; выберите CG_PIPELINE_MODE=stub"
             )
@@ -61,7 +66,9 @@ class Supervisor:
             Child(
                 name,
                 [
-                    sys.executable,
+                    str(settings.local_model_python)
+                    if settings.pipeline_mode == "full"
+                    else sys.executable,
                     "-m",
                     "cashguard.workers",
                     "--role",
