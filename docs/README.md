@@ -1,7 +1,11 @@
 # Документация CashGuard — индекс
 
 > **Назначение:** список всех документов проекта с одной строкой о каждом, соответствие разделу 8 ТЗ и правила оформления.
-> **Владелец:** S0 (интегратор) · **Статус:** черновик v1, 17.10.2026
+> **Владелец:** S0 (интегратор) · **Статус:** индекс действующих инструкций и архитектурных планов.
+
+Текущий реализованный охват и запуск — в [главном README](../README.md).
+Архитектура и roadmap также описывают будущие этапы; исторический отчёт
+не является измерением качества текущего `main`.
 
 ## С чего начать
 
@@ -10,6 +14,7 @@
 | Жюри, проверяющий | [../README.md](../README.md) → [violation_catalog.md](violation_catalog.md) → [legal_sources.md](legal_sources.md) → [limitations.md](limitations.md) |
 | Агент или разработчик | [../AGENTS.md](../AGENTS.md) → [structure.md](structure.md) → [roadmap.md](roadmap.md) → [architecture.md](architecture.md) → документ своей зоны |
 | Эксплуатация Mac | [runbook_mac.md](runbook_mac.md) → [jury_mode.md](jury_mode.md) → [training.md](training.md) |
+| Локальный PT-анализ | [Запуск](../README.md#полный-анализ-с-локальными-моделями) → [local_analysis_windows.md](local_analysis_windows.md) → [temporal_workflow.md](temporal_workflow.md) |
 
 ## Документы в `docs/`
 
@@ -29,6 +34,10 @@
 | [limitations.md](limitations.md) | Ограничения решения и известные случаи ошибок | S0 |
 | [legal_sources.md](legal_sources.md) | Акты РК, пункты, дословные цитаты, сила нормы и принцип сопоставления «норма → нарушение → кадр» | S5 |
 | [structure.md](structure.md) | Дерево репозитория с владельцами, имена, что генерируется, пути Windows и Mac, как добавить тип нарушения или сигнал | S0 |
+| [local_analysis_windows.md](local_analysis_windows.md) | Windows PT-профиль, отдельное ML-окружение, локальная калибровка и диагностика | S1 |
+| [temporal_workflow.md](temporal_workflow.md) | Настройка временных правил, ручных зон и публикации результата | S1 |
+| [session_report_20261018.md](session_report_20261018.md) | Исторические прогоны и эксперименты 18.10.2026; не оценка текущей версии | исторический отчёт |
+| [mac_local_analysis_handoff.md](mac_local_analysis_handoff.md) | Архивная инструкция переноса конкретного patch-пакета; для нового запуска используйте главный README | историческая инструкция |
 | `violation_types.md` | Появится позже. Генерируется `scripts/render_docs.py` из `configs/catalog/`, руками не правится | генерируется |
 
 ## Соответствие ТЗ, раздел 8
