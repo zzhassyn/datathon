@@ -43,15 +43,12 @@
 ```
 datathon/                                  корень (Windows: C:\Users\zhasy\datathon; Mac: ~/cashguard)
 ├─ AGENTS.md                               [S0] правила для агентов (<150 строк, <32 КиБ)
-├─ CLAUDE.md                               [S0] строка 1 "@AGENTS.md", затем заметки для Claude Code
 ├─ README.md                               [S0] для жюри (ТЗ §8): адреса, curl, ключ, запуск, архитектура, модели, ограничения, AGPL
 ├─ LICENSE                                 [S0] AGPL-3.0 (P0)
 ├─ pyproject.toml uv.lock .python-version  [S0] проект сервиса: Python 3.12; extras ml/mac/cuda; группа dev;
 │                                               настройки ruff, basedpyright, importlinter, pytest (P0)
 ├─ justfile                                [S0] рецепты (P0), список — в ../AGENTS.md
 ├─ .pre-commit-config.yaml .gitattributes .gitignore .editorconfig .env.example   [S0] (P0, кроме .gitignore)
-├─ .claude/settings.json                   [S0] permissions.deny: Read(./data/**), Read(./var/**), Read(./models/**), Read(./runs/**/*.jpg),
-│                                               Read(**/*.mov), Read(**/*.mp4) (P0); на Mac ещё ~/.claude/settings.json с абсолютными путями (человек)
 ├─ src/cashguard/                          пакет сервиса (src-layout)
 │  ├─ cli.py                               [S1] `cashguard`: up, worker, export-schemas, extract-signals, eval, bench, gen-key, purge
 │  ├─ contracts/                           [S0] чистые типы, ничего внутреннего не импортируют
@@ -202,7 +199,7 @@ datathon/                                  корень (Windows: C:\Users\zhasy
 | `result_*.json` | полные ответы jury API с base64-кадрами; `scripts/smoke_jury.sh` пишет их в `var/smoke/` |
 | `var/`, `*.sqlite3*` | состояние сервиса: задачи, видео жюри, трассы, логи |
 | `.env` (`.env.example` коммитится) | ключи API |
-| `.claude/worktrees/` | worktree агентов Claude Code |
+| `.claude/`, `.codex/`, `.agents/`, `.vscode/`, `.idea/`, `CLAUDE.md` в корне | локальные настройки инструментов; не требуются для установки и запуска |
 | `web/dist/`, `dist/`, `node_modules/` | сборка web и зависимости |
 | `.venv*/`, `__pycache__/`, кэши линтеров и pytest | окружения и кэши |
 | `label-studio-data/`, `.label-studio/` | локальная база Label Studio |

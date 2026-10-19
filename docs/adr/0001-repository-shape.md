@@ -42,7 +42,7 @@
    - Windows: `uv sync`;
    - Mac: `uv sync --extra ml --extra mac`;
    - перед окном жюри: `uv sync --locked --extra ml --extra mac`.
-7. `.gitignore` дополняется `var/` и `.claude/worktrees/`.
+7. `.gitignore` исключает `var/` и локальные настройки инструментов (`.claude/`, `.codex/`, `.agents/`, `.vscode/`, `.idea/`, `CLAUDE.md` в корне).
 
 ## Рассмотренные альтернативы
 

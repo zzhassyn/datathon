@@ -1101,7 +1101,7 @@ VLM-этап (см. шаг 14 в 4.2):
 
 Агенты и облако:
 - В коде пайплайна нет вызовов облачных AI.
-- Облачные агенты не открывают кадры датасета и жюри: правила deny в `.claude/settings.json` (`Read(./data/**)`, `Read(./var/**)`, `Read(./models/**)`, `Read(**/*.mov)`) и `AGENTS.md`. Трассы replay содержат только числа. Кадры смотрят люди.
+- Облачные агенты не открывают кадры датасета и жюри: запреты закреплены в `AGENTS.md`. Дополнительные ограничения инструментов задаются локально вне Git. Трассы replay содержат только числа. Кадры смотрят люди.
 - Разметка только локально (Label Studio), без облачных сервисов разметки.
 
 Лицензии:
@@ -1189,15 +1189,13 @@ VLM-этап (см. шаг 14 в 4.2):
 ```
 datathon/                                  корень (Windows: C:\Users\zhasy\datathon; Mac: ~/cashguard)
 ├─ AGENTS.md                               [S0] канонические правила агентов (<150 строк, <32 KiB)
-├─ CLAUDE.md                               [S0] строка 1 "@AGENTS.md", дальше заметки только для Claude
 ├─ README.md                               [S0] для жюри (ТЗ §8): URL UI/API, curl, ключ, запуск, архитектура, модели, ограничения, AGPL
 ├─ LICENSE                                 AGPL-3.0
 ├─ pyproject.toml  uv.lock  .python-version [S0] Python 3.12; extras ml/mac/cuda; группа dev; конфиги ruff/basedpyright/importlinter/pytest
 ├─ justfile                                [S0] setup dev up check test schemas eval-replay loso extract-signals* sync-signals
 │                                               eval-full* perf* robustness* jury-sim e2e build-web deploy* services-* mode*
 │                                               train-a* train-c* status trace gen-key docker-build   (* = [macos])
-├─ .pre-commit-config.yaml .gitattributes (eol=lf) .gitignore (+var/, .claude/worktrees/) .editorconfig .env.example
-├─ .claude/settings.json                   [S0] permissions.deny Read(./data/**), Read(./var/**), Read(./models/**), Read(./runs/**/*.jpg), Read(**/*.mov), Read(**/*.mp4)
+├─ .pre-commit-config.yaml .gitattributes (eol=lf) .gitignore .editorconfig .env.example
 ├─ src/cashguard/
 │  ├─ contracts/                           [S0] чистые типы; ничего внутреннего не импортирует
 │  │  ├─ jury.py ui.py jobs.py video.py perception.py scene.py findings.py catalog.py health.py

@@ -340,7 +340,7 @@ uv run just e2e                    # и тот же набор против http
 
 | Сессия | Роль | Владеет (папки и файлы) | Машина | Агент (рекомендация) |
 |---|---|---|---|---|
-| S0 | Интегратор | `src/cashguard/contracts/**`, `pyproject.toml`, `uv.lock`, `justfile`, `AGENTS.md`, `CLAUDE.md`, `.pre-commit-config.yaml`, `pipeline/runner.py`, `pipeline/rules/{base,registry,context}.py`, `configs/catalog/**` (v0), `configs/legal/`, `configs/models.yaml`, `tests/contract/**`, `README.md`, `docs/{architecture,pipeline,limitations,roadmap,structure}.md`, `docs/adr/` | Windows | человек-интегратор + ведущая сессия Claude Code (до 3 worktree в P0) |
+| S0 | Интегратор | `src/cashguard/contracts/**`, `pyproject.toml`, `uv.lock`, `justfile`, `AGENTS.md`, `.pre-commit-config.yaml`, `pipeline/runner.py`, `pipeline/rules/{base,registry,context}.py`, `configs/catalog/**` (v0), `configs/legal/`, `configs/models.yaml`, `tests/contract/**`, `README.md`, `docs/{architecture,pipeline,limitations,roadmap,structure}.md`, `docs/adr/` | Windows | человек-интегратор + ведущая сессия Claude Code (до 3 worktree в P0) |
 | S1 | Платформа и eval | `core/`, `jobs/`, `api/**`, `workers/` (кроме `vlm_worker.py`), `cli.py`, `pipeline/{stub.py,ingest/,render/}`, `eval/**`, корневой `eval/baselines/`, `configs/{deadlines,perf_budget}.yaml`, `tests/{api,jobs,workers}`, `tests/unit/{core,jobs,render}`, `deploy/linux/**`, `scripts/` (кроме `bench_mac.py`, `sync_signals.py`), `docs/{api,eval}.md` | Windows | Claude Code |
 | S2 | Web | `web/**`, включая `web/e2e/`; `docs/ui.md` | Windows (WebKit-прогоны — на Mac силами S6) | Codex или Claude Code |
 | S3 | Восприятие и обучение | `pipeline/{decode,perception,evidence}/**` (включая экспортёр `pipeline/perception/export.py`), `configs/perception.yaml`, `configs/trackers/`, `training/**` (после P0-S0-01, только аддитивные правки по согласованию с автором сессии обучения), правки `configs/models.yaml` через PR к S0, `tests/mac/` (паритет, ANE), `tests/unit/evidence/`, `docs/training.md` | Mac (обучение, Core ML) + Windows (чистый код) | две сессии Claude Code: на Mac и на Windows |
@@ -383,7 +383,7 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 - Mac: `~/cg-wt/<slug>`. Боевой клон — `~/cashguard`, только для SERVE и обучения. Не в `~/Desktop`, `~/Documents`, `~/Downloads` и не в iCloud.
 - У каждого worktree свой `var/` и свой порт.
 - Модели и данные на Mac есть только в `~/cashguard`. Окружение worktree на Mac: `CG_MODELS_DIR=$HOME/cashguard/models`, `KASSA_DATA_DIR=$HOME/cashguard/data` и настройка пути к датасету для `extract-signals` и `eval-full` (имя — проверить с S1).
-- Deny-правила `.claude/settings.json` в репозитории относительные (`Read(./data/**)` и т. п.) и не закрывают `~/cashguard/...` из worktree. Поэтому на Mac есть пользовательский `~/.claude/settings.json` с абсолютными путями: `Read(//Users/<user>/cashguard/data/**)`, `Read(//Users/<user>/cashguard/var/**)`, `Read(//Users/<user>/cashguard/models/**)`, `Read(//Users/<user>/cashguard/runs/**/*.jpg)` (синтаксис — проверить). Ставит человек в P0-S3-01; см. [../AGENTS.md](../AGENTS.md) и [runbook_mac.md](runbook_mac.md), раздел 3.
+- Общие запреты чтения заданы в `AGENTS.md`. Конфигурации AI-инструментов исключены из Git и для запуска сервиса не требуются. При использовании Claude Code на Mac человек задаёт пользовательский `~/.claude/settings.json` с абсолютными путями: `Read(//Users/<user>/cashguard/data/**)`, `Read(//Users/<user>/cashguard/var/**)`, `Read(//Users/<user>/cashguard/models/**)`, `Read(//Users/<user>/cashguard/runs/**/*.jpg)` (синтаксис — проверить). См. [../AGENTS.md](../AGENTS.md) и [runbook_mac.md](runbook_mac.md), раздел 3.
 - Ветки: `s<N>/<slug>` строчными, например `s0/contracts`, `s1/api-upload`, `s2/job-page`, `s3/decode`, `s4/scene`, `s5/verdict-legal`, `s6/mlx`. Выпуск модели: `s3/promote-<role>-vNNN`. Документы: `product-docs`. После тега: `hotfix/<slug>`.
 
 ### 4.4. Порядок мержа
@@ -425,7 +425,7 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 
 Полный список — в [../AGENTS.md](../AGENTS.md). Коротко:
 - Никаких облачных AI-вызовов в коде пайплайна.
-- Не открывать видео и кадры датасета и жюри (deny-правила в `.claude/settings.json`, на Mac — ещё в `~/.claude/settings.json` с абсолютными путями). Агенты работают с кодом, метриками и числовыми трассами. Полный ответ jury API с base64-кадрами в терминал не выводить (`scripts/smoke_jury.sh` пишет его в `var/smoke/`).
+- Не открывать видео и кадры датасета и жюри (правило `AGENTS.md`; дополнительные ограничения инструментов — в локальных пользовательских настройках). Агенты работают с кодом, метриками и числовыми трассами. Полный ответ jury API с base64-кадрами в терминал не выводить (`scripts/smoke_jury.sh` пишет его в `var/smoke/`).
 - Не коммитить `data/`, `var/`, `models/`, `runs/`.
 - Не ставить `fastapi[standard]`, TypeScript 7, react-router, msw. Не использовать `OBJC_DISABLE_INITIALIZE_FORK_SAFETY`.
 - Не заменять потоковую загрузку на `UploadFile`, всегда передавать трекер явно, таймкоды брать только из PTS.
@@ -523,7 +523,7 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 
 **P0-S0-01. Мерж `training-plan` и `product-docs` в `main`**
 - Вход: ветка `training-plan` после того, как живая сессия обучения закоммитит `training/scripts/00–12`, `training/run_stage_a.sh`, `training/run_stage_c.sh`, `training/kassa_train/weights.py`, `.gitattributes`; ветка `product-docs`.
-- Выход: `main` с `training/**`, `analysis/**`, `docs/**`; в `.gitignore` добавлены `var/` и `.claude/worktrees/`.
+- Выход: `main` с `training/**`, `analysis/**`, `docs/**`; в `.gitignore` добавлены `var/` и локальные настройки AI-инструментов и редакторов.
 - Приёмка: `git ls-tree --name-only main training/scripts/` показывает скрипты 00–12; `git check-ignore -q var/x && echo ok`.
 - Примечание: до этого мержа `training/` правит только сессия обучения.
 
@@ -534,9 +534,9 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 
 **P0-S0-02. Каркас репозитория и правила агентов**
 - Вход: стек из [architecture.md](architecture.md), дерево из [structure.md](structure.md).
-- Выход: `pyproject.toml` (Python 3.12, extras `ml`, `mac`, `cuda`, группа `dev`, все известные зависимости объявлены сразу), `uv.lock`, `.python-version`, `justfile` (все рецепты, пока заглушки), `.pre-commit-config.yaml`, `.gitattributes`, `.editorconfig`, `.env.example`, `.claude/settings.json` (deny на `data/**`, `var/**`, `models/**`, `runs/**/*.jpg`, `**/*.mov`, `**/*.mp4`), `LICENSE` (AGPL-3.0), заготовки `src/cashguard/<module>/AGENTS.md`; черновики `AGENTS.md`, `CLAUDE.md` (первая строка `@AGENTS.md`) и `README.md` дополнены командами и решениями P0-H-01.
+- Выход: `pyproject.toml` (Python 3.12, extras `ml`, `mac`, `cuda`, группа `dev`, все известные зависимости объявлены сразу), `uv.lock`, `.python-version`, `justfile` (все рецепты, пока заглушки), `.pre-commit-config.yaml`, `.gitattributes`, `.editorconfig`, `.env.example`, `LICENSE` (AGPL-3.0), заготовки `src/cashguard/<module>/AGENTS.md`; `AGENTS.md` и `README.md` дополнены командами и решениями P0-H-01. Настройки отдельных AI-инструментов в Git не включаются; ограничения данных закреплены в `AGENTS.md`.
 - Приёмка: Windows — `uv sync --locked`, `uv run just --list`, `uv run just check`; Mac — `uv sync --locked --extra ml --extra mac`; `uv run python -c "import cashguard"`.
-- Примечание: каркас папок с `README.md`, `src/cashguard/__init__.py` и черновики `AGENTS.md`, `CLAUDE.md`, `README.md` уже есть в ветке `product-docs` — дополнять, не перезаписывать. `.gitattributes` уже создан сессией обучения — объединить.
+- Примечание: каркас папок с `README.md`, `src/cashguard/__init__.py` и черновики `AGENTS.md`, `README.md` уже есть в ветке `product-docs` — дополнять, не перезаписывать. `.gitattributes` уже создан сессией обучения — объединить.
 
 **P0-S0-03. Контракты и замороженная схема жюри**
 - Вход: ТЗ §10; раздел контрактов в [architecture.md](architecture.md); [api.md](api.md).
