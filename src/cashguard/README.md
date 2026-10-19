@@ -1,14 +1,14 @@
 # `src/cashguard/` — пакет сервиса
 
 > **Назначение:** Python-пакет CashGuard: контракты, API, очередь, воркеры, пайплайн, оценка.
-> **Владелец:** S0 (структура); подпакеты — по таблице · **Статус:** черновик v1, 17.10.2026 (каркас: кода ещё нет)
+> **Владелец:** S0 (структура); подпакеты — по таблице · **Статус:** API, очередь, PT-профиль и числовые правила работают; полный Core ML/VLM-пайплайн не завершён.
 
-## Планируемые файлы
+## Точки входа пакета
 
 | Файл | Что делает |
 |---|---|
 | `__init__.py` | пустой, делает пакет импортируемым |
-| `cli.py` | [S1] команда `cashguard`: up, worker, export-schemas, extract-signals, eval, bench, gen-key, purge |
+| `cli.py` | [S1] команда `cashguard`: `up`, `api`, `status` |
 
 ## Подпакеты
 
@@ -22,11 +22,11 @@
 | `pipeline/` | по подпапкам | этапы обработки видео |
 | `eval/` | S1 | метрики, LOSO, устойчивость, jury-sim |
 
-## Точки входа (появятся в P0)
+## Запуск
 
 - `python -m cashguard.cli up --profile prod|dev` — супервизор.
 - `python -m cashguard.workers --role perception|vlm|all` — воркер.
-- `uvicorn cashguard.api.main:app` — API (запускает супервизор).
+- `python -m cashguard.cli api` — API (обычно запускает супервизор).
 - `python -m cashguard.contracts.export [--check]` — JSON Schema и `openapi.json` без импорта ML.
 
 ## Правила

@@ -37,7 +37,6 @@
 | [local_analysis_windows.md](local_analysis_windows.md) | Windows PT-профиль, отдельное ML-окружение, локальная калибровка и диагностика | S1 |
 | [temporal_workflow.md](temporal_workflow.md) | Настройка временных правил, ручных зон и публикации результата | S1 |
 | [session_report_20261018.md](session_report_20261018.md) | Исторические прогоны и эксперименты 18.10.2026; не оценка текущей версии | исторический отчёт |
-| [mac_local_analysis_handoff.md](mac_local_analysis_handoff.md) | Архивная инструкция переноса конкретного patch-пакета; для нового запуска используйте главный README | историческая инструкция |
 | `violation_types.md` | Появится позже. Генерируется `scripts/render_docs.py` из `configs/catalog/`, руками не правится | генерируется |
 
 ## Соответствие ТЗ, раздел 8

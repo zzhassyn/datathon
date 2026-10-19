@@ -3,6 +3,12 @@
 > **Назначение:** установка сервиса на Mac, режимы `serve`/`train`/`dev`, LaunchAgents, туннель, мониторинг, логи, регулярные операции, действия при сбоях, бэкап и очистка `var/`.
 > **Владелец:** S6 (VLM + Mac ops + signals) · **Статус:** черновик v1, 17.10.2026
 
+> **Статус реализации:** это план эксплуатации целевой системы. Шаблоны
+> `deploy/macos`, `deploy/cloudflared` и `deploy/linux` ещё не поставлены;
+> одноимённые пустые каталоги удалены. Рецепты `deploy` и `services-*` остаются
+> заглушками. Текущий PT-запуск — в [главном README](../README.md#полный-анализ-с-локальными-моделями);
+> он не подтверждает готовность Core ML/MLX или нового Mac-прогона.
+
 Связанные документы: [architecture.md](architecture.md) (разделы 3, 8–11), [api.md](api.md), [jury_mode.md](jury_mode.md), [training.md](training.md), [eval.md](eval.md), [limitations.md](limitations.md), [ADR-0002](adr/0002-three-process-runtime-supervisor.md), [ADR-0005](adr/0005-deadline-tiers-provisional-degradation.md), [ADR-0013](adr/0013-public-ingress-tunnel.md).
 
 ## Содержание

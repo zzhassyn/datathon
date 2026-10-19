@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="web/public/favicon.svg" width="88" height="88" alt="Значок CashGuard">
+
 # CashGuard
 
 **Видео кассы → признаки нарушения → таймкод → кадры-доказательства**
@@ -7,7 +9,17 @@
 Локальный AI-сервис для ForteBank Datathon 26.<br>
 Обработка без облачных AI-вызовов и распознавания лиц.
 
-[Запуск](#быстрый-запуск) · [Охват](#что-проверяет-сервис) · [API](#проверка-через-api) · [Проверки](#проверки-и-качество) · [Документация](docs/README.md)
+[Запуск](#быстрый-запуск) · [Охват](#что-проверяет-сервис) · [Стек](#технологии) · [API](#проверка-через-api) · [Проверки](#проверки-и-качество) · [Документация](docs/README.md)
+
+![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![YOLO26s detect и track](https://img.shields.io/badge/YOLO26s-detect%20%2B%20track-6C3BAA)
+![PyTorch локальный инференс](https://img.shields.io/badge/PyTorch-local-EE4C2C?logo=pytorch&logoColor=white)
+![FastAPI API](https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi&logoColor=white)
+<br>
+![React 19](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)
+![TypeScript 5.9](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
+![SQLite WAL](https://img.shields.io/badge/SQLite-WAL-003B57?logo=sqlite&logoColor=white)
+![ForteBank Datathon 26](https://img.shields.io/badge/DATATHON%20%2726-ForteBank-98104E)
 
 </div>
 
@@ -51,6 +63,18 @@ uv run just dev 8137
 **Текущий путь обработки:** PyAV (PTS) → YOLO26s / PyTorch → BoT-SORT без ReID → сцена → правила → кадры и описание. API работает отдельно от ML; задачи хранятся в SQLite WAL. Core ML и Qwen не подключены к этому профилю.
 
 [Каталог и основания правил](docs/violation_catalog.md) · [Нормативные источники](docs/legal_sources.md) · [Ограничения](docs/limitations.md)
+
+## Технологии
+
+| Слой | Стек | Назначение |
+|---|---|---|
+| Видео и наблюдения | PyAV · YOLO26s · PyTorch · BoT-SORT | Таймкоды PTS, объекты и треки без распознавания лиц |
+| Backend | Python 3.12 · FastAPI · Pydantic · Uvicorn | API, проверка контрактов, обработка задач |
+| Интерфейс | React 19 · TypeScript 5.9 · Vite 8 · Tailwind CSS 4 · TanStack Query | Загрузка, прогресс, просмотр событий и доказательств |
+| Хранение | SQLite WAL · локальная файловая система | Очередь, состояние задач и результаты |
+| Инструменты | uv · pnpm · just · pytest · Vitest · Playwright | Окружения, сборка и проверки |
+
+Точные версии закреплены в [pyproject.toml](pyproject.toml), [web/package.json](web/package.json) и lock-файлах. Core ML и MLX/VLM относятся к целевой архитектуре и не включены в рабочий профиль выше.
 
 ## Полный анализ с локальными моделями
 

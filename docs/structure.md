@@ -31,7 +31,14 @@
 
 ## Дерево
 
-Пометка «(P0)» — файл создаётся в фазе P0 ([roadmap.md](roadmap.md)). Сейчас в репозитории есть документация, `analysis/`, `training/`, каркас папок с `README.md` и `__init__.py`, замороженная `src/cashguard/contracts/schemas/jury_job.schema.json` и `tests/fixtures/jury_example.json`.
+Ниже — целевое дерево из архитектурного плана, а не перечень уже реализованных
+файлов. Пометка «(P0)» относится к исходному плану ([roadmap.md](roadmap.md)).
+В репозитории работают API, очередь, PT-профиль, правила и UI; текущий охват —
+в [главном README](../README.md). Каталоги `deploy/`, корневой `eval/` и
+`configs/rules/` появятся вместе с реальными артефактами: README-заглушки удалены.
+Рабочий код оценки находится в `src/cashguard/eval/`. Будущие `tests/mac/`,
+`tests/unit/evidence/` и `tests/unit/vlm/` также создаются с первыми тестами;
+их план собран в [tests/README.md](../tests/README.md).
 
 ```
 datathon/                                  корень (Windows: C:\Users\zhasy\datathon; Mac: ~/cashguard)
@@ -125,8 +132,8 @@ datathon/                                  корень (Windows: C:\Users\zhasy
 │  ├─ mac/                                 [S3/S6] маркер mac: паритет Core ML и .pt, размещение на ANE, офлайн-загрузка MLX, ≥ 3 ГБ свободно
 │  └─ fixtures/                            timelines/<CODE>_{pos,neg}_*.json [S4 + владелец правила], jury_example.json [S0],
 │                                               synthetic_video.py [S1]
-├─ eval/baselines/main.json                [S1] закоммиченная базовая линия метрик; PR правил прикладывают только дифф, перегенерирует S1
-├─ deploy/
+├─ eval/baselines/main.json                [ПЛАН, S1] baseline после воспроизводимого прогона; перегенерирует S1
+├─ deploy/                                [ПЛАН] файлов развёртывания пока нет
 │  ├─ macos/                               [S6] launchd/kz.cashguard.{supervisor,tunnel,caffeinate}.plist.tmpl install.py
 │  ├─ cloudflared/config.yml.tmpl          [S6] UUID туннеля, protocol http2, metrics, ingress → 127.0.0.1:8000, http_status:404
 │  └─ linux/                               [S1] Dockerfile.cuda compose.yaml systemd/*.service
@@ -146,7 +153,10 @@ datathon/                                  корень (Windows: C:\Users\zhasy
 
 ## Рецепты `just`
 
-`justfile` появится в P0 (владелец S0). Рецепты запускаются как `uv run just <recipe>`; `[macos]` — только на Mac. Что делает каждый — в [../AGENTS.md](../AGENTS.md), раздел «Команды».
+Рецепты из `justfile` запускаются как `uv run just <recipe>`; `[macos]` — только
+на Mac. Часть рецептов пока печатает ссылку на карточку roadmap: это заглушки,
+а не выполненная оценка или развёртывание. Список — `uv run just --list`;
+назначение — в [../AGENTS.md](../AGENTS.md), раздел «Команды».
 
 | Где | Рецепты |
 |---|---|

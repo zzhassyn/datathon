@@ -5,17 +5,21 @@
 
 Связанные документы: [training.md](training.md) (модели и их выпуск), [architecture.md](architecture.md) (поток данных, бюджеты, надёжность), [roadmap.md](roadmap.md) (фазы и гейты), [api.md](api.md) (контракт жюри), [violation_catalog.md](violation_catalog.md) (коды нарушений), [legal_sources.md](legal_sources.md), [jury_mode.md](jury_mode.md), [limitations.md](limitations.md), [labels_typed.csv](../analysis/labels_typed.csv), [case_analysis.md](../analysis/case_analysis.md), [detection_design.md](../analysis/detection_design.md).
 
-## Статус реализации первой backend-итерации
+## Что реализовано сейчас
 
-Реализованы `eval/{labels,metrics,run_eval,report}.py` и `tests/unit/eval/`. Это независимый числовой harness: allowlist разметки, объединение дублей, метрики, отчёт и injected runner seam. Проверка доступной разметки через allowlist подтвердила 40 уникальных видео, 21 положительное, 22 события и 19 чистых; видео и описания кадров не использовались.
+Реализованы `src/cashguard/eval/{labels,metrics,run_eval,report}.py` и `tests/unit/eval/`. Это независимый числовой harness: allowlist разметки, объединение дублей, метрики, отчёт и injected runner seam. Проверка доступной разметки через allowlist подтвердила 40 уникальных видео, 21 положительное, 22 события и 19 чистых; видео и описания кадров не использовались.
 
-До появления S0 Python-контрактов/runner и owner fixtures не заявляются полноценный `eval-replay` по 40 трассам, качество моделей, LOSO, готовая `eval/baselines/main.json` или прохождение G1. Baseline не создаётся из эталонных меток и не перезаписывается при обычном прогоне.
+Полноценный replay по 40 трассам, качество текущих моделей, LOSO и прохождение G1
+не подтверждены. `just eval-replay` и `just loso` пока являются заглушками;
+числовые предсказания оцениваются командой ниже. Готовой `eval/baselines/main.json`
+нет: каталог будет создан с первой воспроизводимой baseline после согласования
+допусков. Она не создаётся из эталонных меток и не перезаписывается обычным прогоном.
 
-Временная команда при отсутствующих `pyproject.toml`/`uv.lock`/`justfile`:
+Команды из корня установленного проекта:
 
 ```sh
-PYTHONPATH=src .venv/bin/python -m pytest tests/unit/render tests/unit/eval -q
-PYTHONPATH=src .venv/bin/python -m cashguard.eval.run_eval \
+uv run pytest tests/unit/render tests/unit/eval -q
+uv run python -m cashguard.eval.run_eval \
   --labels analysis/labels_typed.csv \
   --predictions /path/to/numeric_predictions.json \
   --output /path/to/numeric_report
@@ -23,7 +27,9 @@ PYTHONPATH=src .venv/bin/python -m cashguard.eval.run_eval \
 
 `numeric_predictions.json` содержит только id видео, `verdict`, `events[{code,timecode_sec}]`, при наличии — измеренный `jury_valid`. Утверждённый формат `AnalysisResult` подключается адаптером после мержа S0. По неоценённой схеме `jury_valid_rate=null`, а не 1.0; отчёт отдельно показывает `jury_checked` и `jury_total`. p90 использует линейную интерполяцию type 7. Пропавшие положительные видео считаются FN, пропуски событий — промахами в hit@1s/2s и type accuracy. Сигналы `SIG_*` не входят в вердикт.
 
-Для S0: объявить `jsonschema` как runtime-зависимость renderer, добавить рецепт `eval-replay` после подключения runner и согласовать baseline tolerances. Полный `uv run just check` остаётся зависимым от отсутствующих общих файлов.
+`jsonschema` и общий шлюз `uv run just check` уже подключены. Остаётся связать
+рецепт `eval-replay` с полным прогоном и согласовать допуски baseline. Саму baseline
+после мержа обновляет S1 отдельным последовательным PR; PR правил прикладывает diff.
 
 ### Числовая оценка: обновление 09.11.2026
 
