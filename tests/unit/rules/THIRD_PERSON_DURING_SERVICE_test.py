@@ -73,17 +73,19 @@ def sized_frames(boxes, *, times=(0, 0.5, 1, 1.5, 2), confidence=0.9):
     ]
 
 
-def test_adaptive_size_recovers_two_stable_narrow_visitors():
+@pytest.mark.parametrize("options", [{}, {"person_size_mode": "adaptive"}])
+def test_adaptive_size_recovers_two_stable_narrow_visitors(options):
     frames = sized_frames(([0.3, 0.1, 0.36, 0.4], [0.6, 0.1, 0.66, 0.4]))
-    assert evaluate_frames(frames, SCENE) == []
-    (event,) = evaluate_frames(frames, SCENE, person_size_mode="adaptive")
+    assert evaluate_frames(frames, SCENE, person_size_mode="fixed") == []
+    (event,) = evaluate_frames(frames, SCENE, **options)
     assert (event.t_sec, event.end_sec) == (0, 2)
 
 
-def test_adaptive_size_rejects_short_wide_background_person():
+@pytest.mark.parametrize("options", [{}, {"person_size_mode": "adaptive"}])
+def test_adaptive_size_rejects_short_wide_background_person(options):
     frames = sized_frames(([0.3, 0.1, 0.5, 0.7], [0.6, 0.1, 0.8, 0.22]))
-    assert len(evaluate_frames(frames, SCENE)) == 1
-    assert evaluate_frames(frames, SCENE, person_size_mode="adaptive") == []
+    assert len(evaluate_frames(frames, SCENE, person_size_mode="fixed")) == 1
+    assert evaluate_frames(frames, SCENE, **options) == []
 
 
 @pytest.mark.parametrize("scale", [1, 0.5])
@@ -112,9 +114,10 @@ def test_adaptive_falls_back_to_area_without_enough_confident_observations(confi
     assert evaluate_frames(frames, SCENE, person_size_mode="adaptive") == []
 
 
-def test_adaptive_fallback_keeps_existing_large_person_detections():
+@pytest.mark.parametrize("options", [{}, {"person_size_mode": "adaptive"}])
+def test_adaptive_fallback_keeps_existing_large_person_detections(options):
     frames = sized_frames(([0.3, 0.1, 0.5, 0.7], [0.6, 0.1, 0.8, 0.7]), confidence=0.55)
-    assert len(evaluate_frames(frames, SCENE, person_size_mode="adaptive")) == 1
+    assert len(evaluate_frames(frames, SCENE, **options)) == 1
 
 
 def test_single_height_outlier_does_not_hide_narrow_visitors():
@@ -217,4 +220,4 @@ def test_undersized_duplicate_cannot_suppress_a_valid_fixed_size_person():
                 "box": [0.3, 0.1, 0.4, 0.29],
             }
         )
-    assert len(evaluate_frames(frames, SCENE)) == 1
+    assert len(evaluate_frames(frames, SCENE, person_size_mode="fixed")) == 1

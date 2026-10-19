@@ -66,7 +66,7 @@ def temporal_candidates(report, calibration, options):
                     calibration.get("scene", {}),
                     min_duration_sec=float(options.get("min_duration_sec", 2)),
                     desk=_desk_normalized(calibration, report["video"]),
-                    person_size_mode=options.get("person_size_mode", "fixed"),
+                    person_size_mode=options.get("person_size_mode", "adaptive"),
                 )
             )
         else:

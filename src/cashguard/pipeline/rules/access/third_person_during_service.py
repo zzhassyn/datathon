@@ -3,7 +3,7 @@
 Числовой вариант по кадрам sidecar: люди с устойчивым track_id, кроме кассира и его
 места (IoU > 0.5 с медианной рамкой кассира), одновременно ≥ min_duration_sec.
 Дубли ID/рамок считаются одним человеком; рамки вне стола и у края двери
-исключаются. Режим adaptive оценивает масштаб по устойчивым трекам посетителей;
+исключаются. По умолчанию adaptive оценивает масштаб по устойчивым трекам посетителей;
 при недостаточной опоре сохраняется порог площади fixed. Без лиц.
 """
 
@@ -112,7 +112,7 @@ def evaluate_frames(
     max_gap_sec=0.75,
     min_area=0.02,
     desk=None,
-    person_size_mode="fixed",
+    person_size_mode="adaptive",
 ):
     if not math.isfinite(min_duration_sec) or min_duration_sec <= 0:
         raise ValueError("Длительность должна быть положительной")
@@ -201,6 +201,6 @@ def _candidate(index, start, end, ids, session_start):
             EvidenceRequest(kind=EvidenceKind.EVENT, t_sec=start, label="Второй посетитель"),
             EvidenceRequest(kind=EvidenceKind.CONTEXT, t_sec=end, label="Оба у стола"),
         ],
-        rule_version="numeric-auto-zones-v2",
+        rule_version="numeric-auto-zones-v3",
         verdict_impact=True,
     )

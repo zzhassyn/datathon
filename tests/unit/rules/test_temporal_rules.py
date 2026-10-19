@@ -81,7 +81,7 @@ def test_scene_rules_need_human_zone_confirmation():
             temporal_candidates(report, calibration, {"codes": codes})
 
 
-@pytest.mark.parametrize(("mode", "expected"), [("fixed", 0), ("adaptive", 1)])
+@pytest.mark.parametrize(("mode", "expected"), [(None, 1), ("fixed", 0), ("adaptive", 1)])
 def test_temporal_pipeline_applies_person_size_mode_only_to_third_person(mode, expected):
     frames = [
         dict(
@@ -103,10 +103,13 @@ def test_temporal_pipeline_applies_person_size_mode_only_to_third_person(mode, e
         "desk_roi": [0, 0, 100, 100],
         "scene": {"cashier_track_id": 1, "cashier_seat": [0, 0, 0.2, 0.8]},
     }
+    options = {"codes": ["THIRD_PERSON_DURING_SERVICE"]}
+    if mode is not None:
+        options["person_size_mode"] = mode
     scene, candidates, _ = temporal_candidates(
         dict(frames=frames, video=VIDEO),
         calibration,
-        {"codes": ["THIRD_PERSON_DURING_SERVICE"], "person_size_mode": mode},
+        options,
     )
     assert len(candidates) == expected
     assert {role.track_id for role in scene.roles} == {1, 2, 3}
