@@ -18,7 +18,7 @@ from cashguard.eval.metrics import (
     calculate_metrics,
     match_events,
 )
-from cashguard.eval.report import compare_baseline, write_report
+from cashguard.eval.report import compare_baseline, summary_text, write_report
 from cashguard.eval.run_eval import evaluate_traces, load_predictions, main
 
 
@@ -231,3 +231,103 @@ def test_partial_schema_coverage_never_passes_baseline_gate():
     report = {"metrics": {**metrics, "jury_checked": 39, "jury_total": 40}}
     assert compare_baseline(report, report)["incomplete"]
     assert not compare_baseline(report, report)["passed"]
+
+
+def test_scene_metrics_expose_misses_hidden_by_successful_scenes():
+    labels = {
+        "X-1": LabelVideo("X-1", "L1", (LabelEvent("A", 2),)),
+        "X-2": LabelVideo("X-2", "L1", ()),
+        "X-3": LabelVideo("X-3", "L2", (LabelEvent("A", 2),)),
+        "X-4": LabelVideo("X-4", "L2", ()),
+        "X-5": LabelVideo("X-5", "L3", ()),
+    }
+    predictions = {
+        "Х-1.mov": Prediction("violation", (PredictionEvent("A", 2),), True),
+        "X-2": Prediction("no_violation", (PredictionEvent("SIG_X", 3),), True),
+        "X-5": Prediction("violation", (PredictionEvent("A", 2),), True),
+    }
+    report = calculate_metrics(labels, predictions)
+    assert report["metrics"]["video_accuracy"] == 2 / 5
+    scenes = report["per_scene"]
+    assert list(scenes) == ["L1", "L2", "L3"]
+    assert scenes["L1"]["video_accuracy"] == 1
+    assert scenes["L1"]["video_recall"] == 1
+    assert scenes["L1"]["videos"] == 2
+    assert scenes["L1"]["fp"] == 0
+    assert scenes["L2"]["video_accuracy"] == 0
+    assert scenes["L2"]["fn"] == 1
+    assert scenes["L2"]["tn"] == 0
+    assert scenes["L2"]["unresolved_clean"] == 1
+    assert scenes["L2"]["missing_results"] == 2
+    assert scenes["L2"]["jury_valid_rate"] is None
+    assert scenes["L3"]["fp"] == 1
+    assert scenes["L3"]["clean_rate"] == 0
+    assert scenes["L3"]["video_recall"] is None
+    text = summary_text(report)
+    assert "video_accuracy: 0.4" in text
+    assert "L1" in text and "L2" in text and "L3" in text
+    assert "X-1" not in text and "SIG_X" not in text
+
+
+def test_empty_evaluation_has_no_accuracy_or_scenes():
+    report = calculate_metrics({}, {})
+    assert report["metrics"]["video_accuracy"] is None
+    assert report["per_scene"] == {}
+
+
+@pytest.mark.parametrize(
+    ("prediction", "expected_exit"),
+    [
+        (Prediction("violation", (PredictionEvent("A", 2),), True), 0),
+        (Prediction("violation", (PredictionEvent("WRONG", 2),), True), 1),
+        (Prediction("violation", (PredictionEvent("A", 2),)), 1),
+        (Prediction("no_violation", jury_valid=True), 1),
+    ],
+    ids=["unchanged", "wrong-type", "unmeasured-schema", "missed-violation"],
+)
+def test_cli_exit_reflects_baseline_gate(tmp_path, capsys, prediction, expected_exit):
+    labels = tmp_path / "labels.csv"
+    with labels.open("w", newline="", encoding="utf-8") as stream:
+        writer = csv.DictWriter(stream, fieldnames=[str(column) for column in ALLOWED_COLUMNS])
+        writer.writeheader()
+        writer.writerow(row("X-1", "A", "2"))
+    baseline = calculate_metrics(
+        load_labels(labels),
+        {"X-1": Prediction("violation", (PredictionEvent("A", 2),), True)},
+    )
+    baseline_path = tmp_path / "baseline.json"
+    baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
+    predictions = tmp_path / "predictions.json"
+    predictions.write_text(
+        json.dumps(
+            {
+                "X-1": {
+                    "verdict": prediction.verdict,
+                    "events": [
+                        {"code": event.code, "timecode_sec": event.timecode_sec}
+                        for event in prediction.events
+                    ],
+                    "jury_valid": prediction.jury_valid,
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    output = tmp_path / "report"
+    exit_code = main(
+        [
+            "--labels",
+            str(labels),
+            "--predictions",
+            str(predictions),
+            "--baseline",
+            str(baseline_path),
+            "--output",
+            str(output),
+        ]
+    )
+    saved = json.loads((output / "metrics.json").read_text(encoding="utf-8"))
+    assert saved["baseline_diff"]["passed"] is (expected_exit == 0)
+    assert exit_code == expected_exit
+    assert f"baseline_passed: {expected_exit == 0}" in capsys.readouterr().out
+    assert json.loads(baseline_path.read_text(encoding="utf-8")) == baseline

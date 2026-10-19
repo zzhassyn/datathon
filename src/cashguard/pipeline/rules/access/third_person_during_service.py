@@ -42,6 +42,7 @@ def evaluate_frames(
     found = []
     run_start = None
     run_last = None
+    run_session_start = None
     run_ids = set()
     session_start = None
     session_last = None
@@ -71,21 +72,27 @@ def evaluate_frames(
         if people:
             session_last = t
         if len(people) >= 2 and (run_last is None or t - run_last <= max_gap_sec):
-            run_start = t if run_start is None else run_start
+            if run_start is None:
+                run_start = t
+                run_session_start = session_start
             run_last = t
             run_ids.update(p["track_id"] for p in people)
             continue
         if run_start is not None and run_last - run_start >= min_duration_sec:
             found.append(
-                _candidate(len(found), run_start, run_last, sorted(run_ids), session_start)
+                _candidate(len(found), run_start, run_last, sorted(run_ids), run_session_start)
             )
         run_start = run_last = None
+        run_session_start = None
         run_ids = set()
         if len(people) >= 2:
             run_start = run_last = t
+            run_session_start = session_start
             run_ids.update(p["track_id"] for p in people)
     if run_start is not None and run_last - run_start >= min_duration_sec:
-        found.append(_candidate(len(found), run_start, run_last, sorted(run_ids), session_start))
+        found.append(
+            _candidate(len(found), run_start, run_last, sorted(run_ids), run_session_start)
+        )
     return found
 
 

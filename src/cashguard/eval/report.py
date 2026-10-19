@@ -67,6 +67,7 @@ def summary_text(report: Mapping[str, Any]) -> str:
     names = (
         "videos",
         "events",
+        "video_accuracy",
         "video_recall",
         "video_precision",
         "f1",
@@ -78,11 +79,31 @@ def summary_text(report: Mapping[str, Any]) -> str:
         "jury_valid_rate",
         "jury_checked",
         "missing_results",
+        "clean_rate",
+        "unresolved_clean",
     )
     lines = ["CashGuard: числовая оценка готовых предсказаний"]
     lines.extend(f"{name}: {metrics.get(name)}" for name in names)
     if "baseline_diff" in report:
         lines.append(f"baseline_passed: {report['baseline_diff']['passed']}")
+    if report.get("per_scene"):
+        lines.extend(
+            [
+                "",
+                "По сценам (описательный срез, не LOSO):",
+                "",
+                "| Сцена | Видео | Доля верных вердиктов | Recall |"
+                " Ложные тревоги | Нет результата |",
+                "|---|---:|---:|---:|---:|---:|",
+            ]
+        )
+        for scene, values in sorted(report["per_scene"].items()):
+            cells = [
+                values[name]
+                for name in ("videos", "video_accuracy", "video_recall", "fp", "missing_results")
+            ]
+            formatted = ["—" if value is None else str(value) for value in cells]
+            lines.append("| " + " | ".join([scene, *formatted]) + " |")
     return "\n".join(lines)
 
 
