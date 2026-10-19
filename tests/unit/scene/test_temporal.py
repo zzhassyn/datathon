@@ -89,6 +89,21 @@ def test_cash_identity_change_and_gap_break_continuity():
     assert valuables_left(build_numeric(frames, VIDEO, CALIBRATION, PARAMS)) == []
 
 
+def test_cash_missing_on_last_required_observation_does_not_confirm_valuables():
+    frames = records()
+    for frame in frames:
+        if frame["t_sec"] >= 4.5:
+            frame["detections"] = [d for d in frame["detections"] if d["class_name"] != "cash"]
+    assert valuables_left(build_numeric(frames, VIDEO, CALIBRATION, PARAMS)) == []
+
+
+def test_return_before_minimum_unattended_duration_does_not_confirm_valuables():
+    frames = records()
+    frames[9]["detections"].append(detection("person", 2, [0.4, 0.1, 0.6, 0.8]))
+    scene = build_numeric(frames, VIDEO, CALIBRATION, {**PARAMS, "cashier_track_id": 1})
+    assert valuables_left(scene) == []
+
+
 def test_unknown_roles_and_unobserved_intervals_are_not_filled():
     assert all(r.role == "unknown" for r in build_numeric(records(), VIDEO, CALIBRATION).roles)
     frames = [f for f in records() if f["t_sec"] not in (3, 3.5, 4)]

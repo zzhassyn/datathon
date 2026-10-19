@@ -29,7 +29,7 @@ from cashguard.pipeline.local_config import (
     read_config,
 )
 from cashguard.pipeline.rules.discipline.personal_items import evaluate_frames
-from cashguard.pipeline.scene.auto_zones import auto_calibration
+from cashguard.pipeline.scene.auto_zones import CashierCalibrationError, auto_calibration
 from cashguard.pipeline.scene.temporal import build_numeric
 
 
@@ -66,6 +66,7 @@ def temporal_candidates(report, calibration, options):
                     calibration.get("scene", {}),
                     min_duration_sec=float(options.get("min_duration_sec", 2)),
                     desk=_desk_normalized(calibration, report["video"]),
+                    person_size_mode=options.get("person_size_mode", "fixed"),
                 )
             )
         else:
@@ -132,6 +133,8 @@ def analyze(input_path, output, job_id, deadline_at, config_path, progress, *, c
     if auto_zones:
         try:
             calibration = auto_calibration(report)
+        except CashierCalibrationError as error:
+            raise AnalysisBlocked(str(error)) from error
         except ValueError as error:
             # Jury contract allows only two verdicts: a scene without a detectable cash
             # desk gets a clean verdict with the reason recorded, not a failed job.

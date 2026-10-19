@@ -11,7 +11,7 @@ from cashguard.pipeline.local_config import AnalysisBlocked
 from cashguard.pipeline.windows_analysis import analyze
 
 
-def setup_report(tmp_path, monkeypatch, *, positive):
+def setup_report(tmp_path, monkeypatch, *, positive, auto_without_cashier=False):
     video = {
         **VIDEO,
         "fps_avg": 2,
@@ -22,6 +22,11 @@ def setup_report(tmp_path, monkeypatch, *, positive):
         "time_base": "1/1000",
     }
     frames = records(exit_gate=positive)
+    if auto_without_cashier:
+        for frame in frames:
+            frame["detections"].append(
+                dict(class_name="laptop", conf=0.9, box=[0.7, 0.4, 0.8, 0.5])
+            )
     for i, frame in enumerate(frames):
         frame.update(image_name=f"{i}.jpg", width=100, height=100)
     calibration = tmp_path / "calibration.json"
@@ -33,7 +38,11 @@ def setup_report(tmp_path, monkeypatch, *, positive):
         json.dumps(
             {
                 "calibration_file": str(calibration),
-                "temporal_rules": {"enabled": True, "codes": ["VALUABLES_LEFT"]},
+                "temporal_rules": {
+                    "enabled": True,
+                    "codes": ["VALUABLES_LEFT"],
+                    "auto_zones": auto_without_cashier,
+                },
             }
         )
     )
@@ -90,3 +99,16 @@ def test_no_candidate_preserves_unknown_not_clean_and_saves_diagnostics(tmp_path
         )
     assert json.loads((tmp_path / "job/rule_candidates.json").read_text()) == []
     assert (tmp_path / "job/technical_scope.json").is_file()
+
+
+def test_unreliable_auto_cashier_is_not_a_clean_verdict(tmp_path, monkeypatch):
+    config = setup_report(tmp_path, monkeypatch, positive=False, auto_without_cashier=True)
+    with pytest.raises(AnalysisBlocked, match="кассир"):
+        analyze(
+            tmp_path / "source.mov",
+            tmp_path / "job",
+            "job-test",
+            time.time() + 60,
+            config,
+            lambda *args: None,
+        )

@@ -81,6 +81,47 @@ def test_scene_rules_need_human_zone_confirmation():
             temporal_candidates(report, calibration, {"codes": codes})
 
 
+@pytest.mark.parametrize(("mode", "expected"), [("fixed", 0), ("adaptive", 1)])
+def test_temporal_pipeline_applies_person_size_mode_only_to_third_person(mode, expected):
+    frames = [
+        dict(
+            t_sec=index / 2,
+            detections=[
+                dict(class_name="person", track_id=track, conf=0.9, box=box)
+                for track, box in (
+                    (1, [0, 0, 0.2, 0.8]),
+                    (2, [0.3, 0.1, 0.36, 0.4]),
+                    (3, [0.6, 0.1, 0.66, 0.4]),
+                )
+            ],
+        )
+        for index in range(5)
+    ]
+    calibration = {
+        **CALIBRATION,
+        "scene_zones_confirmed": True,
+        "desk_roi": [0, 0, 100, 100],
+        "scene": {"cashier_track_id": 1, "cashier_seat": [0, 0, 0.2, 0.8]},
+    }
+    scene, candidates, _ = temporal_candidates(
+        dict(frames=frames, video=VIDEO),
+        calibration,
+        {"codes": ["THIRD_PERSON_DURING_SERVICE"], "person_size_mode": mode},
+    )
+    assert len(candidates) == expected
+    assert {role.track_id for role in scene.roles} == {1, 2, 3}
+
+
+def test_unknown_person_size_mode_is_rejected_in_pipeline():
+    calibration = {**CALIBRATION, "scene_zones_confirmed": True, "scene": PARAMS}
+    with pytest.raises(ValueError, match="режим"):
+        temporal_candidates(
+            dict(frames=records(), video=VIDEO),
+            calibration,
+            {"codes": ["THIRD_PERSON_DURING_SERVICE"], "person_size_mode": "typo"},
+        )
+
+
 @pytest.mark.parametrize("code", ["VALUABLES_LEFT", "SAFE_OPEN", "PREV_CASH_ON_DESK"])
 def test_published_numeric_timeline_fixtures(code):
     import json

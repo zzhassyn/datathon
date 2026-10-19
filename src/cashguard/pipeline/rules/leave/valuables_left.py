@@ -18,10 +18,10 @@ def evaluate_scene(scene, *, min_duration_sec=2.0):
             continue
         confirmed = float(event.data.get("confirmed_at", float("inf")))
         end = max(event.t + min_duration_sec, confirmed)
-        # Tolerance of one sampling step: a clip may end just before ``end``.
-        if float(event.data.get("room_empty_until", event.t)) + 0.6 < end:
+        # Absence and cash must both be observed for the entire required interval.
+        # A sampling allowance would hide a return or cash disappearing at its end.
+        if float(event.data.get("room_empty_until", event.t)) < end:
             continue
-        end = min(end, float(event.data.get("room_empty_until", end)))
         items = [
             s
             for s in scene.states
@@ -30,7 +30,7 @@ def evaluate_scene(scene, *, min_duration_sec=2.0):
             and s.track_id is not None
             and s.conf >= 0.5
             and s.start_t <= event.t
-            and s.end_t + 0.6 >= end
+            and s.end_t >= end
         ]
         # The catalogue's direct clause covers cash. A bag alone needs the bank's policy.
         if not any(s.subject == StateSubject.CASH_ON_DESK for s in items):
@@ -55,7 +55,7 @@ def evaluate_scene(scene, *, min_duration_sec=2.0):
                         kind=EvidenceKind.CONTEXT, t_sec=end, label="Ценности остаются"
                     ),
                 ],
-                rule_version="calibrated-temporal-v1",
+                rule_version="calibrated-temporal-v2",
                 verdict_impact=True,
             )
         )
@@ -65,7 +65,7 @@ def evaluate_scene(scene, *, min_duration_sec=2.0):
 @register_rule
 class ValuablesLeftRule(BaseRule):
     code = ViolationCode.VALUABLES_LEFT
-    version = "calibrated-temporal-v1"
+    version = "calibrated-temporal-v2"
 
     def evaluate(self, ctx: RuleContext) -> list[Candidate]:
         return evaluate_scene(

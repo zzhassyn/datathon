@@ -7,10 +7,15 @@
 ``calibration_source="auto_objects"``.
 """
 
+import math
 import statistics
 from collections import defaultdict
 
 DESK_OBJECTS = ("laptop", "counting_machine", "auth_detector")
+
+
+class CashierCalibrationError(ValueError):
+    """Desk found, but observations do not identify a unique cashier."""
 
 
 def _median_box(boxes):
@@ -73,14 +78,34 @@ def auto_calibration(report, *, min_conf=0.5):
     door = _median_box(by_class["door"])
     safe = _median_box(by_class["safe_closed"] + by_class["safe_open"])
     scores = {}
+    desk_tracks = {}
     for key, items in tracks.items():
-        if len(items) < 3:
+        # Count a track once per PTS, and only when it actually overlaps the desk.
+        # A long-lived background track supplies no evidence of the cashier's role.
+        hits = {}
+        for t, box in items:
+            overlap = _overlap_area(box, desk)
+            previous = hits.get(t)
+            # Equal-overlap duplicates must not make the seat depend on input order.
+            if overlap > 0 and (
+                previous is None
+                or overlap > _overlap_area(previous, desk)
+                or (overlap == _overlap_area(previous, desk) and tuple(box) < tuple(previous))
+            ):
+                hits[t] = box
+        if len(hits) < 3:
             continue
-        scores[key] = sum(_overlap_area(b, desk) + 0.01 for _, b in items)
+        desk_tracks[key] = list(hits.values())
+        scores[key] = sum(_overlap_area(box, desk) for box in hits.values())
     if not scores:
-        raise ValueError("Нет устойчивого трека человека у стола; роль кассира не определена")
-    cashier = max(scores.items(), key=lambda item: item[1])[0]
-    cashier_box = _median_box([b for _, b in tracks[cashier]])
+        raise CashierCalibrationError(
+            "Нет устойчивого трека человека у стола; роль кассира не определена"
+        )
+    ranked = sorted(scores, key=lambda key: scores[key], reverse=True)
+    if len(ranked) > 1 and math.isclose(scores[ranked[0]], scores[ranked[1]]):
+        raise CashierCalibrationError("Нельзя однозначно определить кассира по наблюдениям у стола")
+    cashier = ranked[0]
+    cashier_box = _median_box(desk_tracks[cashier])
     cashier_roi = _expand(cashier_box, 0.12, 0.12)
     entry = _expand(door, 0.03, 0.03) if _valid(door) else None
     others = [
