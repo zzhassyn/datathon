@@ -46,6 +46,8 @@ web/dist/
 /.vscode/
 /.idea/
 /CLAUDE.md
+AGENTS.md
+AGENTS.override.md
 
 # Модели целиком: веса, пакеты Core ML и манифесты живут только на Mac (версии и sha256 — в configs/models.yaml)
 models/

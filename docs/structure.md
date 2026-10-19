@@ -3,7 +3,7 @@
 > **Назначение:** полное дерево монорепозитория с владельцами и назначением папок, соглашения об именах, что генерируется и что игнорируется, пути на Windows и Mac, порядок добавления типа нарушения и сигнала.
 > **Владелец:** S0 (интегратор) · **Статус:** черновик v1, 17.10.2026
 
-Источник дерева — раздел FOLDER_TREE итоговой архитектуры. Связанные документы: [README.md](README.md) (индекс), [architecture.md](architecture.md), [../AGENTS.md](../AGENTS.md).
+Источник дерева — раздел FOLDER_TREE итоговой архитектуры. Связанные документы: [README.md](README.md) (индекс), [architecture.md](architecture.md).
 
 ## Принципы
 
@@ -12,7 +12,6 @@
 - Контракты (`src/cashguard/contracts/`) меняются первыми, отдельным маленьким PR к S0.
 - Сгенерированные файлы руками не правятся.
 - В каждой папке кода лежит `README.md`: назначение, владелец, какие файлы планируются, ссылка на документ.
-- В P0 (карточка P0-S0-02) в модулях `src/cashguard/<module>/` появляются `AGENTS.md` — короткие правила зоны для агентов. Codex читает `AGENTS.md` от корня до своей рабочей папки.
 
 ## Метки владельцев
 
@@ -42,12 +41,11 @@
 
 ```
 datathon/                                  корень (Windows: C:\Users\zhasy\datathon; Mac: ~/cashguard)
-├─ AGENTS.md                               [S0] правила для агентов (<150 строк, <32 КиБ)
 ├─ README.md                               [S0] для жюри (ТЗ §8): адреса, curl, ключ, запуск, архитектура, модели, ограничения, AGPL
 ├─ LICENSE                                 [S0] AGPL-3.0 (P0)
 ├─ pyproject.toml uv.lock .python-version  [S0] проект сервиса: Python 3.12; extras ml/mac/cuda; группа dev;
 │                                               настройки ruff, basedpyright, importlinter, pytest (P0)
-├─ justfile                                [S0] рецепты (P0), список — в ../AGENTS.md
+├─ justfile                                [S0] рецепты: uv run just --list
 ├─ .pre-commit-config.yaml .gitattributes .gitignore .editorconfig .env.example   [S0] (P0, кроме .gitignore)
 ├─ src/cashguard/                          пакет сервиса (src-layout)
 │  ├─ cli.py                               [S1] `cashguard`: up, worker, export-schemas, extract-signals, eval, bench, gen-key, purge
@@ -110,7 +108,7 @@ datathon/                                  корень (Windows: C:\Users\zhasy
 │                                               выход 10_export_coreml (C4–C5) сервис не читает: модели выпускает pipeline/perception/export.py
 ├─ web/                                    [S2]
 │  ├─ package.json pnpm-lock.yaml .node-version .npmrc vite.config.ts tsconfig*.json biome.json components.json
-│  │  playwright.config.ts index.html (lang=ru, noindex) AGENTS.md
+│  │  playwright.config.ts index.html (lang=ru, noindex)
 │  ├─ public/                              favicon.svg robots.txt (Disallow: /)
 │  ├─ src/
 │  │  ├─ main.tsx App.tsx                  провайдеры; выбор вида по ?job= и ?view=types (без роутера)
@@ -140,7 +138,7 @@ datathon/                                  корень (Windows: C:\Users\zhasy
 ├─ analysis/                               исследование, не правится: case_analysis.md detection_design.md labels_typed.csv normative/*.txt
 ├─ data/    (gitignored, только Mac)       raw/open/videos, frames/, prelabels/, labels/, yolo/{pseudo,reviewed}, crops/
 ├─ models/  (gitignored целиком)           pretrained/*.pt, hf/Qwen3.5-4B-{8,6,4}bit/, <role>/vNNN/{best.pt,*.mlpackage,manifest.json}
-├─ runs/    (gitignored)                   запуски обучения Ultralytics; числовые отчёты агенты читать могут, картинки — нет
+├─ runs/    (gitignored)                   запуски обучения Ultralytics; числовые отчёты и локальные изображения
 └─ var/     (gitignored)                   db/cashguard.sqlite3(-wal,-shm), jobs/<id>/…, signals/, eval/, logs/, yolo/, smoke/ (ответы smoke_jury.sh)
 ```
 
@@ -153,7 +151,7 @@ datathon/                                  корень (Windows: C:\Users\zhasy
 Рецепты из `justfile` запускаются как `uv run just <recipe>`; `[macos]` — только
 на Mac. Часть рецептов пока печатает ссылку на карточку roadmap: это заглушки,
 а не выполненная оценка или развёртывание. Список — `uv run just --list`;
-назначение — в [../AGENTS.md](../AGENTS.md), раздел «Команды».
+назначение — в комментариях [justfile](../justfile).
 
 | Где | Рецепты |
 |---|---|

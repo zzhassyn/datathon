@@ -12,7 +12,7 @@
 | Кто вы | Что читать |
 |---|---|
 | Жюри, проверяющий | [../README.md](../README.md) → [violation_catalog.md](violation_catalog.md) → [legal_sources.md](legal_sources.md) → [limitations.md](limitations.md) |
-| Агент или разработчик | [../AGENTS.md](../AGENTS.md) → [structure.md](structure.md) → [roadmap.md](roadmap.md) → [architecture.md](architecture.md) → документ своей зоны |
+| Разработчик | [structure.md](structure.md) → [architecture.md](architecture.md) → документ своей зоны |
 | Эксплуатация Mac | [runbook_mac.md](runbook_mac.md) → [jury_mode.md](jury_mode.md) → [training.md](training.md) |
 | Локальный PT-анализ | [Запуск](../README.md#полный-анализ-с-локальными-моделями) → [local_analysis_windows.md](local_analysis_windows.md) → [temporal_workflow.md](temporal_workflow.md) |
 
@@ -75,8 +75,6 @@
 
 | Документ | Что внутри |
 |---|---|
-| [../AGENTS.md](../AGENTS.md) | Правила для агентов: контракт жюри, команды, владение, версии, запреты, Definition of Done |
-| `web/AGENTS.md` | Правила для агентов во фронтенде |
 | `README.md` в каждой папке кода | Назначение папки, владелец, какие файлы планируются |
 | [../analysis/case_analysis.md](../analysis/case_analysis.md) | Анализ кейса и датасета; раздел 7 — проверенные нормы РК (единственный источник ссылок) |
 | [../analysis/detection_design.md](../analysis/detection_design.md) | Как ловится каждое нарушение, покрытие 55 пунктов (группы A, B1, B2, C1, C2), бюджет Mac |

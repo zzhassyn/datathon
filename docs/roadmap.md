@@ -3,7 +3,7 @@
 > Назначение: мастер-план сборки продукта CashGuard: карта баллов, объём, фазы P0–P5 с гейтами, сессии агентов, карточки задач, календарь на ~40 часов, Definition of Done, риски, допущения и вопросы к организаторам.
 > Владелец: S0 (интегратор). Статус: черновик v1, 17.10.2026.
 
-Связанные документы: [README.md](README.md) (индекс) · [architecture.md](architecture.md) · [structure.md](structure.md) · [pipeline.md](pipeline.md) · [api.md](api.md) · [ui.md](ui.md) · [violation_catalog.md](violation_catalog.md) · `docs/violation_types.md` (генерируется `scripts/render_docs.py`, появится в P3) · [legal_sources.md](legal_sources.md) · [limitations.md](limitations.md) · [training.md](training.md) · [eval.md](eval.md) · [runbook_mac.md](runbook_mac.md) · [jury_mode.md](jury_mode.md) · [adr/](adr/README.md) · [../AGENTS.md](../AGENTS.md) · [../training/README.md](../training/README.md) · [../analysis/case_analysis.md](../analysis/case_analysis.md) · [../analysis/detection_design.md](../analysis/detection_design.md) · [../analysis/labels_typed.csv](../analysis/labels_typed.csv)
+Связанные документы: [README.md](README.md) (индекс) · [architecture.md](architecture.md) · [structure.md](structure.md) · [pipeline.md](pipeline.md) · [api.md](api.md) · [ui.md](ui.md) · [violation_catalog.md](violation_catalog.md) · `docs/violation_types.md` (генерируется `scripts/render_docs.py`, появится в P3) · [legal_sources.md](legal_sources.md) · [limitations.md](limitations.md) · [training.md](training.md) · [eval.md](eval.md) · [runbook_mac.md](runbook_mac.md) · [jury_mode.md](jury_mode.md) · [adr/](adr/README.md) · [../training/README.md](../training/README.md) · [../analysis/case_analysis.md](../analysis/case_analysis.md) · [../analysis/detection_design.md](../analysis/detection_design.md) · [../analysis/labels_typed.csv](../analysis/labels_typed.csv)
 
 ## Как пользоваться
 
@@ -340,15 +340,13 @@ uv run just e2e                    # и тот же набор против http
 
 | Сессия | Роль | Владеет (папки и файлы) | Машина | Агент (рекомендация) |
 |---|---|---|---|---|
-| S0 | Интегратор | `src/cashguard/contracts/**`, `pyproject.toml`, `uv.lock`, `justfile`, `AGENTS.md`, `.pre-commit-config.yaml`, `pipeline/runner.py`, `pipeline/rules/{base,registry,context}.py`, `configs/catalog/**` (v0), `configs/legal/`, `configs/models.yaml`, `tests/contract/**`, `README.md`, `docs/{architecture,pipeline,limitations,roadmap,structure}.md`, `docs/adr/` | Windows | человек-интегратор + ведущая сессия Claude Code (до 3 worktree в P0) |
+| S0 | Интегратор | `src/cashguard/contracts/**`, `pyproject.toml`, `uv.lock`, `justfile`, `.pre-commit-config.yaml`, `pipeline/runner.py`, `pipeline/rules/{base,registry,context}.py`, `configs/catalog/**` (v0), `configs/legal/`, `configs/models.yaml`, `tests/contract/**`, `README.md`, `docs/{architecture,pipeline,limitations,roadmap,structure}.md`, `docs/adr/` | Windows | человек-интегратор + ведущая сессия Claude Code (до 3 worktree в P0) |
 | S1 | Платформа и eval | `core/`, `jobs/`, `api/**`, `workers/` (кроме `vlm_worker.py`), `cli.py`, `pipeline/{stub.py,ingest/,render/}`, `eval/**`, корневой `eval/baselines/`, `configs/{deadlines,perf_budget}.yaml`, `tests/{api,jobs,workers}`, `tests/unit/{core,jobs,render}`, `deploy/linux/**`, `scripts/` (кроме `bench_mac.py`, `sync_signals.py`), `docs/{api,eval}.md` | Windows | Claude Code |
 | S2 | Web | `web/**`, включая `web/e2e/`; `docs/ui.md` | Windows (WebKit-прогоны — на Mac силами S6) | Codex или Claude Code |
 | S3 | Восприятие и обучение | `pipeline/{decode,perception,evidence}/**` (включая экспортёр `pipeline/perception/export.py`), `configs/perception.yaml`, `configs/trackers/`, `training/**` (после P0-S0-01, только аддитивные правки по согласованию с автором сессии обучения), правки `configs/models.yaml` через PR к S0, `tests/mac/` (паритет, ANE), `tests/unit/evidence/`, `docs/training.md` | Mac (обучение, Core ML) + Windows (чистый код) | две сессии Claude Code: на Mac и на Windows |
 | S4 | Сцена и правила A | `pipeline/scene/**`, `configs/scene.yaml`, `pipeline/rules/leave/**`, `pipeline/rules/access/**`, их `configs/rules/<CODE>.yaml`, поля шаблонов в каталоге после v0, свои фикстуры в `tests/fixtures/timelines/`, `tests/unit/scene/`, свои `tests/unit/rules/<CODE>_test.py` | Windows, только replay | Codex или Claude Code |
 | S5 | Правила B, вердикт, тексты норм | `pipeline/rules/{cashops,collection,discipline}/**`, `pipeline/verdict/**`, `pipeline/legal/**`, нормы в `configs/catalog/<CODE>.yaml` после v0, `tests/unit/{verdict,legal}/`, свои тесты правил, `docs/legal_sources.md` | Windows, только replay | Claude Code |
 | S6 | VLM, эксплуатация Mac, сигналы | `pipeline/vlm/**`, `workers/vlm_worker.py`, `configs/vlm.yaml`, `pipeline/rules/signals/**`, `deploy/macos/**`, `deploy/cloudflared/**`, `scripts/{bench_mac,sync_signals}.py`, `tests/unit/vlm/`, `docs/{runbook_mac,jury_mode}.md` | Mac (MLX, deploy) + Windows (сигналы) | две сессии Claude Code: на Mac и на Windows |
-
-Таблица повторяет раздел «Владение папками» в [../AGENTS.md](../AGENTS.md). При расхождении прав `AGENTS.md`.
 
 У S3 и S6 по две сессии. Чтобы они не правили одни и те же файлы, файлы поделены так:
 
@@ -383,13 +381,12 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 - Mac: `~/cg-wt/<slug>`. Боевой клон — `~/cashguard`, только для SERVE и обучения. Не в `~/Desktop`, `~/Documents`, `~/Downloads` и не в iCloud.
 - У каждого worktree свой `var/` и свой порт.
 - Модели и данные на Mac есть только в `~/cashguard`. Окружение worktree на Mac: `CG_MODELS_DIR=$HOME/cashguard/models`, `KASSA_DATA_DIR=$HOME/cashguard/data` и настройка пути к датасету для `extract-signals` и `eval-full` (имя — проверить с S1).
-- Общие запреты чтения заданы в `AGENTS.md`. Конфигурации AI-инструментов исключены из Git и для запуска сервиса не требуются. При использовании Claude Code на Mac человек задаёт пользовательский `~/.claude/settings.json` с абсолютными путями: `Read(//Users/<user>/cashguard/data/**)`, `Read(//Users/<user>/cashguard/var/**)`, `Read(//Users/<user>/cashguard/models/**)`, `Read(//Users/<user>/cashguard/runs/**/*.jpg)` (синтаксис — проверить). См. [../AGENTS.md](../AGENTS.md) и [runbook_mac.md](runbook_mac.md), раздел 3.
 - Ветки: `s<N>/<slug>` строчными, например `s0/contracts`, `s1/api-upload`, `s2/job-page`, `s3/decode`, `s4/scene`, `s5/verdict-legal`, `s6/mlx`. Выпуск модели: `s3/promote-<role>-vNNN`. Документы: `product-docs`. После тега: `hotfix/<slug>`.
 
 ### 4.4. Порядок мержа
 
 1. `training-plan` → `main`, затем `product-docs` → `main` (P0-S0-01).
-2. `s0/scaffold` (каркас, lock-файл, justfile, хуки, AGENTS.md).
+2. `s0/scaffold` (каркас, lock-файл, justfile, хуки).
 3. `s0/contracts` (rebase на каркас).
 4. `s0/runner-registry`, `s0/catalog-v0`.
 5. Дальше — по готовности, с учётом зависимостей карточек:
@@ -417,15 +414,11 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 - Мерж — только fast-forward, выполняет S0.
 - `training/` до P0-S0-01 правит только сессия обучения; после — S3, и только аддитивными PR, согласованными с автором сессии обучения. Скрипты `training/scripts/00–12` и `run_stage_*.sh` не переписываются: экспорт для сервиса делает отдельный экспортёр `pipeline/perception/export.py`.
 
-### 4.6. Схема на 4 сессии
+### 4.7. Ограничения реализации
 
-Если 7–9 параллельных сессий не тянем: S4 + S5 = «все правила», S3 + S6 = «весь Mac». Номера карточек не меняются; в колонке «Сессия» читать объединённую.
-
-### 4.7. Жёсткие правила для агентов
-
-Полный список — в [../AGENTS.md](../AGENTS.md). Коротко:
+Проверяемые требования к обработке и совместимости:
 - Никаких облачных AI-вызовов в коде пайплайна.
-- Не открывать видео и кадры датасета и жюри (правило `AGENTS.md`; дополнительные ограничения инструментов — в локальных пользовательских настройках). Агенты работают с кодом, метриками и числовыми трассами. Полный ответ jury API с base64-кадрами в терминал не выводить (`scripts/smoke_jury.sh` пишет его в `var/smoke/`).
+- Видео, кадры и их описания остаются локально. Отчёты оценки содержат только числа. Полный ответ jury API с base64-кадрами сохраняется в `var/smoke/` скриптом `scripts/smoke_jury.sh`, а в терминал выводится сводка.
 - Не коммитить `data/`, `var/`, `models/`, `runs/`.
 - Не ставить `fastapi[standard]`, TypeScript 7, react-router, msw. Не использовать `OBJC_DISABLE_INITIALIZE_FORK_SAFETY`.
 - Не заменять потоковую загрузку на `UploadFile`, всегда передавать трекер явно, таймкоды брать только из PTS.
@@ -446,7 +439,7 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 |---|---|---|---|---|---|
 | P0-S0-01 | Мерж `training-plan` и `product-docs` в `main` | S0 (человек) | Win | 0,5 | завершение сессии обучения |
 | P0-H-01 | Решения grill-me, домен, аккаунты туннеля | люди + S0 | — | 1 | — |
-| P0-S0-02 | Каркас репозитория и правила агентов | S0 | Win | 1,5 | P0-S0-01 |
+| P0-S0-02 | Каркас репозитория и инструменты разработки | S0 | Win | 1,5 | P0-S0-01 |
 | P0-S0-03 | Контракты и замороженная схема жюри | S0 | Win | 1,5 | P0-S0-01 |
 | P0-S0-04 | Сигнатуры стадий, реестр правил, границы импортов | S0 | Win | 0,5 | P0-S0-02, P0-S0-03 |
 | P0-S0-05 | Каталог и нормы v0 | S0 | Win | 1,5 | P0-S0-03 |
@@ -529,14 +522,14 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 
 **P0-H-01. Решения grill-me, домен, аккаунты туннеля**
 - Вход: вопросы 9.3, ADR-0006, ADR-0010, ADR-0013.
-- Выход: раздел «Решения» в `AGENTS.md`; правки в `docs/adr/`; домен для именованного туннеля или решение «Tailscale Funnel — основной URL»; назначены интегратор и дежурный у Mac.
+- Выход: решения в `docs/adr/`; домен для именованного туннеля или решение «Tailscale Funnel — основной URL»; назначены интегратор и дежурный у Mac.
 - Приёмка: по каждому вопросу 9.3 записан ответ или принятый дефолт; на Mac `cloudflared tunnel list` показывает туннель (если выбран Cloudflare).
 
-**P0-S0-02. Каркас репозитория и правила агентов**
+**P0-S0-02. Каркас репозитория и инструменты разработки**
 - Вход: стек из [architecture.md](architecture.md), дерево из [structure.md](structure.md).
-- Выход: `pyproject.toml` (Python 3.12, extras `ml`, `mac`, `cuda`, группа `dev`, все известные зависимости объявлены сразу), `uv.lock`, `.python-version`, `justfile` (все рецепты, пока заглушки), `.pre-commit-config.yaml`, `.gitattributes`, `.editorconfig`, `.env.example`, `LICENSE` (AGPL-3.0), заготовки `src/cashguard/<module>/AGENTS.md`; `AGENTS.md` и `README.md` дополнены командами и решениями P0-H-01. Настройки отдельных AI-инструментов в Git не включаются; ограничения данных закреплены в `AGENTS.md`.
+- Выход: `pyproject.toml` (Python 3.12, extras `ml`, `mac`, `cuda`, группа `dev`, все известные зависимости объявлены сразу), `uv.lock`, `.python-version`, `justfile` (все рецепты, пока заглушки), `.pre-commit-config.yaml`, `.gitattributes`, `.editorconfig`, `.env.example`, `LICENSE` (AGPL-3.0); `README.md` дополнен командами и решениями P0-H-01.
 - Приёмка: Windows — `uv sync --locked`, `uv run just --list`, `uv run just check`; Mac — `uv sync --locked --extra ml --extra mac`; `uv run python -c "import cashguard"`.
-- Примечание: каркас папок с `README.md`, `src/cashguard/__init__.py` и черновики `AGENTS.md`, `README.md` уже есть в ветке `product-docs` — дополнять, не перезаписывать. `.gitattributes` уже создан сессией обучения — объединить.
+- Примечание: каркас папок с `README.md`, `src/cashguard/__init__.py` и черновик `README.md` уже есть в ветке `product-docs` — дополнять, не перезаписывать. `.gitattributes` уже создан сессией обучения — объединить.
 
 **P0-S0-03. Контракты и замороженная схема жюри**
 - Вход: ТЗ §10; раздел контрактов в [architecture.md](architecture.md); [api.md](api.md).
@@ -586,13 +579,13 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 
 **P0-S2-01. Каркас web и загрузка**
 - Вход: `web/src/shared/api/openapi.json`; [ui.md](ui.md). Предусловие (человек): на Windows-ПК Node 24.22.0 и pnpm 10.34.7.
-- Выход: `web/{package.json,pnpm-lock.yaml,.node-version,.npmrc,vite.config.ts,tsconfig*.json,biome.json,components.json,index.html,AGENTS.md}`; `web/public/{favicon.svg,robots.txt}`; `web/src/{main.tsx,App.tsx}`; `web/src/pages/{UploadPage,JobPage}.tsx`; `web/src/features/{upload,progress}/`; `web/src/shared/api/{client.ts,queries.ts,schema.d.ts}`; `web/src/shared/i18n/ru.ts`; `web/src/styles/index.css`.
+- Выход: `web/{package.json,pnpm-lock.yaml,.node-version,.npmrc,vite.config.ts,tsconfig*.json,biome.json,components.json,index.html}`; `web/public/{favicon.svg,robots.txt}`; `web/src/{main.tsx,App.tsx}`; `web/src/pages/{UploadPage,JobPage}.tsx`; `web/src/features/{upload,progress}/`; `web/src/shared/api/{client.ts,queries.ts,schema.d.ts}`; `web/src/shared/i18n/ru.ts`; `web/src/styles/index.css`.
 - Приёмка: `uv run just build-web`; `pnpm -C web exec tsc -b`; `pnpm -C web exec biome ci`; `pnpm -C web test`; в `uv run just dev` (stub) загрузка показывает %, МБ/с и статус.
 
 **P0-S3-01. Подготовка Mac**
 - Вход: `open.zip` (копирует человек вручную); `training/setup_mac.sh`; `training/download_models.sh`.
 - Команды: `bash training/setup_mac.sh`; `bash training/download_models.sh --no-qwen`; Qwen 8, 6 и 4 бит — один раз закреплёнными командами из [runbook_mac.md](runbook_mac.md), раздел 3.5 (без них ≈ 8 ГБ, оценка, пришлось бы качать повторно после P0-S3-02).
-- Выход: клон в `~/cashguard`; `data/raw/open/videos/*.mov`, `data/raw/open/open_labels.xlsx`; `.venv-train`; `models/pretrained/*.pt`; `models/hf/Qwen3.5-4B-{8,6,4}bit`; (человек) пользовательский `~/.claude/settings.json` с абсолютными deny-путями (раздел 4.3). Сервисный `.venv` — позже, в окне DEV Ч+3,75, когда в `main` есть `uv.lock`.
+- Выход: клон в `~/cashguard`; `data/raw/open/videos/*.mov`, `data/raw/open/open_labels.xlsx`; `.venv-train`; `models/pretrained/*.pt`; `models/hf/Qwen3.5-4B-{8,6,4}bit`. Сервисный `.venv` — позже, в окне DEV Ч+3,75, когда в `main` есть `uv.lock`.
 - Приёмка: `sw_vers -productVersion` ≥ 14; `df -h ~` — свободно ≥ 40 ГБ (оценка: модели ≈ 13,6 ГБ, три окружения, кэш uv, видео и `open.zip`, `runs/`, `data/yolo`, worktree); `python training/scripts/00_check_env.py` — MPS доступен, данные найдены.
 - Примечание: загрузки ≈ 13,6 ГБ (≈ 9,5 ГБ по заголовку `download_models.sh` + 4,11 ГБ Qwen 6-bit), оценка 20–40 мин. После загрузок — `du -sh ~/cashguard/{models,data,runs,.venv*} ~/.cache/uv`.
 
@@ -1043,7 +1036,7 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 6. В коммите нет данных, весов, видео, кадров, ключей, полных ответов jury API (`data/`, `var/`, `models/`, `runs/`, `result_*.json` в `.gitignore`; хук `check-added-large-files`).
 7. Нет новых зависимостей без S0; сгенерированные файлы не правились руками.
 8. Задача на Mac: релевантные `uv run pytest -m mac` зелёные на Mac; замеры записаны в конфиг или отчёт. Если Mac недоступен, в PR прямо сказано, что не проверено на Mac.
-9. Изменилось поведение → обновлён документ зоны (`docs/*.md` или `src/cashguard/<module>/AGENTS.md`).
+9. Изменилось поведение → обновлён документ зоны (`docs/*.md` или README соответствующего модуля).
 
 ### 7.2. DoD релиза `jury-v1`
 
@@ -1100,9 +1093,9 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 | 13 | Неизвестна логика автоматического парсера жюри: сопоставление `type`, null при processing, 200 или 202, норма в `description` | средняя | дефолты [ADR-0006](adr/0006-frozen-jury-contract.md); вопросы организаторам (раздел 10) | S0 |
 | 14 | Туннель и сеть: нужен домен; лимиты Funnel не документированы; площадка может закрыть UDP; загрузка жюри входит в 300 с; Bot Fight Mode может блокировать curl | средняя | http2; Funnel в резерве; дедлайны от t0 с запасом 60 с; `jury-sim` с мобильной точки; Bot Fight Mode выключен | S6 |
 | 15 | Эксплуатация Mac: сон, закрытая крышка, FileVault после перезагрузки требует входа, автообновления, браузер или IDE съедают память | средняя | чек-лист [jury_mode.md](jury_mode.md); caffeinate; питание и Ethernet; человек у Mac; две репетиции со сбоями | S6 |
-| 16 | Агенты «упрощают» критичное: `UploadFile` вместо потока, нет `tracker=`, таймкоды из индекса кадра, SSE вместо опроса, апгрейды TS 7, react-router 8, pnpm 12 | средняя | отдельный тест на каждое; import-linter; пины и запреты в `AGENTS.md` | S0 |
+| 16 | Регрессии критичного поведения: `UploadFile` вместо потока, нет `tracker=`, таймкоды из индекса кадра, SSE вместо опроса, апгрейды TS 7, react-router 8, pnpm 12 | средняя | отдельный тест на каждое; import-linter; точные версии в манифестах и lock-файлах | S0 |
 | 17 | GIL: декодер, инференс и запись кадров мешают друг другу | низкая–средняя | замер; при потере > 20 % — декодер в отдельный процесс с shared_memory | S3 |
-| 18 | Лицензии и данные: AGPL у сетевого сервиса; GPL-части x264/x265 в колёсах PyAV; у репозиториев mlx-community нет карточки лицензии; утечка видео | средняя | публикация исходников и оговорка в README; происхождение весов в манифесте; `.gitignore` и хук размера; deny-правила агентам | S0 |
+| 18 | Лицензии и данные: AGPL у сетевого сервиса; GPL-части x264/x265 в колёсах PyAV; у репозиториев mlx-community нет карточки лицензии; утечка видео | средняя | публикация исходников и оговорка в README; происхождение весов в манифесте; `.gitignore` и хук размера; локальное хранение медиа и числовые сводки без base64 | S0 |
 | 19 | Mac — единственная точка отказа | средняя | Docker rules-only на RTX 3050; запуск только после остановки коннектора Mac | S1 |
 | 20 | Живая сессия обучения ещё правит `training/`; конфликт и задержка P0 | высокая | P0-S0-01 ждёт её коммита; до мержа `training/` никто не трогает | S0 |
 | 21 | Этап B (люди) — узкое место критического пути | высокая | 2 человека; сначала кадры у событий; 600–800 кадров; неподвижные предметы — на первом кадре; правило сдвига 6.4 | люди |
@@ -1149,8 +1142,6 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 | R-2 | На разметке 2 человека ≈ 4 часа; интегратор доступен весь день; в окно жюри есть дежурный у Mac | P0-H-01 |
 | R-3 | (снято) Режимы на Mac не совмещаются; G0 проверяется с Windows-ПК (P0-S6-02) | — |
 | R-4 | Сервер Label Studio работает на Mac параллельно с обучением (`--internal-host 0.0.0.0`, брандмауэр — только LAN, не через туннель); разметчики подключаются со своих ноутбуков, не с Windows-ПК агентов; браузер на Mac во время TRAIN не открывается; кэш браузеров разметчиков чистится после этапа B; данные не покидают локальные машины | P0-S3-05 |
-| R-5 | Ночью агенты работают без людей только в своих папках. Ночью мержатся только PR без изменений контрактов, схем и норм, при зелёных гейтах | grill-me |
-| R-6 | В пике работают 7–9 сессий агентов (у S3 и S6 — по две: Mac и Windows) | S0; иначе схема на 4 сессии (4.6) |
 | R-7 | Своя съёмка возможна, только если есть похожая площадка и реквизит | P0-H-01 |
 | R-8 | Окно проверки жюри — после дедлайна; Mac остаётся в режиме жюри до его конца | вопрос 1 к организаторам |
 | R-9 | Сеть площадки пропускает исходящий 443 для cloudflared (http2) и Tailscale | P0-S6-02 |
@@ -1177,7 +1168,7 @@ uv run python scripts/port.py                # свой порт 8100–8199 д�
 
 ## 10. Открытые вопросы к организаторам
 
-До ответа действует дефолт. Ответы S0 записывает в `AGENTS.md` и в ADR.
+До ответа действует дефолт. Ответы S0 записывает в ADR.
 
 | № | Вопрос | Дефолт до ответа |
 |---|---|---|

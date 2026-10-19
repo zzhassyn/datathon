@@ -43,7 +43,7 @@
 6. **Без внешних ресурсов:** только системный шрифтовой стек (кириллица рендерится нативно), никаких CDN и аналитики. Русские строки — в `src/shared/i18n/ru.ts`.
 7. **Разработка:** Vite dev server на :5173 проксирует `/api` на порт worktree с FastAPI в режиме stub. `pnpm install --frozen-lockfile` всегда.
 8. **Тесты:** Vitest для единиц; Playwright E2E против FastAPI в режиме stub: channel `chrome` на Windows (кодеки H.264), WebKit и iPhone на Mac (запускает S6). Фикстуры — только синтетические ролики.
-9. **Запрещено** (фиксируется в `AGENTS.md` и `web/AGENTS.md`): TypeScript 7 (и 6 без согласования), react-router, MSW, pnpm 12, CDN-ресурсы, ручная правка сгенерированных файлов.
+9. **Ограничения стека:** TypeScript 6/7, react-router, MSW, pnpm 12 и CDN-ресурсы не поддерживаются. Сгенерированные файлы обновляются только генераторами. Точные версии закреплены в `web/package.json` и `web/pnpm-lock.yaml`.
 
 ## Рассмотренные альтернативы
 

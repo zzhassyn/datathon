@@ -58,7 +58,7 @@ PENDING_RULE_CODES: frozenset[ViolationCode] = frozenset(
     }
 )
 
-# Владельцы по группам: AGENTS.md («Владение папками»), docs/violation_catalog.md (шапка).
+# Владельцы по группам: docs/violation_catalog.md (шапка).
 OWNER_BY_GROUP: dict[ViolationGroup, str] = {
     ViolationGroup.LEAVE: "S4",
     ViolationGroup.ACCESS: "S4",

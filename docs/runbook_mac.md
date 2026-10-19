@@ -104,17 +104,6 @@ uv python install 3.12
 uv sync --locked --extra ml --extra mac    # только когда в main есть uv.lock (P0-S0-02, окно DEV Ч+3,75)
 ```
 
-**Запреты чтения для агентских сессий на Mac (человек, P0-S3-01).** Сессии S3-Mac и S6-Mac работают в `~/cg-wt/<slug>`, а данные, модели и `runs/` есть только в `~/cashguard`. Общие запреты заданы в `AGENTS.md`; настройки Claude Code в репозитории не хранятся. При использовании этого инструмента человек добавляет в пользовательский `~/.claude/settings.json` запреты с абсолютными путями (синтаксис — проверить):
-
-```json
-{"permissions": {"deny": [
-  "Read(//Users/<user>/cashguard/data/**)",
-  "Read(//Users/<user>/cashguard/var/**)",
-  "Read(//Users/<user>/cashguard/models/**)",
-  "Read(//Users/<user>/cashguard/runs/**/*.jpg)"
-]}}
-```
-
 Окружение worktree на Mac: `CG_MODELS_DIR=$HOME/cashguard/models`, `KASSA_DATA_DIR=$HOME/cashguard/data`, путь к датасету для `extract-signals` и `eval-full` — настройка S1 (имя — проверить; [roadmap.md](roadmap.md), раздел 4.3).
 
 Проверка версий:

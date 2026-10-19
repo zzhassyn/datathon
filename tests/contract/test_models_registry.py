@@ -16,7 +16,7 @@ from cashguard.contracts.model_registry import ModelEntry, ModelRole, ModelsRegi
 ROOT = Path(__file__).resolve().parents[2]
 MODELS_FILE = ROOT / "configs" / "models.yaml"
 
-# Закреплённые ревизии Qwen3.5-4B (AGENTS.md, «Закреплённые версии»).
+# Закреплённые ревизии Qwen3.5-4B из configs/models.yaml.
 VLM_REVISIONS = {"8bit": "1704583a", "6bit": "fbb1092a", "4bit": "0e7ffd5c"}
 VLM_DEFAULT_QUANT = "8bit"
 

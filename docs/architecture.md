@@ -866,7 +866,7 @@ Swagger UI грузит JS с CDN. В офлайн-контуре банка с�
 | Публичный вход | Именованный Cloudflare Tunnel на домене команды: protocol http2, ingress `http://127.0.0.1:8000`, metrics `127.0.0.1:20241`, Bot Fight Mode выключен, без кэша на `/api`. Tailscale Funnel — параллельный резервный URL. Quick tunnel — только для дымовых тестов P0, жюри не отдаётся | cloudflared 2026.10.1, tailscale v1.104.1 | Apache-2.0 / BSD-3-Clause |
 | Linux / банк | `deploy/linux/Dockerfile.cuda`, две стадии (сборка на uv + slim runtime с libgl1 и libglib2.0-0). `compose.yaml`: api, perception (`gpus: all`, torch), vlm (transformers) из одного образа, общий bind mount `var`, веса только на чтение в `/models` | `ghcr.io/astral-sh/uv:0.13.1-python3.12-trixie-slim`, `python:3.12-slim-trixie` (3.12.15) | MIT OR Apache-2.0 / PSF-2.0 |
 
-Запрещённые обновления и пины, которые агенты не трогают: `fastapi[standard]`, TypeScript 7 (и 6 без согласования), react-router, MSW, pnpm 12, numpy ≠ 2.3.5. Список ведётся в `AGENTS.md`.
+Ограничения совместимости: `fastapi[standard]`, TypeScript 6/7, react-router, MSW, pnpm 12 и numpy ≠ 2.3.5 не входят в поддерживаемый стек. Точные версии — в [pyproject.toml](../pyproject.toml), [web/package.json](../web/package.json) и lock-файлах.
 
 ---
 
@@ -1054,13 +1054,13 @@ VLM-этап (см. шаг 14 в 4.2):
 - `just status`: очередь, воркеры, память, туннель, последние задачи. `just trace <id>`: слияние логов одной задачи.
 - Локальные уведомления через osascript. Точка готовности/деградации в подвале UI.
 
-### 10.5. Защита контрактов от «упрощений» агентов
+### 10.5. Проверки контрактов
 
 - `tests/api/test_auth_before_body.py` проверяет, что итератор тела не потребляется при 401. Это блокирует замену на `UploadFile`.
 - Контрактные тесты и schemathesis (нет 5xx, ключ на каждом маршруте `/api/v1`) — до каждого слияния.
 - import-linter запрещает ML-импорты в `api`, `jobs`, `core`, `contracts`.
 - Тесты проверяют, что: yaml трекера передаётся явно; таймкоды из PTS (синтетический VFR-фикстур); поворот применяется (синтетический повёрнутый фикстур).
-- Закреплённые версии и запрещённые обновления — в `AGENTS.md`.
+- Совместимость зависимостей — в разделе 7; точные версии закреплены в манифестах и lock-файлах.
 
 ### 10.6. Репетиции
 
@@ -1101,7 +1101,7 @@ VLM-этап (см. шаг 14 в 4.2):
 
 Агенты и облако:
 - В коде пайплайна нет вызовов облачных AI.
-- Облачные агенты не открывают кадры датасета и жюри: запреты закреплены в `AGENTS.md`. Дополнительные ограничения инструментов задаются локально вне Git. Трассы replay содержат только числа. Кадры смотрят люди.
+- Видео, кадры датасета и жюри и их описания не передаются внешним AI-сервисам. Трассы replay содержат только числа; конфиденциальные медиа остаются локально.
 - Разметка только локально (Label Studio), без облачных сервисов разметки.
 
 Лицензии:
@@ -1188,7 +1188,6 @@ VLM-этап (см. шаг 14 в 4.2):
 
 ```
 datathon/                                  корень (Windows: C:\Users\zhasy\datathon; Mac: ~/cashguard)
-├─ AGENTS.md                               [S0] канонические правила агентов (<150 строк, <32 KiB)
 ├─ README.md                               [S0] для жюри (ТЗ §8): URL UI/API, curl, ключ, запуск, архитектура, модели, ограничения, AGPL
 ├─ LICENSE                                 AGPL-3.0
 ├─ pyproject.toml  uv.lock  .python-version [S0] Python 3.12; extras ml/mac/cuda; группа dev; конфиги ruff/basedpyright/importlinter/pytest
@@ -1240,7 +1239,7 @@ datathon/                                  корень (Windows: C:\Users\zhasy
 │  ├─ configs/                             classes.yaml pipeline.yaml train.yaml external_datasets.example.yaml
 │  ├─ kassa_train/                         common.py weights.py
 │  └─ scripts/                             00_check_env … 12_train_cls; 13_train_rfdetr (запланирован)
-├─ web/                                    [S2] package.json pnpm-lock.yaml .node-version vite.config.ts … index.html (lang=ru, noindex) AGENTS.md
+├─ web/                                    [S2] package.json pnpm-lock.yaml .node-version vite.config.ts … index.html (lang=ru, noindex)
 │  ├─ public/                              favicon.svg robots.txt
 │  ├─ src/                                 main.tsx App.tsx pages/ features/ shared/ (api [GEN], ui, lib, i18n/ru.ts) styles/
 │  └─ e2e/                                 upload.spec.ts result.spec.ts mobile.spec.ts fixtures/ (только синтетика)
@@ -1323,7 +1322,7 @@ datathon/                                  корень (Windows: C:\Users\zhasy
 | Неизвестна семантика автоматического разбора жюри | Умолчания: русские названия, null и [] при processing, 200 везде, норма в description, без лишних ключей. Подтвердить на grill-me и, если можно, у организаторов |
 | Туннель и сеть: нужен домен; лимиты Funnel не документированы; площадка может блокировать UDP; время загрузки жюри входит в 300 с; Bot Fight Mode может блокировать curl | http2, резерв Funnel, дедлайны от t0 с запасом 60 с, jury-sim с телефонной точки |
 | Эксплуатация Mac: сон, FileVault после перезагрузки, автообновления, память под Chrome/IDE | Чек-лист jury_mode, caffeinate, питание и Ethernet, человек рядом с Mac, две репетиции со сбоями |
-| Агенты «упрощают» критичное: `UploadFile`, пропуск `tracker=`, таймкоды из индекса кадра, SSE вместо опроса, обновление TS 7 / react-router 8 / pnpm 12 | Отдельный тест на каждое, import-linter, пины и запреты в `AGENTS.md` |
+| Регрессии: `UploadFile`, пропуск `tracker=`, таймкоды из индекса кадра, SSE вместо опроса, несовместимые версии зависимостей | Контрактные тесты, import-linter, точные версии в манифестах и lock-файлах |
 | Конкуренция за GIL в perception | Замерить; при потере перекрытия > 20 % — декодер в отдельный процесс |
 | Единая точка отказа — Mac | Резерв: Docker CUDA «только правила» на RTX 3050, запуск только после остановки коннектора Mac |
 

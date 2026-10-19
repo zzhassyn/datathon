@@ -385,7 +385,7 @@ job_id=$(printf '%s' "$resp" | sed -n 's/.*"job_id" *: *"\([0-9a-f]*\)".*/\1/p')
 [ -n "$job_id" ] || { echo "POST failed: $resp" >&2; exit 1; }
 echo "job_id=$job_id upload=$(( $(date +%s) - t0 ))s"
 
-# Полный ответ (с base64-кадрами) — только в var/smoke/: папка в .gitignore и под deny-правилами.
+# Полный ответ с base64-кадрами сохраняется локально в var/smoke/ (папка в .gitignore).
 mkdir -p var/smoke
 out="var/smoke/result_${job_id}.json"
 while :; do
@@ -653,7 +653,7 @@ $job.violations | Select-Object type, timecode_sec, @{ n = "frames"; e = { $_.ev
 
 ### 6.7. `GET /api/ui/jobs/{job_id}/events` — зарезервирован, не в v1
 
-SSE — опциональное улучшение P3 за флагом `CG_UI_SSE=1` и только за named tunnel: quick tunnel Cloudflare SSE не поддерживает. Протокол: сначала `event: snapshot` с `UiJobView`, затем события `stage`, `provisional`, `done|failed`, пинги раз в 15 с, `retry: 3000`. Клиент откатывается на опрос раз в 1 с, если snapshot не пришёл за 4 с или было 2 `onerror`. В v1 маршрута нет: AGENTS.md запрещает SSE и WebSockets.
+SSE — опциональное улучшение P3 за флагом `CG_UI_SSE=1` и только за named tunnel: quick tunnel Cloudflare SSE не поддерживает. Протокол: сначала `event: snapshot` с `UiJobView`, затем события `stage`, `provisional`, `done|failed`, пинги раз в 15 с, `retry: 3000`. Клиент откатывается на опрос раз в 1 с, если snapshot не пришёл за 4 с или было 2 `onerror`. В v1 используется HTTP-опрос; SSE и WebSockets не реализованы.
 
 ---
 
@@ -767,7 +767,7 @@ MULTIPART_FILE_BODY = {
 - Алиасы со слешем имеют `include_in_schema=False`.
 - Схема безопасности `APIKeyHeader` (`X-API-Key`) даёт кнопку Authorize в `/docs`.
 - `jury_job.schema.json` **не генерируется**. Это рукописный оракул (раздел 10). Сгенерированная схема `JuryJobResponse` лежит рядом в `generated/` и сверяется с оракулом тестом на общем наборе документов.
-- TypeScript закреплён на **5.9.3**: у openapi-typescript 7.13.0 peer `typescript ^5`. TS 6 и 7 запрещены ([AGENTS.md](../AGENTS.md)).
+- TypeScript закреплён на **5.9.3**: у openapi-typescript 7.13.0 peer `typescript ^5`. TS 6 и 7 не поддерживаются ([ADR-0014](adr/0014-frontend-stack.md)).
 - Проверка расхождений в `just check` и в хуке pre-commit: `python -m cashguard.contracts.export --check`, затем `pnpm gen:api` и `git diff --exit-code`. Сгенерированные файлы руками не правятся.
 - Изменение контракта — отдельный маленький PR от S0 вместе с перегенерированными файлами, мержится первым. S1 и S2 потом делают rebase.
 
@@ -939,7 +939,6 @@ def test_mutations_are_rejected(mutate):
 ## 13. Связанные документы
 
 - [README.md](../README.md) — адреса, ключ и короткая инструкция для жюри (ТЗ §8).
-- [AGENTS.md](../AGENTS.md) — правила для агентов, закреплённые версии и запреты.
 - [architecture.md](architecture.md) — процессы, поток данных, SQLite, супервизор.
 - [ui.md](ui.md) — экраны и поведение веб-интерфейса поверх `/api/ui`.
 - [jury_mode.md](jury_mode.md), [runbook_mac.md](runbook_mac.md) — подготовка Mac к окну жюри, туннель, ключи.

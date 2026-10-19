@@ -38,6 +38,5 @@
 
 ## Документы
 
-- [AGENTS.md — правила для агентов](../AGENTS.md)
 - [docs/structure.md — дерево, владельцы, имена](../docs/structure.md)
 - [docs/eval.md — метрики и оценка](../docs/eval.md)

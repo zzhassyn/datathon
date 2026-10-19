@@ -12,7 +12,7 @@
 Владелец: S2 (web). Смежные: S0 (контракты `UiJobView`, `UiCatalog`), S1 (`/api/ui`, `/ready`), S6 (WebKit-прогоны на Mac).
 Статус: черновик v1, 17.10.2026.
 
-Связанные документы: [web/AGENTS.md](../web/AGENTS.md) — правила для агентов в `web/`; [architecture.md](architecture.md); [api.md](api.md); [legal_sources.md](legal_sources.md); `docs/violation_types.md` (генерируется `scripts/render_docs.py`, появится в P3); [limitations.md](limitations.md); [jury_mode.md](jury_mode.md); [ADR](adr/) 0007 (опрос вместо SSE), 0008 (отдельный `/api/ui`), 0014 (стек фронтенда). Исследование кейса: [case_analysis.md](../analysis/case_analysis.md), [detection_design.md](../analysis/detection_design.md).
+Связанные документы: [web/README.md](../web/README.md) — запуск и проверки интерфейса; [architecture.md](architecture.md); [api.md](api.md); [legal_sources.md](legal_sources.md); `docs/violation_types.md` (генерируется `scripts/render_docs.py`, появится в P3); [limitations.md](limitations.md); [jury_mode.md](jury_mode.md); [ADR](adr/) 0007 (опрос вместо SSE), 0008 (отдельный `/api/ui`), 0014 (стек фронтенда). Исследование кейса: [case_analysis.md](../analysis/case_analysis.md), [detection_design.md](../analysis/detection_design.md).
 
 ---
 
@@ -981,7 +981,7 @@ web/
 
 ### 14.3 Перед мерджем
 
-Полный список команд — в [web/AGENTS.md](../web/AGENTS.md). Кратко: `pnpm install --frozen-lockfile`, `pnpm gen:api` без diff, `tsc -b`, `biome ci`, `vitest run`, `pnpm build`, E2E `chrome-desktop`, из корня `uv run just check`.
+Полный список команд — в [web/README.md](../web/README.md). Кратко: `pnpm install --frozen-lockfile`, `pnpm gen:api` без diff, `tsc -b`, `biome ci`, `vitest run`, `pnpm build`, E2E `chrome-desktop`, из корня `uv run just check`.
 
 ---
 

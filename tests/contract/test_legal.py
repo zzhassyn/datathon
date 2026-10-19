@@ -1,7 +1,7 @@
 """Нормы каталога v0 (P0-S0-05): акты, дословные цитаты, сила связи, утратившие силу акты.
 
 Правило: акты и пункты — только из ``analysis/case_analysis.md`` §7, цитаты — дословно из
-``analysis/normative/*.txt`` (AGENTS.md, правило 8).
+``analysis/normative/*.txt`` (docs/legal_sources.md).
 Запуск: ``uv run pytest tests/contract -k legal``.
 """
 
@@ -124,7 +124,7 @@ SECTION7_CLAUSES: dict[ActCode, frozenset[str]] = {
     TIB: frozenset({"п. 71 пп. 9)", "п. 73 пп. 6)"}),
 }
 
-# Утратившие силу акты (AGENTS.md, правило 8; docs/legal_sources.md, раздел 8.1):
+# Утратившие силу акты (docs/legal_sources.md, раздел 8.1):
 # НБРК № 58 от 03.03.2001 (рег. 1482), № 250 от 24.08.2012 (рег. 8080),
 # № 48 от 27.03.2018 (рег. 16772), № 254 от 24.08.2012 (рег. 7995).
 REPEALED_NUMBERS = ("58", "250", "48", "254")

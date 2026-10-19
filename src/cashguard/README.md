@@ -38,4 +38,3 @@
 
 - [docs/architecture.md — процессы, режимы, поток данных](../../docs/architecture.md)
 - [docs/structure.md — дерево, владельцы, имена](../../docs/structure.md)
-- [AGENTS.md — правила для агентов](../../AGENTS.md)
