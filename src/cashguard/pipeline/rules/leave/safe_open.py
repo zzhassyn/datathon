@@ -6,6 +6,7 @@ from cashguard.contracts.catalog import ViolationCode
 from cashguard.contracts.findings import Candidate, EvidenceKind, EvidenceRequest, RuleContext
 from cashguard.contracts.scene import StateSubject, ZoneKind
 from cashguard.pipeline.rules.base import BaseRule, register_rule
+from cashguard.pipeline.timing import at_least
 
 
 def evaluate_scene(scene, *, min_duration_sec=2.0):
@@ -28,7 +29,7 @@ def evaluate_scene(scene, *, min_duration_sec=2.0):
     for safe in safes:
         for state in away:
             start, end = max(safe.start_t, state.start_t), min(safe.end_t, state.end_t)
-            if end - start < min_duration_sec:
+            if not at_least(end - start, min_duration_sec):
                 continue
             found.append(
                 Candidate(
@@ -49,7 +50,7 @@ def evaluate_scene(scene, *, min_duration_sec=2.0):
                             kind=EvidenceKind.CONTEXT, t_sec=end, label="Кассир не у сейфа"
                         ),
                     ],
-                    rule_version="calibrated-temporal-v1",
+                    rule_version="calibrated-temporal-v2",
                     verdict_impact=True,
                 )
             )
@@ -59,7 +60,7 @@ def evaluate_scene(scene, *, min_duration_sec=2.0):
 @register_rule
 class SafeOpenRule(BaseRule):
     code = ViolationCode.SAFE_OPEN
-    version = "calibrated-temporal-v1"
+    version = "calibrated-temporal-v2"
 
     def evaluate(self, ctx: RuleContext) -> list[Candidate]:
         return evaluate_scene(

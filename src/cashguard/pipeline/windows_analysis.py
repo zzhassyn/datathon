@@ -18,6 +18,7 @@ from cashguard.contracts.jobs import (
     PerceptionLevel,
     ResultLevel,
 )
+from cashguard.contracts.scene import Role
 from cashguard.contracts.video import VideoMeta
 from cashguard.core.atomic import atomic_write_bytes, atomic_write_json
 from cashguard.pipeline.legal.catalog import load_catalog
@@ -55,6 +56,10 @@ def temporal_candidates(report, calibration, options):
     scene = build_numeric(
         report["frames"], report["video"], calibration, calibration.get("scene", {})
     )
+    scene_cfg = dict(calibration.get("scene", {}))
+    cashiers = [role.track_id for role in scene.roles if role.role == Role.CASHIER]
+    if scene_cfg.get("cashier_track_id") is None and len(cashiers) == 1:
+        scene_cfg["cashier_track_id"] = cashiers[0]
     candidates = []
     for code in codes:
         if code == "PREV_CASH_ON_DESK":
@@ -63,8 +68,9 @@ def temporal_candidates(report, calibration, options):
             candidates.extend(
                 third_person(
                     report["frames"],
-                    calibration.get("scene", {}),
+                    scene_cfg,
                     min_duration_sec=float(options.get("min_duration_sec", 2)),
+                    max_gap_sec=float(scene_cfg.get("max_observation_gap_sec", 0.75)),
                     desk=_desk_normalized(calibration, report["video"]),
                     person_size_mode=options.get("person_size_mode", "adaptive"),
                 )

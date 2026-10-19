@@ -18,6 +18,19 @@ from cashguard.contracts.scene import (
     Zone,
     ZoneKind,
 )
+from cashguard.pipeline.timing import at_least, at_most
+
+
+def _tracked_people(frame):
+    people = {}
+    for detection in sorted(frame["detections"], key=lambda d: (-d["conf"], tuple(d["box"]))):
+        if (
+            detection["class_name"] == "person"
+            and detection.get("track_id") is not None
+            and detection["conf"] >= 0.5
+        ):
+            people.setdefault(detection["track_id"], detection)
+    return people
 
 
 def inside(box, roi):
@@ -95,13 +108,8 @@ def build_numeric(frames, video, calibration, params=None):
         if not math.isfinite(t) or not previous < t <= video["duration_sec"]:
             raise ValueError("Немонотонная хронология")
         previous = t
-        for detection in frame["detections"]:
-            if (
-                detection["class_name"] == "person"
-                and detection.get("track_id") is not None
-                and detection["conf"] >= 0.5
-            ):
-                tracks[detection["track_id"]].append((i, t, detection))
+        for track_id, detection in _tracked_people(frame).items():
+            tracks[track_id].append((i, t, detection))
     early = []
     for key, observations in tracks.items():
         hits = [
@@ -136,28 +144,30 @@ def build_numeric(frames, video, calibration, params=None):
             and len(observations) >= minimum
             and distance(observations[minimum - 1][2]["box"], gate)
             > distance(first["box"], gate) + 0.005
-            and observations[minimum - 1][1] - first_t <= max_gap * minimum
+            and at_most(observations[minimum - 1][1] - first_t, max_gap * minimum)
         )
         exited = False
         relaxed = cfg.get("exit_mode") == "relaxed"
         for n, (idx, t, detection) in enumerate(observations):
             next_idx = observations[n + 1][0] if n + 1 < len(observations) else len(frames)
-            missing = frames[idx + 1 : next_idx]
-            if gate is None or not missing or n < 1:
+            all_missing = frames[idx + 1 : next_idx]
+            missing = []
+            last_observed = t
+            for frame in all_missing:
+                if not at_most(frame["t_sec"] - last_observed, max_gap):
+                    break
+                missing.append(frame)
+                last_observed = frame["t_sec"]
+            if not missing or n < 1:
                 continue
             absence = missing[-1]["t_sec"] - t
             before = observations[n - 1][2]["box"]
-            closer = distance(detection["box"], gate) + 0.005 < distance(before, gate)
-            continuous = all(
-                b["t_sec"] - a["t_sec"] <= max_gap
-                for a, b in zip(frames[idx : next_idx - 1], frames[idx + 1 : next_idx], strict=True)
-            )
             strict_ok = (
-                absence >= grace
+                gate is not None
+                and at_least(absence, grace)
                 and inside(detection["box"], gate)
-                and closer
-                and continuous
-                and t - observations[n - 1][1] <= max_gap
+                and distance(detection["box"], gate) + 0.005 < distance(before, gate)
+                and at_most(t - observations[n - 1][1], max_gap)
             )
             # Relaxed (auto-zone) mode: the track ends while touching the door zone or the
             # frame border and nobody is observed afterwards until the video ends.
@@ -170,16 +180,17 @@ def build_numeric(frames, video, calibration, params=None):
             relaxed_ok = (
                 relaxed
                 and n == len(observations) - 1
-                and (overlaps(box, gate) or at_border)
+                and ((gate is not None and overlaps(box, gate)) or at_border)
                 and nobody_after
-                and absence >= min(grace, 1.0)
-                and continuous
+                and at_least(absence, min(grace, 1.0))
+                and len(missing) == len(all_missing)
             )
             if not strict_ok and not relaxed_ok:
                 continue
             stamp = missing[0]["t_sec"]
             confirmed = next(
-                (f["t_sec"] for f in missing if f["t_sec"] - t >= grace), missing[-1]["t_sec"]
+                (f["t_sec"] for f in missing if at_least(f["t_sec"] - t, grace)),
+                missing[-1]["t_sec"],
             )
             empty_until = stamp
             for f in missing:
@@ -201,6 +212,7 @@ def build_numeric(frames, video, calibration, params=None):
                     data={
                         "role": str(role),
                         "confirmed_at": confirmed,
+                        "absence_observed_until": missing[-1]["t_sec"],
                         "room_empty_until": empty_until,
                         "reason": "gate_motion_then_absence"
                         if strict_ok
@@ -235,7 +247,7 @@ def build_numeric(frames, video, calibration, params=None):
 
     def advance(key, subject, value, t, confidence, zone=None, track=None):
         state = active.get(key)
-        if state is not None and state["value"] == value and t - state["end_t"] <= max_gap:
+        if state is not None and state["value"] == value and at_most(t - state["end_t"], max_gap):
             state["end_t"] = t
             state["conf"] = min(state["conf"], confidence)
         else:
@@ -255,18 +267,14 @@ def build_numeric(frames, video, calibration, params=None):
     latest_staff_seen = -1.0
     for frame in frames:
         t = frame["t_sec"]
-        people = [
-            d for d in frame["detections"] if d["class_name"] == "person" and d["conf"] >= 0.5
-        ]
-        staff = (
-            next((d for d in people if d.get("track_id") == cashier), None)
-            if cashier is not None
-            else None
-        )
+        staff = _tracked_people(frame).get(cashier)
         if staff:
             latest_staff_seen = t
         confirmed_exit = any(
-            e.t > latest_staff_seen and e.data["confirmed_at"] <= t for e in cashier_exits
+            e.t > latest_staff_seen
+            and at_most(float(e.data["confirmed_at"]), t)
+            and at_most(t, float(e.data["absence_observed_until"]))
+            for e in cashier_exits
         )
         presence = "present" if staff else "absent" if confirmed_exit else "unknown"
         if staff and any(

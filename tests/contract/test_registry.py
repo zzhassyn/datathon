@@ -164,3 +164,17 @@ def test_disabled_verdict_rules_and_signals_alone_cannot_confirm_clean(temp_rule
         evaluate_all(
             _context(), {"SAFE_OPEN": RuleConfig(code="SAFE_OPEN", enabled=False)}, registry
         )
+
+
+def test_enabled_missing_rule_cannot_be_silently_skipped(temp_rules_package):
+    registry = discover([temp_rules_package])
+    with pytest.raises(RuntimeError, match="PC_UNLOCKED"):
+        evaluate_all(_context(), {"PC_UNLOCKED": RuleConfig(code="PC_UNLOCKED")}, registry)
+
+
+def test_disabled_missing_rule_does_not_block_supported_rules(temp_rules_package):
+    registry = discover([temp_rules_package])
+    candidates, _ = evaluate_all(
+        _context(), {"PC_UNLOCKED": RuleConfig(code="PC_UNLOCKED", enabled=False)}, registry
+    )
+    assert len(candidates) == 1

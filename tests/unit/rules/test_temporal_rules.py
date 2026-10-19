@@ -81,11 +81,15 @@ def test_scene_rules_need_human_zone_confirmation():
             temporal_candidates(report, calibration, {"codes": codes})
 
 
+@pytest.mark.parametrize("explicit_cashier", [False, True])
+@pytest.mark.parametrize("step", [0.5, 1.0])
 @pytest.mark.parametrize(("mode", "expected"), [(None, 1), ("fixed", 0), ("adaptive", 1)])
-def test_temporal_pipeline_applies_person_size_mode_only_to_third_person(mode, expected):
+def test_temporal_pipeline_applies_person_size_mode_only_to_third_person(
+    mode, expected, explicit_cashier, step
+):
     frames = [
         dict(
-            t_sec=index / 2,
+            t_sec=index * step,
             detections=[
                 dict(class_name="person", track_id=track, conf=0.9, box=box)
                 for track, box in (
@@ -101,8 +105,14 @@ def test_temporal_pipeline_applies_person_size_mode_only_to_third_person(mode, e
         **CALIBRATION,
         "scene_zones_confirmed": True,
         "desk_roi": [0, 0, 100, 100],
-        "scene": {"cashier_track_id": 1, "cashier_seat": [0, 0, 0.2, 0.8]},
+        "scene": {
+            "cashier_roi": [0, 0, 0.2, 0.8],
+            "cashier_seat": [0, 0, 0.2, 0.8],
+            "max_observation_gap_sec": 1.5 if step == 1 else 0.75,
+        },
     }
+    if explicit_cashier:
+        calibration["scene"]["cashier_track_id"] = 1
     options = {"codes": ["THIRD_PERSON_DURING_SERVICE"]}
     if mode is not None:
         options["person_size_mode"] = mode

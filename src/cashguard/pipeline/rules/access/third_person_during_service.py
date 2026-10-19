@@ -12,7 +12,12 @@ from collections import defaultdict
 from statistics import median
 
 from cashguard.contracts.catalog import ViolationCode
-from cashguard.contracts.findings import Candidate, EvidenceKind, EvidenceRequest
+from cashguard.contracts.findings import Candidate, EvidenceKind, EvidenceRequest, RuleContext
+from cashguard.contracts.scene import Role, ZoneKind
+from cashguard.pipeline.rules.base import BaseRule, register_rule
+from cashguard.pipeline.timing import at_least, at_most
+
+_MIN_ADAPTIVE_HEIGHT = 0.05
 
 
 def _iou(a, b):
@@ -52,13 +57,14 @@ def _eligible_people(frame, seat, entry, cashier_id, desk):
     return eligible
 
 
-def _deduplicate_people(eligible):
+def _deduplicate_people(eligible, *, suppress_overlaps=True):
     # Confidence-first ordering makes overlap suppression independent of input order.
     people = []
     ids = set()
     for detection in sorted(eligible, key=lambda d: (-d["conf"], d["track_id"], tuple(d["box"]))):
-        if detection["track_id"] in ids or any(
-            _iou(detection["box"], person["box"]) > 0.5 for person in people
+        if detection["track_id"] in ids or (
+            suppress_overlaps
+            and any(_iou(detection["box"], person["box"]) > 0.5 for person in people)
         ):
             continue
         people.append(detection)
@@ -66,42 +72,75 @@ def _deduplicate_people(eligible):
     return people
 
 
-def _adaptive_scale(observations, max_gap_sec, min_duration_sec):
-    """One median per stable visitor, so a long background track gets one vote.
-
-    Engineering starting values from the reference's relative-height approach;
-    they are not thresholds validated on a held-out camera.
-    """
+def _supported_runs(observations, max_gap_sec, min_duration_sec, *, suppress_overlaps):
     runs = defaultdict(list)
     for t, people in observations:
-        for person in _deduplicate_people(people):
+        for person in _deduplicate_people(people, suppress_overlaps=suppress_overlaps):
             if person["conf"] < 0.6:
                 continue
             track_runs = runs[person["track_id"]]
-            if not track_runs or t - track_runs[-1][-1][0] > max_gap_sec:
+            if not track_runs or not at_most(t - track_runs[-1][-1][0], max_gap_sec):
                 track_runs.append([])
             track_runs[-1].append((t, person["box"][3] - person["box"][1]))
-    stable = {}
-    counts = {}
-    intervals = {}
-    for track_id, track_runs in runs.items():
-        supported = [
-            run
-            for run in track_runs
-            if len(run) >= 3 and run[-1][0] - run[0][0] >= min_duration_sec / 2
+    return {
+        track_id: supported
+        for track_id, track_runs in runs.items()
+        if (
+            supported := [
+                run
+                for run in track_runs
+                if len(run) >= 3 and at_least(run[-1][0] - run[0][0], min_duration_sec / 2)
+            ]
+        )
+    }
+
+
+def _adaptive_scales(observations, max_gap_sec, min_duration_sec):
+    """Only co-observed stable runs vote; later visitors cannot change earlier scale.
+
+    NMS limits votes, while raw track support survives suppression of a duplicate.
+    """
+    reference = _supported_runs(observations, max_gap_sec, min_duration_sec, suppress_overlaps=True)
+    support = _supported_runs(observations, max_gap_sec, min_duration_sec, suppress_overlaps=False)
+    intervals = {
+        track_id: [(run[0][0], run[-1][0]) for run in supported]
+        for track_id, supported in support.items()
+    }
+    votes = defaultdict(list)
+    for supported in reference.values():
+        for run in supported:
+            height = median(height for _, height in run)
+            for t, _ in run:
+                votes[t].append((height, len(run)))
+    scales = {}
+    for t, current in votes.items():
+        if len(current) < 2 or sum(count for _, count in current) < 8:
+            continue
+        heights = sorted(height for height, _ in current)
+        position = (len(heights) - 1) * 0.75
+        low, high = math.floor(position), math.ceil(position)
+        height = heights[low] + (heights[high] - heights[low]) * (position - low)
+        scales[t] = (max(_MIN_ADAPTIVE_HEIGHT, 0.5 * height), intervals)
+    return scales
+
+
+def _observed_cashier_seat(frames, cashier_id, roi):
+    boxes = []
+    for frame in frames:
+        people = [
+            d
+            for d in frame["detections"]
+            if d["class_name"] == "person"
+            and d.get("track_id") == cashier_id
+            and d["conf"] >= 0.5
+            and _inside(d["box"], roi)
         ]
-        if supported:
-            best = max(supported, key=lambda run: (run[-1][0] - run[0][0], len(run)))
-            stable[track_id] = median(height for _, height in best)
-            counts[track_id] = len(best)
-            intervals[track_id] = [(run[0][0], run[-1][0]) for run in supported]
-    if len(stable) < 2 or sum(counts.values()) < 8:
-        return None
-    heights = sorted(stable.values())
-    position = (len(heights) - 1) * 0.75
-    low, high = math.floor(position), math.ceil(position)
-    reference = heights[low] + (heights[high] - heights[low]) * (position - low)
-    return max(0.05, 0.5 * reference), intervals
+        people = _deduplicate_people(people)
+        if people:
+            boxes.append(people[0]["box"])
+    if not boxes:
+        raise ValueError("Кассир не наблюдается в подтверждённой зоне")
+    return [median(box[i] for box in boxes) for i in range(4)]
 
 
 def evaluate_frames(
@@ -116,20 +155,27 @@ def evaluate_frames(
 ):
     if not math.isfinite(min_duration_sec) or min_duration_sec <= 0:
         raise ValueError("Длительность должна быть положительной")
+    if not math.isfinite(max_gap_sec) or max_gap_sec <= 0:
+        raise ValueError("Допустимый разрыв должен быть положительным")
     if person_size_mode not in {"fixed", "adaptive"}:
         raise ValueError("Неизвестный режим размера посетителей")
-    seat = scene_cfg.get("cashier_seat") or scene_cfg.get("cashier_roi")
+    seat = scene_cfg.get("cashier_seat")
     entry = scene_cfg.get("entry_roi")
     cashier_id = scene_cfg.get("cashier_track_id")
-    if seat is None or cashier_id is None:
+    if cashier_id is None:
         return []
+    if seat is None:
+        roi = scene_cfg.get("cashier_roi")
+        if roi is None:
+            return []
+        seat = _observed_cashier_seat(frames, cashier_id, roi)
     observations = [
         (frame["t_sec"], _eligible_people(frame, seat, entry, cashier_id, desk)) for frame in frames
     ]
-    scale = (
-        _adaptive_scale(observations, max_gap_sec, min_duration_sec)
+    scales = (
+        _adaptive_scales(observations, max_gap_sec, min_duration_sec)
         if person_size_mode == "adaptive"
-        else None
+        else {}
     )
     found = []
     run_start = None
@@ -139,6 +185,7 @@ def evaluate_frames(
     session_start = None
     session_last = None
     for t, eligible in observations:
+        scale = scales.get(t)
         people = []
         for person in eligible:
             box = person["box"]
@@ -154,18 +201,18 @@ def evaluate_frames(
                 people.append(person)
         # A rejected small duplicate must not suppress a size-qualified person.
         people = _deduplicate_people(people)
-        if people and (session_last is None or t - session_last > max_gap_sec):
+        if people and (session_last is None or not at_most(t - session_last, max_gap_sec)):
             session_start = t
         if people:
             session_last = t
-        if len(people) >= 2 and (run_last is None or t - run_last <= max_gap_sec):
+        if len(people) >= 2 and (run_last is None or at_most(t - run_last, max_gap_sec)):
             if run_start is None:
                 run_start = t
                 run_session_start = session_start
             run_last = t
             run_ids.update(p["track_id"] for p in people)
             continue
-        if run_start is not None and run_last - run_start >= min_duration_sec:
+        if run_start is not None and at_least(run_last - run_start, min_duration_sec):
             found.append(
                 _candidate(len(found), run_start, run_last, sorted(run_ids), run_session_start)
             )
@@ -176,7 +223,7 @@ def evaluate_frames(
             run_start = run_last = t
             run_session_start = session_start
             run_ids.update(p["track_id"] for p in people)
-    if run_start is not None and run_last - run_start >= min_duration_sec:
+    if run_start is not None and at_least(run_last - run_start, min_duration_sec):
         found.append(
             _candidate(len(found), run_start, run_last, sorted(run_ids), run_session_start)
         )
@@ -201,6 +248,80 @@ def _candidate(index, start, end, ids, session_start):
             EvidenceRequest(kind=EvidenceKind.EVENT, t_sec=start, label="Второй посетитель"),
             EvidenceRequest(kind=EvidenceKind.CONTEXT, t_sec=end, label="Оба у стола"),
         ],
-        rule_version="numeric-auto-zones-v3",
+        rule_version="numeric-auto-zones-v4",
         verdict_impact=True,
     )
+
+
+def _rectangle_zone(scene, kind, *, required=True):
+    zones = [zone for zone in scene.layout.zones if zone.kind == kind]
+    if not zones and not required:
+        return None
+    if len(zones) != 1 or zones[0].conf < 0.5:
+        raise ValueError(f"Требуется однозначная подтверждённая зона {kind}")
+    points = zones[0].polygon
+    if len(points) != 4 or not all(math.isfinite(v) and 0 <= v <= 1 for p in points for v in p):
+        raise ValueError(f"Неподдерживаемая геометрия зоны {kind}")
+    xs, ys = sorted({p[0] for p in points}), sorted({p[1] for p in points})
+    if (
+        len(xs) != 2
+        or len(ys) != 2
+        or set(points) != {(x, y) for x in xs for y in ys}
+        or not all(
+            (a[0] == b[0]) != (a[1] == b[1])
+            for a, b in zip(points, points[1:] + points[:1], strict=True)
+        )
+    ):
+        raise ValueError(f"Требуется прямоугольная зона {kind}; её границы не расширяются")
+    return [xs[0], ys[0], xs[1], ys[1]]
+
+
+@register_rule
+class ThirdPersonDuringServiceRule(BaseRule):
+    code = ViolationCode.THIRD_PERSON_DURING_SERVICE
+    version = "numeric-auto-zones-v4"
+
+    def evaluate(self, ctx: RuleContext) -> list[Candidate]:
+        mode = ctx.cfg.params.get("person_size_mode", "adaptive")
+        if not isinstance(mode, str):
+            raise ValueError("Режим размера посетителей должен быть строкой")
+        cashiers = [role for role in ctx.scene.roles if role.role == Role.CASHIER]
+        if (
+            len(cashiers) != 1
+            or cashiers[0].conf < 0.5
+            or not any(
+                d.cls == "person" and d.conf >= 0.5 and d.track_id == cashiers[0].track_id
+                for frame in ctx.trace.frames
+                for d in frame.detections
+            )
+        ):
+            raise ValueError("Требуется однозначный наблюдаемый кассир")
+        scene_cfg = {
+            "cashier_track_id": cashiers[0].track_id,
+            "cashier_roi": _rectangle_zone(ctx.scene, ZoneKind.CASHIER_SIDE),
+            "entry_roi": _rectangle_zone(ctx.scene, ZoneKind.DOOR, required=False),
+        }
+        desk = _rectangle_zone(ctx.scene, ZoneKind.DESK)
+        frames = [
+            dict(
+                t_sec=frame.t_sec,
+                detections=[
+                    dict(
+                        class_name=str(d.cls),
+                        track_id=d.track_id,
+                        conf=d.conf,
+                        box=[d.box.x1, d.box.y1, d.box.x2, d.box.y2],
+                    )
+                    for d in frame.detections
+                ],
+            )
+            for frame in ctx.trace.frames
+        ]
+        return evaluate_frames(
+            frames,
+            scene_cfg,
+            desk=desk,
+            min_duration_sec=float(ctx.cfg.params.get("min_duration_sec", 2)),
+            max_gap_sec=float(ctx.cfg.params.get("max_observation_gap_sec", 0.75)),
+            person_size_mode=mode,
+        )

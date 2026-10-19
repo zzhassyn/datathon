@@ -79,6 +79,9 @@ def evaluate_all(
     if not reg.codes:
         raise RuntimeError("Нет подключённых правил: анализ не выполнен")
     cfgs = configs or {}
+    missing = sorted(code for code, cfg in cfgs.items() if cfg.enabled and code not in reg.codes)
+    if missing:
+        raise RuntimeError(f"Не подключены включённые правила: {', '.join(missing)}")
     if not any(
         rule.verdict_impact and cfgs.get(code, RuleConfig(code=code)).enabled
         for code, rule in reg.rules.items()

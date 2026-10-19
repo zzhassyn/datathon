@@ -139,6 +139,67 @@ def test_pts_order_is_mandatory():
         build_numeric(frames, VIDEO, CALIBRATION, PARAMS)
 
 
+@pytest.mark.parametrize("reverse", [False, True])
+def test_duplicate_cashier_at_exit_does_not_erase_motion(reverse):
+    frames = records()
+    duplicate = {**frames[4]["detections"][0], "conf": 0.6}
+    frames[4]["detections"].append(duplicate)
+    if reverse:
+        frames[4]["detections"].reverse()
+    (event,) = valuables_left(build_numeric(frames, VIDEO, CALIBRATION, PARAMS))
+    assert (event.start_sec, event.end_sec) == (2.5, 4.5)
+
+
+def test_late_observation_gap_preserves_already_confirmed_valuables():
+    frames = [f for f in records() if f["t_sec"] != 5.5]
+    (event,) = valuables_left(build_numeric(frames, VIDEO, CALIBRATION, PARAMS))
+    assert (event.start_sec, event.end_sec) == (2.5, 4.5)
+
+
+def test_absence_before_gap_does_not_prove_unattended_safe_after_gap():
+    frames = [f for f in records() if f["t_sec"] <= 4.5]
+    for t in (6, 6.5, 7, 7.5, 8):
+        frames.append(dict(t_sec=t, detections=[detection("safe_open", 8, [0.8, 0.2, 0.95, 0.7])]))
+    scene = build_numeric(frames, {**VIDEO, "duration_sec": 9}, CALIBRATION, PARAMS)
+    assert len(valuables_left(scene)) == 1
+    assert safe_open(scene) == []
+    assert all(
+        s.value == "unknown"
+        for s in scene.states
+        if s.start_t >= 6 and s.subject == "cashier_present"
+    )
+
+
+@pytest.mark.parametrize("mode,expected", [("relaxed", 1), ("strict", 0)])
+def test_border_exit_does_not_need_a_door_in_relaxed_mode(mode, expected):
+    frames = records()
+    frames[4]["detections"][0]["box"] = [0.85, 0.1, 1, 0.7]
+    cfg = {k: v for k, v in PARAMS.items() if k != "entry_roi"}
+    cfg = {**cfg, "cashier_track_id": 1, "exit_mode": mode}
+    assert len(valuables_left(build_numeric(frames, VIDEO, CALIBRATION, cfg))) == expected
+
+
+def test_relaxed_border_exit_still_requires_empty_continuous_observations():
+    cfg = {k: v for k, v in PARAMS.items() if k != "entry_roi"}
+    cfg = {**cfg, "cashier_track_id": 1, "exit_mode": "relaxed"}
+    for frames in (
+        records(other_person=True),
+        records()[:5],
+        [f for f in records() if f["t_sec"] != 3],
+    ):
+        frames[4]["detections"][0]["box"] = [0.85, 0.1, 1, 0.7]
+        assert valuables_left(build_numeric(frames, VIDEO, CALIBRATION, cfg)) == []
+
+
+@pytest.mark.parametrize("offset", [0, 0.3])
+def test_safe_duration_boundary_is_invariant_to_pts_origin(offset):
+    frames = records(exit_gate=False)[:5]
+    for frame in frames:
+        frame["t_sec"] += offset
+        frame["detections"].append(detection("safe_open", 8, [0.8, 0.2, 0.95, 0.7]))
+    assert len(safe_open(build_numeric(frames, VIDEO, CALIBRATION, PARAMS))) == 1
+
+
 def test_bag_without_cash_does_not_invent_internal_bank_policy():
     frames = records()
     for frame in frames:
