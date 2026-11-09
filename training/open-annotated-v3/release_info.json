@@ -1,0 +1,39 @@
+{
+  "repository": "zzhassyn/datathon",
+  "release_tag": "open-annotated-v3-20261018",
+  "asset_name": "Forte_Open_Annotated_v3.zip",
+  "asset_url": "https://github.com/zzhassyn/datathon/releases/download/open-annotated-v3-20261018/Forte_Open_Annotated_v3.zip",
+  "bytes": 444379197,
+  "sha256": "ece7fa7dbdd6f5cde6718cd494977bab2d583413bc074b03fbf701c58e738372",
+  "files": 2767,
+  "archive_validation": "PASS",
+  "status": "EXPERIMENTAL_DATASET_NOT_TRAINED",
+  "annotation_status": "ai_visual_reviewed",
+  "human_verified": false,
+  "training_executed": false,
+  "inference_executed": false,
+  "prepared_training_tasks": [
+    "detector",
+    "door",
+    "qwen"
+  ],
+  "continuous_framewise_annotation": false,
+  "quality_on_new_cameras": "NOT_MEASURED",
+  "includes_source_videos": true,
+  "weights_included": false,
+  "python_environments_included": false,
+  "standalone_runtime_versions_differ_from_service": true,
+  "qwen_service_schema_adapter_required": true,
+  "qwen_4bit_adapter_to_8bit_service_compatibility": "NOT_VERIFIED",
+  "unsupported_detector_class_ids": [
+    13
+  ],
+  "archive_checks": [
+    "SHA256",
+    "CRC",
+    "unique_safe_member_paths",
+    "file_count",
+    "required_exports",
+    "published_report_snapshot_match"
+  ]
+}

@@ -1,0 +1,844 @@
+[
+  {
+    "pdf_item": 1,
+    "title": "Выдача наличных по частям",
+    "source_text": "1  Выдача наличных по частям\nВидео: X-1, 00:22.\nОписание: кассир разделяет банкноты и передает клиенту часть суммы, удерживая остальные \nбанкноты у себя.\nСтатус: предполагаемое нарушение по сценарию видео.\nОснование: ролик отмечен организаторами как нарушение. Прямого запрета передавать сумму \nчастями в проверенных документах не найдено. Для связи с пропуском пересчета необходимо \nустановить, были ли переданные банкноты пересчитаны. Пункт 31(4) Правил № 231 \nпредусматривает пересчет подготовленных денег в присутствии клиента перед выдачей, но сам \nпо себе не запрещает передачу несколькими частями.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "PARTIAL_CASH_HANDOVER",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 2,
+    "title": "Прием наличных без идентификации клиента",
+    "source_text": "2  Прием наличных без идентификации клиента\nВидео: X-2, 00:10.\nОписание: кассир начинает обработку денег; предварительная проверка удостоверения клиента \nв просмотренной последовательности не видна.\nСтатус: есть нормативное основание; отсутствие идентификации в конкретной сцене требует \nподтверждения.\nОснование: Правила № 231, пункт 19(1). Необходимо исключить идентификацию через сервис \nцифровых документов или действие вне просмотренных кадров.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "ID_CHECK_NOT_OBSERVED",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 3,
+    "title": "Пересчет принимаемых денег без присутствия клиента",
+    "source_text": "3  Пересчет принимаемых денег без присутствия клиента\nВидео: Х-34, 00:13.\nОписание: клиент уходит, пока кассир продолжает обработку и начинает машинный пересчет \nпереданных наличных.\nСтатус: есть нормативное основание.\nОснование: Правила № 231, пункт 20: прием и пересчет наличных происходят в присутствии \nклиента.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "COUNTING_CUSTOMER_ABSENT",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_034",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_035",
+        "split": "train",
+        "signal_status": "not_observed_at_reviewed_points"
+      },
+      {
+        "video_id": "forte_037",
+        "split": "train",
+        "signal_status": "unknown"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 4,
+    "title": "Оставление денег предыдущего клиента при начале следующей операции",
+    "source_text": "4  Оставление денег предыдущего клиента при начале следующей операции\nВидео: Х-4, 00:57; Х-38, 00:33; Х-47, 01:08.\nОписание: после ухода первого клиента его наличные остаются на рабочем столе, и начинается \nобслуживание следующего клиента.\nСтатус: есть нормативное основание.\nОснование: Правила № 231, пункт 20: ранее принятые деньги хранятся в специальных \nустройствах, закрывающихся на ключ.\nПримечание: Х-47 является копией Х-4 с другой временной отметкой в разметке.\nForteBank Datathon 26  |  Каталог сценариев\nРабочий список  |  2 / 15",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "PREVIOUS_CASH_NEXT_CUSTOMER",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_004",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_005",
+        "split": "train",
+        "signal_status": "not_observed_at_reviewed_points"
+      },
+      {
+        "video_id": "forte_038",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_039",
+        "split": "train",
+        "signal_status": "not_observed_at_reviewed_points"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 5,
+    "title": "Хранение личных вещей в кассовой зоне",
+    "source_text": "5  Хранение личных вещей в кассовой зоне\nВидео: Х-40, 00:17.\nОписание: сотрудник размещает личную сумку и верхнюю одежду на рабочем столе и приступает \nк работе.\nСтатус: есть нормативное основание при условии, что показанное помещение является кассовым \nузлом.\nОснование: Правила № 231, пункт 12: личные вещи работников хранятся вне кассового узла.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "BELONGINGS_IN_CASH_AREA",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 6,
+    "title": "Пропуск предусмотренного пересчета или проверки банкнот",
+    "source_text": "6  Пропуск предусмотренного пересчета или проверки банкнот\nВидео: Х-13, 00:47; Х-44, 00:16.\nОписание: в Х-13 деньги из сумки помещаются в сейф без видимого этапа пересчета; в Х-44 \nпосле машинного пересчета не видно использования отдельного проверочного прибора, \nпоказанного в сравнительных роликах.\nСтатус: предполагаемое нарушение; есть подходящие нормативные требования, но их \nнарушение по кадрам полностью не доказано.\nОснование: Правила № 231, пункты 19(2), 41 и 57. Для Х-13 необходимо уточнить порядок \nобработки сумки и статус операции. Для Х-44 нужно установить функции счётной машины: \nотсутствие отдельного детектора не доказывает отсутствие проверки.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "CHECK_STEP_NOT_OBSERVED",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_008",
+        "split": "train",
+        "signal_status": "unknown"
+      },
+      {
+        "video_id": "forte_010",
+        "split": "train",
+        "signal_status": "unknown"
+      },
+      {
+        "video_id": "forte_013",
+        "split": "val",
+        "signal_status": "unknown"
+      },
+      {
+        "video_id": "forte_014",
+        "split": "val",
+        "signal_status": "unknown"
+      },
+      {
+        "video_id": "forte_043",
+        "split": "train",
+        "signal_status": "unknown"
+      },
+      {
+        "video_id": "forte_044",
+        "split": "train",
+        "signal_status": "unknown"
+      },
+      {
+        "video_id": "forte_045",
+        "split": "train",
+        "signal_status": "unknown"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 7,
+    "title": "Оставление наличных без присмотра",
+    "source_text": "7  Оставление наличных без присмотра\nВидео: Х-26, 00:09.\nОписание: после пересчета кассир оставляет банкноты на столе и выходит из помещения.\nСтатус: предполагаемое нарушение порядка хранения и обеспечения сохранности наличных.\nОснование: необходимо сопоставить сцену с внутренним порядком хранения денег при уходе \nсотрудника. Пункт 20 Правил № 231 применим к хранению ранее принятых наличных, если \nподтвержден соответствующий характер денег.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "CASH_LEFT_AFTER_EXIT",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_026",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_027",
+        "split": "train",
+        "signal_status": "not_observed_at_reviewed_points"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 8,
+    "title": "Оставление инкассаторской сумки без присмотра",
+    "source_text": "8  Оставление инкассаторской сумки без присмотра\nВидео: Х-15, 00:15.\nОписание: кассир выходит, оставляя сумку на рабочем столе.\nСтатус: предполагаемое нарушение порядка хранения принятых сумок.\nОснование: требуется внутренний регламент банка, определяющий место и условия хранения \nтаких сумок.\nForteBank Datathon 26  |  Каталог сценариев\nРабочий список  |  3 / 15",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "BAG_LEFT_AFTER_EXIT",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_015",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 9,
+    "title": "Оставление сейфа открытым после извлечения денег",
+    "source_text": "9  Оставление сейфа открытым после извлечения денег\nВидео: Х-20, 00:05.\nОписание: кассир извлекает наличные и возвращается к работе за столом, оставляя дверцу \nсейфа открытой.\nСтатус: предполагаемое нарушение порядка использования рабочего сейфа.\nОснование: требуется конкретное требование внутреннего регламента о закрытии сейфа после \nизвлечения денег. Сам факт открытого сейфа во время допустимой операции не следует \nавтоматически считать нарушением.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "SAFE_OPEN_AFTER_EXIT",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 10,
+    "title": "Незащищенное хранение печатей и журнала",
+    "source_text": "10  Незащищенное хранение печатей и журнала\nВидео: Х-24, 00:08.\nОписание: сотрудник уходит, оставляя журнал и предметы, похожие на печати, на рабочем столе.\nСтатус: предполагаемое нарушение; точный порядок установлен внутренними документами.\nОснование: пункт 80 Правил № 231 отсылает порядок хранения печатей и ряда ценностей к \nвнутренним документам, исключающим их несанкционированное использование. Для журнала \nнеобходимо отдельное требование.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "STAMP_OR_JOURNAL_LEFT",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_024",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_025",
+        "split": "train",
+        "signal_status": "not_observed_at_reviewed_points"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 11,
+    "title": "Уход с предположительно незаблокированным компьютером",
+    "source_text": "11  Уход с предположительно незаблокированным компьютером\nВидео: Х-22, 00:14; Х-28, 00:07.\nОписание: сотрудник покидает рабочее место, а на экране ноутбука остается рабочее \nсодержимое.\nСтатус: предполагаемое нарушение информационной безопасности.\nОснование: Кодекс корпоративной этики ForteBank устанавливает общую обязанность защиты \nконфиденциальной информации. Конкретное требование блокировки нужно подтвердить \nвнутренними правилами информационной безопасности. По изображению экрана фактическую \nблокировку сеанса проверить нельзя.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "DISPLAY_VISIBLE_AFTER_EXIT",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_022",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_023",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_028",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_029",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 12,
+    "title": "Нарушение порядка отключения оборудования при завершении работы",
+    "source_text": "12  Нарушение порядка отключения оборудования при завершении работы\nВидео: Х-11, 00:18.\nОписание: сотрудник выключает свет и выходит, при этом экран ноутбука и индикаторы \nоборудования продолжают светиться.\nСтатус: предполагаемое нарушение порядка завершения работы.\nОснование: требуется внутренняя инструкция, устанавливающая обязанность отключать \nконкретное оборудование. Светящийся индикатор сам по себе не подтверждает нарушение.\nForteBank Datathon 26  |  Каталог сценариев\nРабочий список  |  4 / 15",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "EQUIPMENT_ON_AFTER_EXIT",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_011",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_012",
+        "split": "train",
+        "signal_status": "unknown"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 13,
+    "title": "Нарушение закрытия входа и контроля доступа в кассовую зону",
+    "source_text": "13  Нарушение закрытия входа и контроля доступа в кассовую зону\nВидео: Х-30, 00:13; Х-32, 00:05; Х-33, 00:06.\nОписание: сотрудник приступает к работе при открытой двери; в Х-30 другой человек проходит \nвнутрь со стороны входа и оказывается рядом с рабочим местом кассира.\nСтатус: предполагаемое нарушение режима доступа.\nОснование: Правила № 14, пункт 8 и пункт 16(1), предусматривают изоляцию кассового узла и \nналичие запираемой двери. Обязанность держать ее закрытой в конкретной ситуации и \nполномочия вошедшего человека необходимо проверить по внутреннему режиму доступа. По \nвнешности полномочия определить нельзя.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "DOOR_OR_ACCESS_SIGNAL",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_030",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_031",
+        "split": "train",
+        "signal_status": "not_observed_at_reviewed_points"
+      },
+      {
+        "video_id": "forte_032",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_033",
+        "split": "train",
+        "signal_status": "observed_candidate"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 14,
+    "title": "Прием сумки без видимой проверки документов передающего лица",
+    "source_text": "14  Прием сумки без видимой проверки документов передающего лица\nВидео: Х-17, 00:07.\nОписание: человек передает сумку кассиру и уходит; предварительная проверка удостоверения в \nпросмотренных кадрах не видна.\nСтатус: предполагаемое нарушение процедуры приема сумки.\nОснование: необходимо уточнить роли участников и применимый порядок проверки полномочий. \nКонкретное нарушенное требование по имеющимся материалам не установлено.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "BAG_DELIVERY_ID_NOT_OBSERVED",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_016",
+        "split": "train",
+        "signal_status": "not_observed_at_reviewed_points"
+      },
+      {
+        "video_id": "forte_017",
+        "split": "train",
+        "signal_status": "unknown"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 15,
+    "title": "Переключение на другого клиента до завершения текущей операции",
+    "source_text": "15  Переключение на другого клиента до завершения текущей операции\nВидео: Х-18, 00:20.\nОписание: кассир начинает взаимодействовать со вторым человеком, пока первый клиент и его \nналичные остаются у рабочего стола.\nСтатус: предполагаемое нарушение последовательности обслуживания.\nОснование: требуется внутренний порядок обслуживания клиентов. Само обращение ко второму \nчеловеку еще не доказывает начало отдельной кассовой операции.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "CUSTOMER_SWITCH",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_018",
+        "split": "val",
+        "signal_status": "observed_candidate"
+      },
+      {
+        "video_id": "forte_019",
+        "split": "val",
+        "signal_status": "not_observed_at_reviewed_points"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 16,
+    "title": "Употребление напитка при работе с наличными",
+    "source_text": "16  Употребление напитка при работе с наличными\nВидео: Х-46, 00:11.\nОписание: кассир берет чашку и пьет рядом с лежащими на столе банкнотами.\nСтатус: предполагаемое нарушение правил организации кассового рабочего места.\nОснование: прямого запрета на это действие в проверенных документах не найдено. Требуется \nсоответствующая внутренняя инструкция банка.\nForteBank Datathon 26  |  Каталог сценариев\nРабочий список  |  5 / 15\nДополнительные нарушения\nСценарии для расширения проверок за пределами текущей разметки. Для каждого указаны \nоснование и данные, необходимые для подтверждения. Описания не являются утверждением о \nнарушении в конкретном ролике.\nПункты 17–41 и 46–55 относятся к требованиям и условиям из документов. Пункты 42–44 описывают \nсигналы для проверки; пункт 45 относится к качеству видеонаблюдения. Отсутствие действия в кадре не \nравнозначно доказанному пропуску обязательного этапа.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "DRINKING_AT_CASH_DESK",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [
+      {
+        "video_id": "forte_046",
+        "split": "val",
+        "signal_status": "observed_candidate"
+      }
+    ],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 17,
+    "title": "Пропуск проверки сумки и пломбы при приеме",
+    "source_text": "17  Пропуск проверки сумки и пломбы при приеме\nСценарий: Кассир принимает сумку от подразделения инкассации без проверки ее целостности \nили правильности пломбирования.\nОснование: Правила № 231, пункт 24 подпункты 3 и 4.\nПроверка: Нужен крупный план сумки и полная последовательность приема. Отсутствие \nвидимого осмотра на отдельных кадрах не подтверждает пропуск проверки.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 18,
+    "title": "Вскрытие поврежденной сумки без представителя инкассации",
+    "source_text": "18  Вскрытие поврежденной сумки без представителя инкассации\nСценарий: После обнаружения нарушения целостности сумки кассир вскрывает и пересчитывает \nее содержимое без работника подразделения инкассации или инкассаторской организации.\nОснование: Правила № 231, пункт 25. Требование относится именно к сумке с обнаруженным \nнарушением целостности.\nПроверка: Нужно подтвердить повреждение, вид операции и роли присутствующих. Для \nобычного вскрытия неповрежденной сумки нельзя автоматически применять этот пункт.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 19,
+    "title": "Внутренняя обработка наличных без контролирующего работника",
+    "source_text": "19  Внутренняя обработка наличных без контролирующего работника\nСценарий: Кассир выполняет внутренний пересчет, сортировку или упаковку наличных без \nконтролирующего работника.\nОснование: Правила № 231, пункт 42. Для операций по приему и выдаче наличных клиенту \nпредусмотрено исключение.\nПроверка: Нужно установить вид операции и назначение контролирующего работника. Второй \nчеловек в кадре не обязательно является контролером; его отсутствие в кадре не доказывает \nотсутствие контроля.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 20,
+    "title": "Размен номиналов до завершения выдачи подготовленных денег",
+    "source_text": "20  Размен номиналов до завершения выдачи подготовленных денег\nСценарий: По просьбе клиента кассир начинает менять номиналы до выдачи клиенту \nподготовленных наличных.\nОснование: Правила № 231, пункт 34.\nПроверка: Нужны сведения о запросе на размен и последовательности передач. Само \nразделение суммы на части, как в X-1, не подтверждает этот сценарий.\nForteBank Datathon 26  |  Каталог сценариев\nРабочий список  |  6 / 15\nДополнительные нарушения",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 21,
+    "title": "Нарушение хранения и передачи ключей",
+    "source_text": "21  Нарушение хранения и передачи ключей\nСценарий: Ключ от сейфа, устройства хранения денег или кладовой оставлен в доступном месте \nлибо передан с нарушением установленного порядка.\nОснование: Правила № 231, пункты 76 и 80; конкретные действия определяются внутренними \nдокументами банка.\nПроверка: Нужны назначение ключа, внутренний регламент и данные о полномочиях получателя. \nКлюч на столе или в замке сам по себе не является достаточным доказательством.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 22,
+    "title": "Передача наличных между кассирами без отражения в учете",
+    "source_text": "22  Передача наличных между кассирами без отражения в учете\nСценарий: Один кассовый работник передает другому деньги, но передача не отражается в \nдокументе учета принятых и выданных наличных денег и ценностей.\nОснование: Правила № 231, пункт 15.\nПроверка: Видео выявляет передачу. Для подтверждения отсутствия оформления нужны \nдокументы или данные системы, включая возможный электронный учет.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 23,
+    "title": "Невыдача подтверждения кассовой операции",
+    "source_text": "23  Невыдача подтверждения кассовой операции\nСценарий: После приема или выдачи наличных клиенту не предоставляется документ, \nподтверждающий проведенную операцию.\nОснование: Правила № 231, пункт 19 подпункт 6 и пункт 31 подпункт 6.\nПроверка: Нужны документы и данные об их предоставлении клиенту. Отсутствие передачи \nбумажного документа не доказывает отсутствие электронного подтверждения, если такой способ \nдопустим.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 24,
+    "title": "Несоответствие принятой суммы приходному документу",
+    "source_text": "24  Несоответствие принятой суммы приходному документу\nСценарий: Общая сумма фактически принятых наличных не соответствует сумме, указанной в \nприходном кассовом документе.\nОснование: Правила № 231, пункт 19 подпункт 4 предусматривает сверку этих сумм.\nПроверка: Нужны показания счетчика, состав принятых наличных, приходный документ и данные \nоперации. По толщине стопки сумму определять нельзя.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 25,
+    "title": "Возврат банкнот с выявленными признаками подделки",
+    "source_text": "25  Возврат банкнот с выявленными признаками подделки\nСценарий: После выявления признаков подделки соответствующие банкноты или монеты \nвозвращаются клиенту.\nОснование: Правила № 231, пункты 60 и 61.\nПроверка: Нужен подтвержденный результат проверки и отслеживание именно этих денег. \nОпределять подделку по обзорной камере или одному сигналу счетчика нельзя.\nForteBank Datathon 26  |  Каталог сценариев\nРабочий список  |  7 / 15\nДополнительные нарушения",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 26,
+    "title": "Совместная упаковка годных и негодных категорий наличных",
+    "source_text": "26  Совместная упаковка годных и негодных категорий наличных\nСценарий: Годные к обращению деньги упаковываются вместе с ветхими банкнотами, \nдефектными монетами или изъятыми либо изымаемыми из обращения деньгами.\nОснование: Правила № 231, пункт 45 устанавливает раздельную упаковку перечисленных \nкатегорий.\nПроверка: Нужны результаты сортировки, крупный план и видимость упаковки. Разные номиналы \nв одной стопке сами по себе не доказывают это нарушение.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 27,
+    "title": "Пропуск предусмотренной проверки подписей",
+    "source_text": "27  Пропуск предусмотренной проверки подписей\nСценарий: При приеме или выдаче наличных пропускается предусмотренная проверка наличия \nподписей и их сверка с имеющимися образцами.\nОснование: Правила № 231, пункт 19 подпункт 3 и пункт 31 подпункт 2.\nПроверка: Нужны документы и данные о предусмотренном способе проверки. Короткая пауза, \nвзгляд на документ или отсутствие бумажного листа не позволяют установить результат.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 28,
+    "title": "Отсутствие подписи или штампа кассира на кассовых документах",
+    "source_text": "28  Отсутствие подписи или штампа кассира на кассовых документах\nСценарий: Кассовые документы оформлены без предусмотренной подписи кассового работника \nили его штампа на соответствующих экземплярах.\nОснование: Правила № 231, пункт 19 подпункт 5 и пункт 31 подпункт 5.\nПроверка: Нужен сам документ и применимый порядок его оформления. По движению руки \nнельзя достоверно определить наличие обязательных реквизитов.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 29,
+    "title": "Объединенный прием денег по нескольким приходным документам",
+    "source_text": "29  Объединенный прием денег по нескольким приходным документам\nСценарий: При внесении денег по нескольким приходным кассовым документам кассир \nпринимает их общей суммой, не разделяя прием по каждому документу.\nОснование: Правила № 231, пункт 21 предусматривает отдельный прием по каждому приходному \nкассовому документу.\nПроверка: Нужно знать количество документов и соответствие передач конкретным операциям. \nПо одному наличию нескольких стопок на столе вывод не делается.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 30,
+    "title": "Выдача банкнот из неполного или поврежденного корешка без пересчета",
+    "source_text": "30  Выдача банкнот из неполного или поврежденного корешка без пересчета\nСценарий: Банкноты из неполного либо поврежденного корешка выдаются без предусмотренного \nполистного пересчета. Аналогичная проверка нужна при выдаче монет из неполного мешка.\nОснование: Правила № 231, пункт 32. Для неповрежденной упаковки предусмотрены отдельные \nусловия выдачи по обозначенным суммам.\nПроверка: Нужно различить пачку и корешок, оценить упаковку и видеть пересчет. Ручной \nпересчет не следует автоматически считать нарушением.\nForteBank Datathon 26  |  Каталог сценариев\nРабочий список  |  8 / 15\nДополнительные нарушения",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 31,
+    "title": "Выдача наличных в упаковке без предусмотренных условий",
+    "source_text": "31  Выдача наличных в упаковке без предусмотренных условий\nСценарий: Наличные выдаются в упаковке другого банка или Национального Банка без \nпредусмотренного договорного условия об урегулировании претензий.\nОснование: Правила № 231, пункт 33: общее правило об упаковке банка и условия допустимости \nдругой упаковки.\nПроверка: Нужны читаемая маркировка упаковки и соответствующий договор. По внешнему виду \nпачки нельзя установить отсутствие договорного основания.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 32,
+    "title": "Нарушение формирования маркировки или опломбирования упаковки",
+    "source_text": "32  Нарушение формирования маркировки или опломбирования упаковки\nСценарий: При формировании пачек, корешков или упаковки монет нарушаются применимые \nтребования к количеству, бандеролям, накладкам, реквизитам и защите упаковки. При подготовке \nкассет нарушается порядок закрытия и пломбирования.\nОснование: Правила № 231, пункты 46–53 и 53-1; для кассет устройств, функционирующих \nавтоматически, пункт 55.\nПроверка: Нужны вид упаковки, крупный план, пересчет и читаемая маркировка. Существуют \nспециальные правила для неполных и сборных пачек; не всякая смешанная упаковка запрещена.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 33,
+    "title": "Неоформление расхождения при пересчете поврежденной сумки",
+    "source_text": "33  Неоформление расхождения при пересчете поврежденной сумки\nСценарий: При пересчете содержимого сумки с нарушенной целостностью обнаружены \nнедостача или излишек, но акт о результатах пересчета не составляется.\nОснование: Правила № 231, пункт 25.\nПроверка: Нужны данные препроводительного документа, фактическая сумма, факт \nобнаружения расхождения и сведения об оформлении акта. Короткое видео не подтверждает \nотсутствие документа.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 34,
+    "title": "Нарушение оформления приема сомнительных банкнот на экспертизу",
+    "source_text": "34  Нарушение оформления приема сомнительных банкнот на экспертизу\nСценарий: Сомнительные банкноты принимаются без предусмотренного акта, состава \nприсутствующих или последующего направления на экспертизу в установленный срок.\nОснование: Правила № 231, пункт 59: акт составляется в присутствии клиента и заведующего \nкассой либо лица, выполняющего его функции; направление на экспертизу предусмотрено в \nтечение пяти рабочих дней.\nПроверка: Нужны результат проверки, роли участников, акт и сведения о направлении банкнот. \nСоблюдение многодневного срока по одному ролику проверить нельзя.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 35,
+    "title": "Пропуск предусмотренных действий при выявлении признаков подделки",
+    "source_text": "35  Пропуск предусмотренных действий при выявлении признаков подделки\nСценарий: После выявления признаков подделки не выполняются предусмотренные действия по \nсообщению в правоохранительные органы и уведомлению филиала Национального Банка.\nОснование: Правила № 231, пункты 60 и 62. Уведомление филиала Национального Банка \nпредусмотрено в течение пяти рабочих дней.\nПроверка: Нужны подтвержденный результат проверки, сообщения, протокол и даты. Видео \nможет показать обращение с банкнотами, но не доказывает отсутствие последующего \nуведомления.\nForteBank Datathon 26  |  Каталог сценариев\nРабочий список  |  9 / 15\nДополнительные нарушения",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 36,
+    "title": "Пропуск сверки фактических остатков наличных",
+    "source_text": "36  Пропуск сверки фактических остатков наличных\nСценарий: Не проводится предусмотренная проверка наличных и учетных остатков, в том числе \nперед закрытием кладовой или сейфовой комнаты.\nОснование: Правила № 231, пункты 65 и 78.\nПроверка: Нужны сведения бухгалтерского учета, данные инвентаризации и полная процедура \nзакрытия. Обычный рабочий сейф на видео нельзя автоматически приравнивать к сейфовой \nкомнате.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 37,
+    "title": "Неоформление обнаруженной недостачи или излишка",
+    "source_text": "37  Неоформление обнаруженной недостачи или излишка\nСценарий: Обнаружено расхождение фактического наличия денег с учетными данными либо \nрасхождение при пересчете, но предусмотренный акт не составляется.\nОснование: Правила № 231, пункты 44, 65 и 79 применяются в зависимости от вида проверки и \nобстоятельств.\nПроверка: Нужны достоверные суммы, факт обнаружения расхождения и данные об актах. \nНедостачу нельзя устанавливать только по движениям рук или размеру стопки.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 38,
+    "title": "Нераздельное хранение наличных по валютам и номиналам",
+    "source_text": "38  Нераздельное хранение наличных по валютам и номиналам\nСценарий: В кладовой или сейфовой комнате деньги хранятся без предусмотренного разделения \nпо виду валюты и номиналам.\nОснование: Правила № 231, пункт 77.\nПроверка: Нужно установить тип помещения и видеть места хранения. Разные купюры на столе \nво время текущей операции не подтверждают нарушение этого пункта.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 39,
+    "title": "Нарушение допуска в кладовую или сейфовую комнату",
+    "source_text": "39  Нарушение допуска в кладовую или сейфовую комнату\nСценарий: Лицо входит в кладовую или сейфовую комнату без предусмотренного основания \nлибо сопровождения.\nОснование: Правила № 231, пункт 75 определяет категории допускаемых лиц и условия допуска \nпо распорядительному документу.\nПроверка: Нужны назначение помещения, распорядительные документы и данные о \nполномочиях. По внешности, одежде или факту появления человека нельзя установить \nотсутствие допуска.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 40,
+    "title": "Размещение наличных на хранение без предварительного учета",
+    "source_text": "40  Размещение наличных на хранение без предварительного учета\nСценарий: Наличные размещаются на хранение в кладовой или сейфовой комнате без \nпредварительного учета в автоматизированной цифровой системе по установленному порядку.\nОснование: Правила № 231, пункт 74.\nПроверка: Нужны данные банковской системы, назначение помещения и внутренний порядок \nхранения. Отсутствие работы за ноутбуком в кадре не доказывает отсутствие учета.\nForteBank Datathon 26  |  Каталог сценариев\nРабочий список  |  10 / 15\nДополнительные нарушения",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 41,
+    "title": "Внос или хранение личного телефона с камерой в кассовом узле",
+    "source_text": "41  Внос или хранение личного телефона с камерой в кассовом узле\nСценарий: В кассовом узле находится личное средство связи с функциями фото- или \nвидеофиксации, не подпадающее под предусмотренное разрешение.\nОснование: Правила № 231, пункт 12: личные вещи хранятся вне кассового узла; разрешен внос \nсредств связи без функции фото- и видеофиксации, наряду с указанными в пункте медицинскими \nсредствами.\nПроверка: Нужно установить, что устройство личное, имеет соответствующие функции и \nнаходится именно в кассовом узле. Наличие любого телефона в кадре не является достаточным \nоснованием.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "PHONE_AT_WORKPLACE",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 42,
+    "title": "Перемещение наличных в личный карман сумку или скрытую область",
+    "source_text": "42  Перемещение наличных в личный карман сумку или скрытую область\nСценарий: Банкноты перемещаются с рабочей поверхности в личную одежду, личную сумку или \nобласть, где их дальнейшее движение не видно.\nОснование: Сигнал для проверки сохранности наличных. Связан с задачами внутреннего \nконтроля и предотвращения хищений из пунктов 14 и 16 Правил № 231; сам факт движения не \nустанавливает хищение.\nПроверка: Нужны непрерывная траектория предмета, несколько кадров и контекст операции. \nВывод должен описывать наблюдаемое действие без автоматического обвинения в краже.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "CASH_TO_POCKET_OR_BAG",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 43,
+    "title": "Передача денег человеку вне установленного процесса операции",
+    "source_text": "43  Передача денег человеку вне установленного процесса операции\nСценарий: Наличные передаются другому человеку через дверь, сбоку от рабочего места или \nиным способом, назначение которого неясно из текущей операции.\nОснование: Сигнал для проверки. Применимые правила зависят от роли получателя и \nназначения передачи; для передач между кассирами предусмотрен пункт 15 Правил № 231.\nПроверка: Нужны данные об операции, полномочия получателя и оформление передачи. \nРазрешенная передача другому кассиру или инкассатору не должна автоматически отмечаться \nкак нарушение.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 44,
+    "title": "Передача или получение наличных в качестве подарка",
+    "source_text": "44  Передача или получение наличных в качестве подарка\nСценарий: В контексте обслуживания происходит передача денег сотруднику или от сотрудника, \nкоторая может быть подарком либо незаконным вознаграждением.\nОснование: Политика ForteBank по противодействию коррупции, статья 3 пункт 18 подпункт 1 \nзапрещает денежные подарки и их эквиваленты. Для квалификации незаконного вознаграждения \nнужны дополнительные обстоятельства.\nПроверка: Нужно подтвердить назначение денег. Взнос, выдача наличных, возврат или \nоформленная передача сотруднику не являются доказательством подарка или взятки.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 45,
+    "title": "Перекрытие камеры или потеря видимости кассовой операции",
+    "source_text": "45  Перекрытие камеры или потеря видимости кассовой операции\nСценарий: Камера закрыта предметом, изображение исчезает либо критическая часть операции \nполностью скрыта.\nОснование: Служебное событие качества наблюдения. Самостоятельного подтвержденного \nсостава нарушения сотрудника в проверенных материалах не установлено.\nПроверка: Следует сообщить о недостатке данных и сохранить интервал. Нельзя автоматически \nприписывать умысел сотруднику или считать скрытый участок доказательством нарушения.\nForteBank Datathon 26  |  Каталог сценариев\nРабочий список  |  11 / 15\nДополнительные нарушения",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": "CAMERA_OBSTRUCTION",
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 46,
+    "title": "Уход кассира до окончания обслуживания клиента",
+    "source_text": "46  Уход кассира до окончания обслуживания клиента\nСценарий: Кассовый работник покидает рабочее место до завершения обслуживания клиента.\nОснование: Правила № 231, пункт 22.\nПроверка: Нужно подтвердить незавершенную операцию и фактический уход за границы \nрабочего места. Встать с кресла, подойти к счетчику или рабочему сейфу еще не означает \nпокинуть рабочее место.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 47,
+    "title": "Отсутствие обязательных реквизитов кассового документа",
+    "source_text": "47  Отсутствие обязательных реквизитов кассового документа\nСценарий: Приходный или расходный кассовый документ оформлен без обязательного номера, \nдаты, данных клиента, назначения операции, суммы или иных предусмотренных реквизитов.\nОснование: Правила № 231, пункты 18 и 30.\nПроверка: Нужны читаемый документ и применимый порядок оформления. Ошибка \nраспознавания текста не является доказательством отсутствия реквизита. Проверка подписей и \nштампов отдельно описана в пунктах 27 и 28 каталога.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 48,
+    "title": "Несвоевременное зачисление принятых наличных",
+    "source_text": "48  Несвоевременное зачисление принятых наличных\nСценарий: Наличные, непосредственно принятые от клиента в течение рабочего дня, не \nзачислены на его счет в тот же рабочий день.\nОснование: Правила № 231, пункт 26. Для денег, принятых через подразделение инкассации или \nинкассаторскую организацию, применяется установленный договором порядок.\nПроверка: Нужны дата и способ приема, учетные записи и дата зачисления. По одному видео \nэтот сценарий подтвердить нельзя.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 49,
+    "title": "Пропуск оформления или сверки кассовых оборотов за день",
+    "source_text": "49  Пропуск оформления или сверки кассовых оборотов за день\nСценарий: После окончания рабочего дня не составляется сводный документ о кассовых \nоборотах, его итоги не сверяются с бухгалтерским учетом либо он не подшивается в документы \nдня.\nОснование: Правила № 231, пункт 64; действия выполняет заведующий кассой или лицо, \nосуществляющее его функции.\nПроверка: Нужны сводный документ, данные бухгалтерского учета и полная процедура \nзавершения дня. Отсутствие этих действий в коротком ролике не подтверждает их пропуск.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 50,
+    "title": "Нарушение формирования кассовых документов дня",
+    "source_text": "50  Нарушение формирования кассовых документов дня\nСценарий: Документы формируются позже следующего рабочего дня либо не разделяются по \nприходным, расходным документам и видам валют.\nОснование: Правила № 231, пункты 66 и 67.\nПроверка: Нужны даты формирования и состав папок или их допустимого электронного \nпредставления. Порядок действий с бумагами в кадре без чтения содержания недостаточен.\nForteBank Datathon 26  |  Каталог сценариев\nРабочий список  |  12 / 15\nДополнительные нарушения",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 51,
+    "title": "Загрузка негодных к обращению денег в автоматическое устройство",
+    "source_text": "51  Загрузка негодных к обращению денег в автоматическое устройство\nСценарий: В банкомат или другое устройство, функционирующее автоматически, загружаются \nбанкноты или монеты, не относящиеся к годным к обращению.\nОснование: Правила № 231, пункт 71.\nПроверка: Нужно подтвердить категорию загруженных денег по результатам проверки. Обзорная \nкамера не позволяет установить платежность и состояние всех банкнот в кассете.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 52,
+    "title": "Обслуживание автоматического устройства ненадлежащим работником",
+    "source_text": "52  Обслуживание автоматического устройства ненадлежащим работником\nСценарий: Загрузка или изъятие кассет и наличных выполняются лицом, не ответственным за \nсоответствующие действия, либо с нарушением установленного внутреннего порядка.\nОснование: Правила № 231, пункты 69 и 70.\nПроверка: Нужны назначение устройства, полномочия участника и внутренний порядок. По \nвнешности и одежде человека определить отсутствие полномочий нельзя.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 53,
+    "title": "Отсутствие или утрата сведений о загрузке и изъятии денег",
+    "source_text": "53  Отсутствие или утрата сведений о загрузке и изъятии денег\nСценарий: Не обеспечены наличие и сохранность информации об операции загрузки или изъятия \nкассет либо наличных, сумме и остатке после нее.\nОснование: Правила № 231, пункт 73.\nПроверка: Нужны журналы, записи системы и установленный порядок хранения сведений. Видео \nпоказывает физическое действие, но не полноту сохраняемой информации.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 54,
+    "title": "Отсутствие обязательной проверки защитных признаков в устройстве",
+    "source_text": "54  Отсутствие обязательной проверки защитных признаков в устройстве\nСценарий: Автоматическое устройство с повторным использованием принятых денег не \nоснащено функцией распознавания не менее двух машиночитаемых защитных признаков.\nОснование: Правила № 231, пункт 72; требование относится к устройству, конструкция которого \nпредусматривает повторное использование принятых наличных.\nПроверка: Нужны техническая документация, настройки и результаты проверки оборудования. \nНаличие или отсутствие такой функции по внешнему виду устройства определить нельзя.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  },
+  {
+    "pdf_item": 55,
+    "title": "Нарушение порядка ревизии наличных",
+    "source_text": "55  Нарушение порядка ревизии наличных\nСценарий: Не проводится предусмотренная ревизия, в том числе при смене ответственных за \nсохранность наличных; нарушены требования к комиссии, присутствующим или оформлению \nрезультатов.\nОснование: Правила № 231, пункты 82–85. Комиссия включает не менее трех работников банка, \nне являющихся кассовыми работниками. Предусмотрено присутствие ответственных за \nсохранность наличных и оформление акта.\nПроверка: Нужны основание ревизии, назначения, роли участников и акт. Обычная смена \nкассира не равнозначна смене лица, ответственного за сохранность наличных в значении Правил.",
+    "source_authority": "team_pdf_not_verified_legal_or_visual_ground_truth",
+    "observable_signal_code": null,
+    "requires_context_review": true,
+    "present_in_training": false,
+    "visual_review_examples": [],
+    "event_classifier_trained": false,
+    "coverage_scope": "sampled observable signal only; not procedural violation truth"
+  }
+]

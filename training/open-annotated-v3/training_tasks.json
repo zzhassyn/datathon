@@ -1,0 +1,61 @@
+{
+  "tasks": [
+    {
+      "id": "detector",
+      "model_family": "YOLO26-detect",
+      "service_target": "yolo26l.pt",
+      "available_experiment_weights": "yolo26s.pt",
+      "dataset": "yolo/detect_mixed/data.yaml",
+      "status": "EXPERIMENTAL",
+      "unsupported_class_ids": [
+        13
+      ],
+      "note": "Class 13 has test examples but no training positives; disable in deployed inference until independent train/val material is added."
+    },
+    {
+      "id": "door",
+      "model_family": "YOLO26s-cls",
+      "dataset": "yolo/door",
+      "labels": [
+        "closed",
+        "open"
+      ],
+      "status": "EXPERIMENTAL",
+      "preprocess": "fixed ROI, resize entire crop to 224x224, RGB float 0..1; no random crop"
+    },
+    {
+      "id": "qwen",
+      "model_family": "Qwen3.5-4B",
+      "method": "LoRA q_proj/v_proj",
+      "available_base": "qwen3.5-4b-4bit",
+      "dataset": "qwen",
+      "status": "EXPERIMENTAL",
+      "target_schema": "answers[{qid,a}],note; confidence must be calibrated separately, not invented ground truth",
+      "note": "4-bit training to 8-bit service adapter compatibility must be tested."
+    },
+    {
+      "id": "pose",
+      "model_family": "YOLO26l-pose",
+      "status": "USE_PRETRAINED",
+      "reason": "No new bank keypoint annotations; COCO body17 is not hands21 or action ground truth."
+    },
+    {
+      "id": "screen",
+      "model_family": "YOLO26s-cls",
+      "status": "NEEDS_GROUND_TRUTH",
+      "reason": "Background or luminous display does not prove OS lock state."
+    },
+    {
+      "id": "safe_lock",
+      "model_family": "YOLO26s-cls",
+      "status": "NEEDS_GROUND_TRUTH",
+      "reason": "Closed safe/visible key does not establish key insertion or locked state."
+    },
+    {
+      "id": "tracker",
+      "model_family": "BoT-SORT without ReID",
+      "status": "CONFIGURE_ONLY",
+      "reason": "Track continuity tuning; not another annotated detector class."
+    }
+  ]
+}

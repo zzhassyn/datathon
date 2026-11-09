@@ -1,0 +1,427 @@
+{
+  "archive_video_entries": 42,
+  "unique_videos": 40,
+  "duration_sec": 1299.863232,
+  "sampled_frames_reviewed": 667,
+  "last_frames_reviewed": 40,
+  "temporal_phases": 258,
+  "continuous_framewise_annotation": false,
+  "detector": {
+    "bank": {
+      "train": {
+        "images": 88,
+        "boxes": 562,
+        "classes": {
+          "person": {
+            "images": 73,
+            "boxes": 92
+          },
+          "cash": {
+            "images": 20,
+            "boxes": 22
+          },
+          "collection_bag": {
+            "images": 7,
+            "boxes": 7
+          },
+          "safe_closed": {
+            "images": 86,
+            "boxes": 86
+          },
+          "safe_open": {
+            "images": 2,
+            "boxes": 2
+          },
+          "laptop": {
+            "images": 88,
+            "boxes": 88
+          },
+          "door": {
+            "images": 88,
+            "boxes": 88
+          },
+          "counting_machine": {
+            "images": 88,
+            "boxes": 88
+          },
+          "auth_detector": {
+            "images": 81,
+            "boxes": 81
+          },
+          "id_document": {
+            "images": 5,
+            "boxes": 5
+          },
+          "phone": {
+            "images": 3,
+            "boxes": 3
+          },
+          "cup": {
+            "images": 0,
+            "boxes": 0
+          },
+          "personal_bag": {
+            "images": 0,
+            "boxes": 0
+          },
+          "outerwear": {
+            "images": 0,
+            "boxes": 0
+          }
+        }
+      },
+      "val": {
+        "images": 21,
+        "boxes": 160,
+        "classes": {
+          "person": {
+            "images": 20,
+            "boxes": 26
+          },
+          "cash": {
+            "images": 11,
+            "boxes": 13
+          },
+          "collection_bag": {
+            "images": 2,
+            "boxes": 2
+          },
+          "safe_closed": {
+            "images": 19,
+            "boxes": 19
+          },
+          "safe_open": {
+            "images": 2,
+            "boxes": 2
+          },
+          "laptop": {
+            "images": 21,
+            "boxes": 21
+          },
+          "door": {
+            "images": 21,
+            "boxes": 21
+          },
+          "counting_machine": {
+            "images": 21,
+            "boxes": 21
+          },
+          "auth_detector": {
+            "images": 21,
+            "boxes": 21
+          },
+          "id_document": {
+            "images": 4,
+            "boxes": 5
+          },
+          "phone": {
+            "images": 0,
+            "boxes": 0
+          },
+          "cup": {
+            "images": 5,
+            "boxes": 9
+          },
+          "personal_bag": {
+            "images": 0,
+            "boxes": 0
+          },
+          "outerwear": {
+            "images": 0,
+            "boxes": 0
+          }
+        }
+      },
+      "test": {
+        "images": 18,
+        "boxes": 127,
+        "classes": {
+          "person": {
+            "images": 18,
+            "boxes": 27
+          },
+          "cash": {
+            "images": 10,
+            "boxes": 10
+          },
+          "collection_bag": {
+            "images": 0,
+            "boxes": 0
+          },
+          "safe_closed": {
+            "images": 15,
+            "boxes": 15
+          },
+          "safe_open": {
+            "images": 3,
+            "boxes": 3
+          },
+          "laptop": {
+            "images": 18,
+            "boxes": 18
+          },
+          "door": {
+            "images": 18,
+            "boxes": 18
+          },
+          "counting_machine": {
+            "images": 18,
+            "boxes": 18
+          },
+          "auth_detector": {
+            "images": 9,
+            "boxes": 9
+          },
+          "id_document": {
+            "images": 5,
+            "boxes": 5
+          },
+          "phone": {
+            "images": 0,
+            "boxes": 0
+          },
+          "cup": {
+            "images": 0,
+            "boxes": 0
+          },
+          "personal_bag": {
+            "images": 2,
+            "boxes": 2
+          },
+          "outerwear": {
+            "images": 2,
+            "boxes": 2
+          }
+        }
+      }
+    },
+    "mixed": {
+      "train": {
+        "images": 149,
+        "boxes": 665,
+        "classes": {
+          "person": {
+            "images": 84,
+            "boxes": 105
+          },
+          "cash": {
+            "images": 47,
+            "boxes": 72
+          },
+          "collection_bag": {
+            "images": 7,
+            "boxes": 7
+          },
+          "safe_closed": {
+            "images": 91,
+            "boxes": 91
+          },
+          "safe_open": {
+            "images": 5,
+            "boxes": 5
+          },
+          "laptop": {
+            "images": 91,
+            "boxes": 91
+          },
+          "door": {
+            "images": 88,
+            "boxes": 88
+          },
+          "counting_machine": {
+            "images": 94,
+            "boxes": 95
+          },
+          "auth_detector": {
+            "images": 82,
+            "boxes": 82
+          },
+          "id_document": {
+            "images": 5,
+            "boxes": 5
+          },
+          "phone": {
+            "images": 7,
+            "boxes": 7
+          },
+          "cup": {
+            "images": 4,
+            "boxes": 5
+          },
+          "personal_bag": {
+            "images": 11,
+            "boxes": 12
+          },
+          "outerwear": {
+            "images": 0,
+            "boxes": 0
+          }
+        }
+      },
+      "val": {
+        "images": 28,
+        "boxes": 168,
+        "classes": {
+          "person": {
+            "images": 23,
+            "boxes": 29
+          },
+          "cash": {
+            "images": 11,
+            "boxes": 13
+          },
+          "collection_bag": {
+            "images": 2,
+            "boxes": 2
+          },
+          "safe_closed": {
+            "images": 19,
+            "boxes": 19
+          },
+          "safe_open": {
+            "images": 2,
+            "boxes": 2
+          },
+          "laptop": {
+            "images": 22,
+            "boxes": 22
+          },
+          "door": {
+            "images": 21,
+            "boxes": 21
+          },
+          "counting_machine": {
+            "images": 21,
+            "boxes": 21
+          },
+          "auth_detector": {
+            "images": 21,
+            "boxes": 21
+          },
+          "id_document": {
+            "images": 4,
+            "boxes": 5
+          },
+          "phone": {
+            "images": 1,
+            "boxes": 1
+          },
+          "cup": {
+            "images": 8,
+            "boxes": 12
+          },
+          "personal_bag": {
+            "images": 0,
+            "boxes": 0
+          },
+          "outerwear": {
+            "images": 0,
+            "boxes": 0
+          }
+        }
+      },
+      "test": {
+        "images": 18,
+        "boxes": 127,
+        "classes": {
+          "person": {
+            "images": 18,
+            "boxes": 27
+          },
+          "cash": {
+            "images": 10,
+            "boxes": 10
+          },
+          "collection_bag": {
+            "images": 0,
+            "boxes": 0
+          },
+          "safe_closed": {
+            "images": 15,
+            "boxes": 15
+          },
+          "safe_open": {
+            "images": 3,
+            "boxes": 3
+          },
+          "laptop": {
+            "images": 18,
+            "boxes": 18
+          },
+          "door": {
+            "images": 18,
+            "boxes": 18
+          },
+          "counting_machine": {
+            "images": 18,
+            "boxes": 18
+          },
+          "auth_detector": {
+            "images": 9,
+            "boxes": 9
+          },
+          "id_document": {
+            "images": 5,
+            "boxes": 5
+          },
+          "phone": {
+            "images": 0,
+            "boxes": 0
+          },
+          "cup": {
+            "images": 0,
+            "boxes": 0
+          },
+          "personal_bag": {
+            "images": 2,
+            "boxes": 2
+          },
+          "outerwear": {
+            "images": 2,
+            "boxes": 2
+          }
+        }
+      }
+    }
+  },
+  "door": {
+    "train": {
+      "closed": 381,
+      "open": 93
+    },
+    "val": {
+      "closed": 148,
+      "open": 13
+    },
+    "test": {
+      "closed": 59,
+      "open": 8
+    }
+  },
+  "qwen": {
+    "train": {
+      "yes": 29,
+      "no": 29,
+      "unclear": 29
+    },
+    "val": {
+      "yes": 5,
+      "no": 5,
+      "unclear": 5
+    },
+    "test": {
+      "yes": 6,
+      "no": 6,
+      "unclear": 6
+    }
+  },
+  "videos_by_split": {
+    "test": 6,
+    "train": 29,
+    "val": 5
+  },
+  "annotation_status": "ai_visual_reviewed",
+  "human_verified": false,
+  "training_executed": false,
+  "quality_on_new_camera": "NOT_MEASURED"
+}

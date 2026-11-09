@@ -1,0 +1,25 @@
+{
+  "repository": "zzhassyn/datathon",
+  "release_tag": "reviewed-dataset-handoff-20261017",
+  "asset_name": "Forte_Dataset_Handoff_20261017.zip",
+  "asset_url": "https://github.com/zzhassyn/datathon/releases/download/reviewed-dataset-handoff-20261017/Forte_Dataset_Handoff_20261017.zip",
+  "bytes": 657124706,
+  "sha256": "03364e1a7d6d02cd148fda84b49a1dd7067a1848c9af09381d443e66ad4e887a",
+  "files": 1277,
+  "archive_validation": "PASS",
+  "status": "PARTIAL_BASELINE_HANDOFF_NOT_FULL_CONTEXT_TRAINING",
+  "source_baseline_sha256": "be77f34acb9287f870cd8a3cef67c0d91c55d3e7dfa6a16a9842d65328e80e60",
+  "baseline_file_contents_preserved": true,
+  "training_executed": false,
+  "target_mac_training_executed": false,
+  "supported_training": [
+    "detector",
+    "door"
+  ],
+  "temporal_annotations_used_by_training": false,
+  "human_verified": false,
+  "meva_media_downloaded": false,
+  "meva_in_training": false,
+  "quality_on_new_cameras": "NOT_MEASURED",
+  "base_repository_commit": "42d44d7b01ba97fcf8ba3cc5f1dcadd1f6af7f10"
+}
