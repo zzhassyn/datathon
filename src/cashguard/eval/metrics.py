@@ -98,6 +98,21 @@ def calculate_metrics(
         if video_id not in labels:
             raise ValueError("Предсказание не имеет эталонной метки")
         canonical[video_id] = prediction
+    report = _calculate_metrics(labels, canonical)
+    scenes: dict[str, dict[str, LabelVideo]] = defaultdict(dict)
+    for video_id, label in labels.items():
+        scenes[label.scene][video_id] = label
+    report["per_scene"] = {
+        scene: _calculate_metrics(scene_labels, canonical)["metrics"]
+        for scene, scene_labels in sorted(scenes.items())
+    }
+    return report
+
+
+def _calculate_metrics(
+    labels: Mapping[str, LabelVideo], canonical: Mapping[str, Prediction]
+) -> dict[str, Any]:
+    """Score a label subset; absent predictions remain misses in every slice."""
     counts: Counter[str] = Counter()
     confusion: dict[str, Counter[str]] = defaultdict(Counter)
     signed_by_code: dict[str, list[float]] = defaultdict(list)
@@ -185,6 +200,7 @@ def calculate_metrics(
         "fn": fn,
         "fp": fp,
         "tn": tn,
+        "video_accuracy": _ratio(tp + tn, len(labels)),
         "video_recall": _ratio(tp, tp + fn),
         "video_precision": _ratio(tp, tp + fp),
         "f1": _ratio(2 * tp, 2 * tp + fp + fn),

@@ -65,7 +65,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.output:
         write_report(args.output, report)
     print(summary_text(report))
-    return 1 if report["metrics"]["missing_results"] else 0
+    baseline_failed = "baseline_diff" in report and not report["baseline_diff"]["passed"]
+    return 1 if report["metrics"]["missing_results"] or baseline_failed else 0
 
 
 if __name__ == "__main__":
