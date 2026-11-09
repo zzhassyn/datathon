@@ -1,12 +1,13 @@
 """Кандидаты правил, вопросы и ответы VLM, решения и итог анализа."""
 
 from enum import StrEnum
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from cashguard.contracts._base import SCHEMA_VERSION, Contract
 from cashguard.contracts.catalog import LegalRef, SignalCode, ViolationCode
+from cashguard.contracts.diagnostics import RuleExplanation, VisibilityAssessment
 from cashguard.contracts.geometry import BBox
 from cashguard.contracts.jobs import Degradation, PerceptionLevel, ResultLevel
 from cashguard.contracts.perception import PerceptionTrace
@@ -149,6 +150,13 @@ class ViolationFinding(Contract):
     description_ru: str = Field(min_length=1)
     legal: list[LegalRef]
     evidence: list[EvidenceImage] = Field(min_length=1, max_length=3)
+    explanation: RuleExplanation | None = None
+
+    @model_validator(mode="after")
+    def _explanation_refs(self) -> Self:
+        if self.explanation is not None:
+            self.explanation.validate_evidence_count(len(self.evidence))
+        return self
 
 
 class SignalFinding(Contract):
@@ -180,3 +188,10 @@ class AnalysisResult(Contract):
     timings: dict[str, float] = Field(default_factory=dict[str, float])
     degradations: list[Degradation] = Field(default_factory=list[Degradation])
     versions: AnalysisVersions
+    visibility: VisibilityAssessment | None = None
+
+    @model_validator(mode="after")
+    def _visibility_duration(self) -> Self:
+        if self.visibility is not None:
+            self.visibility.validate_duration(self.video.duration_sec)
+        return self

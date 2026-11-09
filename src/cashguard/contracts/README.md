@@ -1,13 +1,14 @@
 # `src/cashguard/contracts/` — контракты
 
 > **Назначение:** Pydantic v2 модели и протоколы, общие для API, воркеров, оценки и web. Единственный источник правды о формах данных.
-> **Владелец:** S0 · **Статус:** черновик v1, 17.10.2026 (каркас: кода ещё нет)
+> **Владелец:** S0 · **Статус:** контракты реализованы, дополнены диагностикой
 
 ## Планируемые файлы
 
 | Файл | Что делает |
 |---|---|
 | `jury.py` | ЗАМОРОЖЕН: `AnalyzeAccepted`, `JuryEvidenceFrame`, `JuryViolation`, `JuryJobResponse` — ровно ТЗ §10 |
+| `diagnostics.py` | `RuleCondition`, `RuleExplanation`, `VisibilityCheck`, `VisibilityAssessment`: объяснения и наблюдаемость без изменения jury-вердикта |
 | `ui.py` | `UiJobView`, `UiViolation`, `UiSignal`, `UiCatalog` → OpenAPI → типы web |
 | `jobs.py` | `JobStatus`, `JobStage`, `JobSource`, `PerceptionLevel`, `ResultLevel`, `ErrorCode`, `DeadlineTiers`, `Budget`, `Degradation`, `StageState` |
 | `video.py` | `VideoMeta`, `SampledFrame` (не сериализуется), `FrameRef`, `FrameIndex` |

@@ -34,5 +34,6 @@
   "error": {
     "code": "UNSUPPORTED_VIDEO",
     "message_ru": "Не удалось прочитать видео: файл повреждён или формат не поддерживается. Загрузите .mov или .mp4 (H.264/HEVC)."
-  }
+  },
+  "visibility": null
 }

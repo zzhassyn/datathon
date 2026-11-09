@@ -66,5 +66,6 @@
   "violations": [],
   "signals": [],
   "timings": null,
-  "error": null
+  "error": null,
+  "visibility": null
 }

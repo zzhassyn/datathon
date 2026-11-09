@@ -93,5 +93,6 @@
     "vlm": 9.8,
     "total": 31.7
   },
-  "error": null
+  "error": null,
+  "visibility": null
 }
